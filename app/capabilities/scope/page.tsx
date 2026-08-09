@@ -23,7 +23,7 @@ export default async function ScopePage() {
   return (
     <>
       <section className="reveal about-hero container">
-        {hero.image ? (
+        {
           <Image
             src={hero.image}
             alt={hero.title}
@@ -33,7 +33,7 @@ export default async function ScopePage() {
             className="object-cover"
             sizes="(max-width: 1400px) 100vw, 1400px"
           />
-        ) : null}
+        }
         <div className="cap-hero-inner cap-hero-banner">
           <h1 className="cap-hero-title">{hero.title}</h1>
           {hero.subtitle ? (
