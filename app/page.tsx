@@ -19,6 +19,7 @@ const STATS = [
   {
     value: '40',
     unit: 'Years',
+    title: 'YEARS EXPERIENCE',
     lines: [
       '(1986-2026) One Constant Commitment.',
       'Defining Excellence, Beyond Time.',
@@ -28,12 +29,14 @@ const STATS = [
   {
     value: '80',
     unit: '%',
+    title: 'REPURCHASE RATE',
     lines: ['80% of our clients have partnered with us for over 10 years.'],
     href: '/certificates',
   },
   {
     value: '100',
     unit: '%',
+    title: 'CLIENT SATISFACTION',
     lines: ['100% Customer Satisfaction', 'Your Win, Our Pride.'],
     href: '/capabilities/quality',
   },
@@ -148,12 +151,12 @@ export default async function HomePage() {
       <section className="reveal presence-section relative colfff overflow-hidden rounded">
         <Image
           className="object-cover"
-          src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=2000&q=80"
-          alt=""
+          src="https://images.wangsanshui.com/images/1786285976282-nwzrrs.jpg"
+          alt="The world knows Lijia Manufacturing"
+          unoptimized
           fill
           sizes="100vw"
         />
-        <div className="mask mask-navy" />
         <div className="relative z-1 presence-inner">
           <h2
             className="uppercase font-extrabold font40 mb8 presence-title"
@@ -174,14 +177,15 @@ export default async function HomePage() {
                 href={stat.href}
                 className="bg-glass-card rounded pad32"
               >
-                <div className="flex-row-middle gap-8 mb14 presence-stat-head">
-                  <p
-                    className="colsuccess font-extrabold font64 presence-num mb0"
-                    style={{ lineHeight: 'normal' }}
-                  >
-                    {stat.value}
-                    <span className="presence-unit">{stat.unit}</span>
-                  </p>
+                <p
+                  className="colsuccess font-extrabold font64 presence-num mb0"
+                  style={{ lineHeight: 'normal' }}
+                >
+                  {stat.value}
+                  <span className="presence-unit">{stat.unit}</span>
+                </p>
+                <div className="flex-row-middle gap-8 mb14 presence-stat-title">
+                  <span>{stat.title}</span>
                   <Image
                     src="/images/6.png"
                     alt=""

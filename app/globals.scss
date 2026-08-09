@@ -600,6 +600,17 @@ input {
   letter-spacing: 0.02em;
   vertical-align: baseline;
 }
+.presence-stat-title {
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-transform: uppercase;
+}
+.presence-stat-title img {
+  flex-shrink: 0;
+}
 .presence-stat-copy p + p {
   margin-top: 4px;
 }
