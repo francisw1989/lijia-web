@@ -1,44 +1,32 @@
 # Lijia Web
 
-外贸官网前台（Next.js SSG 示例）。CMS 在同级目录 `../cms`。
+Next.js 多页面外贸官网，对接同级 `cms`。
 
-## 本地启动
+## 路由
 
-需要 Node.js 20+：
+| 路径 | 页面 |
+|------|------|
+| `/` | Home |
+| `/about` | About us |
+| `/certificates` | Certificates |
+| `/capabilities` | Capabilities |
+| `/manufacturing` | Manufacturing |
+| `/contact` | Contact us |
+| `/about/news` | News & Events |
+| `/api/revalidate` | CMS 同步前台 |
+
+## 结构
+
+- `components/`：仅公共头尾与 Logo
+- `app/*/page.tsx`：各页面内容写在页面内
+- `app/globals.scss`：全站唯一样式表（含工具类与页面样式）
+
+## 本地
 
 ```bash
 nvm use
-cp .env.local.example .env.local
 npm install
 npm run dev
 ```
 
-- 前台：http://localhost:3001
-- CMS API：默认 `http://localhost:3000`（先启动 cms）
-
-## 环境变量
-
-| 变量 | 说明 |
-|------|------|
-| `CMS_API_URL` | CMS 地址，如 `http://localhost:3000` |
-| `REVALIDATE_SECRET` | 与 CMS 一致，用于 `/api/revalidate` |
-
-## 联调流程
-
-1. 启动 CMS（`cd ../cms && npm run dev`）
-2. 启动本项目（`npm run dev`）
-3. 打开 http://localhost:3001/articles 查看已发布文章
-4. 在 CMS 文章列表点击「同步前台」
-5. 刷新前台，应看到最新内容；「查看网页源代码」中也有正文 HTML
-
-## 同步接口
-
-CMS 调用：
-
-```http
-POST http://localhost:3001/api/revalidate
-x-revalidate-secret: <REVALIDATE_SECRET>
-Content-Type: application/json
-
-{ "type": "article", "id": 1, "action": "sync" }
-```
+前台 http://localhost:3001 ，CMS 需先启动。

@@ -1,0 +1,56 @@
+import { getProductCategories, type ProductCategory } from '@/lib/cms';
+
+const CERTIFICATES_NAME = 'Certificates';
+
+const FALLBACK_BANNER =
+  'https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=2000&q=80';
+
+export type CertificatesPageData = {
+  meta: {
+    title: string;
+    description?: string;
+    keywords?: string;
+  };
+  banner: {
+    image: string;
+    alt: string;
+  };
+};
+
+function findCertificatesCategory(categories: ProductCategory[]) {
+  return (
+    categories.find(
+      (item) => item.parent_id == null && item.name === CERTIFICATES_NAME,
+    ) ??
+    categories.find(
+      (item) => item.parent_id == null && /certificates/i.test(item.name),
+    ) ??
+    null
+  );
+}
+
+function fromCategory(category: ProductCategory | null): CertificatesPageData {
+  const title = category?.name?.trim() || CERTIFICATES_NAME;
+  return {
+    meta: {
+      title,
+      description: category?.description?.trim() || undefined,
+      keywords: category?.keywords?.trim() || undefined,
+    },
+    banner: {
+      image: category?.image?.trim() || FALLBACK_BANNER,
+      alt: category?.keywords?.trim() || category?.subtitle?.trim() || title,
+    },
+  };
+}
+
+/** Certificates：一级栏目 → metadata / banner */
+export async function getCertificatesPageData(): Promise<CertificatesPageData> {
+  try {
+    const categories = await getProductCategories();
+    return fromCategory(findCertificatesCategory(categories));
+  } catch (error) {
+    console.error('[getCertificatesPageData]', error);
+    return fromCategory(null);
+  }
+}

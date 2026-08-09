@@ -26,14 +26,55 @@ export async function POST(request: NextRequest) {
   const type = body.type || 'article';
   const id = body.id != null ? Number(body.id) : undefined;
 
-  // CMS webhook：立即失效，下一次访问拿到最新 HTML
-  revalidateTag('articles', { expire: 0 });
-  revalidatePath('/articles');
-  revalidatePath('/');
+  if (type === 'faq') {
+    revalidateTag('faqs', { expire: 0 });
+    revalidatePath('/tools');
+    revalidatePath('/tools/faq');
+  } else if (type === 'product' || type === 'product-category') {
+    revalidateTag('products', { expire: 0 });
+    revalidateTag('product-categories', { expire: 0 });
+    revalidatePath('/capabilities/scope');
+    revalidatePath('/capabilities/quality');
+    revalidatePath('/capabilities');
+    revalidatePath('/certificates');
+    revalidatePath('/contact');
+    revalidatePath('/start-a-project');
+    revalidatePath('/tools');
+    revalidatePath('/tools/terms');
+    revalidatePath('/tools/safety');
+    revalidatePath('/tools/dice');
+    revalidatePath('/tools/videos');
+    revalidatePath('/tools/faq');
+    revalidatePath('/manufacturing');
+    revalidatePath('/manufacturing/mahjong');
+    revalidatePath('/about/news');
+    revalidatePath('/');
 
-  if (type === 'article' && id && Number.isFinite(id)) {
-    revalidateTag(`article-${id}`, { expire: 0 });
-    revalidatePath(`/articles/${id}`);
+    if (type === 'product' && id && Number.isFinite(id)) {
+      revalidateTag(`product-${id}`, { expire: 0 });
+      revalidatePath(`/manufacturing/${id}`);
+      revalidatePath(`/about/news/${id}`);
+    }
+    if (type === 'product-category') {
+      revalidatePath('/manufacturing/mahjong', 'layout');
+      revalidatePath('/contact');
+      revalidatePath('/start-a-project');
+      revalidatePath('/tools');
+      revalidatePath('/tools/terms');
+      revalidatePath('/tools/safety');
+      revalidatePath('/tools/dice');
+      revalidatePath('/about/news');
+    }
+  } else if (type === 'album') {
+    revalidateTag('albums', { expire: 0 });
+    revalidateTag('product-categories', { expire: 0 });
+    revalidatePath('/about/facilities');
+    revalidatePath('/about/team');
+    revalidatePath('/about');
+    revalidatePath('/capabilities/quality');
+    revalidatePath('/capabilities');
+  } else {
+    revalidatePath('/');
   }
 
   return NextResponse.json({

@@ -1,13 +1,22 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import './globals.css';
+import { League_Spartan } from 'next/font/google';
+import { SiteFooter } from '@/components/site-footer';
+import { SiteHeader } from '@/components/site-header';
+import './globals.scss';
+
+const leagueSpartan = League_Spartan({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['400', '500', '600', '700', '800'],
+});
 
 export const metadata: Metadata = {
   title: {
-    default: 'Lijia Web',
-    template: '%s · Lijia Web',
+    default: 'LIJIA GAME',
+    template: '%s · LIJIA GAME',
   },
-  description: '外贸官网 SSG 示例',
+  description:
+    'Your safe, compliant & fun game manufacturing partner — from prototype to global shipment.',
 };
 
 export default function RootLayout({
@@ -16,19 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="en" className={leagueSpartan.variable}>
       <body>
-        <div className="shell">
-          <header className="site-header">
-            <Link href="/" className="brand">
-              Lijia
-            </Link>
-            <nav className="nav">
-              <Link href="/articles">文章</Link>
-            </nav>
-          </header>
-          {children}
-        </div>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
       </body>
     </html>
   );
