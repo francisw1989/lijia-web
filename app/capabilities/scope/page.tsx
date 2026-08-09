@@ -36,9 +36,6 @@ export default async function ScopePage() {
         }
         <div className="cap-hero-inner cap-hero-banner">
           <h1 className="cap-hero-title">{hero.title}</h1>
-          {hero.subtitle ? (
-            <p className="cap-hero-lead">{hero.subtitle}</p>
-          ) : null}
         </div>
       </section>
 
