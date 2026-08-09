@@ -1,56 +1,6 @@
 import Link from 'next/link';
 import { Logo } from './logo';
-
-const COLUMNS = [
-  {
-    title: 'Home',
-    href: '/',
-    links: [] as { href: string; label: string }[],
-  },
-  {
-    title: 'Abouts us',
-    href: '/about',
-    links: [
-      { href: '/about/team', label: 'Our team' },
-      { href: '/about', label: 'Partners' },
-    ],
-  },
-  {
-    title: 'Certificates',
-    href: '/certificates',
-    links: [
-      { href: '/certificates', label: 'Certificates' },
-      { href: '/certificates', label: 'Secondary page title' },
-      { href: '/certificates', label: 'Secondary page' },
-      { href: '/certificates', label: 'Secondary' },
-      { href: '/certificates', label: 'Certificates' },
-      { href: '/certificates', label: 'Secondary page title' },
-      { href: '/certificates', label: 'Secondary page' },
-      { href: '/certificates', label: 'Secondary' },
-    ],
-  },
-  {
-    title: 'Capabilities',
-    href: '/capabilities',
-    links: [
-      { href: '/capabilities/scope', label: 'Scope of capabilities' },
-      { href: '/capabilities/quality', label: 'Quality Control' },
-    ],
-  },
-  {
-    title: 'Manufacturing',
-    href: '/manufacturing',
-    links: [
-      { href: '/manufacturing', label: 'Manufacturing' },
-      { href: '/manufacturing/mahjong', label: 'Mahjong' },
-    ],
-  },
-  {
-    title: 'Contact us',
-    href: '/contact',
-    links: [{ href: '/contact', label: 'Contact us' }],
-  },
-];
+import { getFooterNavColumns } from '@/lib/footer-nav';
 
 const SOCIAL = [
   {
@@ -91,20 +41,22 @@ const SOCIAL = [
   },
 ];
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const columns = await getFooterNavColumns();
+
   return (
     <footer className="site-footer">
       <div className="container">
         <nav className="footer-nav" aria-label="Footer">
-          {COLUMNS.map((col) => (
+          {columns.map((col) => (
             <div key={col.title} className="footer-col">
               <h3>
                 <Link href={col.href}>{col.title}</Link>
               </h3>
               {col.links.length > 0 ? (
                 <ul>
-                  {col.links.map((link, index) => (
-                    <li key={`${col.title}-${link.label}-${index}`}>
+                  {col.links.map((link) => (
+                    <li key={`${col.title}-${link.href}-${link.label}`}>
                       <Link href={link.href}>{link.label}</Link>
                     </li>
                   ))}
