@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ConnectCta } from '@/components/connect-cta';
+import { CountUp } from '@/components/count-up';
 import { NewsCarousel } from '@/components/news-carousel';
 import { RevealInit } from '@/components/reveal-init';
 import { getNewsPageData } from '@/lib/about';
@@ -17,7 +18,7 @@ const CERTS = [
 
 const STATS = [
   {
-    value: '40',
+    value: 40,
     unit: 'Years',
     title: 'YEARS EXPERIENCE',
     lines: [
@@ -27,14 +28,14 @@ const STATS = [
     href: '/about/history',
   },
   {
-    value: '80',
+    value: 80,
     unit: '%',
     title: 'REPURCHASE RATE',
     lines: ['80% of our clients have partnered with us for over 10 years.'],
     href: '/certificates',
   },
   {
-    value: '100',
+    value: 100,
     unit: '%',
     title: 'CLIENT SATISFACTION',
     lines: ['100% Customer Satisfaction', 'Your Win, Our Pride.'],
@@ -64,13 +65,15 @@ export default async function HomePage() {
     <main>
       <RevealInit />
       <section className="relative min-h-hero place-center colfff overflow-hidden">
-        <Image
-          className="object-cover"
-          src="/images/banner/1.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
+        <video
+          className="absoluteCover object-cover"
+          src="https://images.wangsanshui.com/files/1786326857534-z0hbe9.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
         />
         <div className="mask mask-hero" />
         <div className="relative z-1 container text-center rise-in hero-content">
@@ -177,13 +180,13 @@ export default async function HomePage() {
                 href={stat.href}
                 className="bg-glass-card rounded pad32"
               >
-                <p
+                <CountUp
+                  value={stat.value}
                   className="colsuccess font-extrabold font64 presence-num mb0"
                   style={{ lineHeight: 'normal' }}
                 >
-                  {stat.value}
                   <span className="presence-unit">{stat.unit}</span>
-                </p>
+                </CountUp>
                 <div className="flex-row-middle gap-8 mb14 presence-stat-title">
                   <span>{stat.title}</span>
                   <Image

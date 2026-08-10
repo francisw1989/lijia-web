@@ -1,11 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
-import { TeamBadge } from '@/components/team-badge';
+import { TeamCards } from '@/components/team-cards';
 import type { TeamGalleryImage, TeamMember } from '@/lib/about';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 function MagnifierIcon() {
   return (
@@ -55,25 +55,19 @@ export function TeamContent({
   return (
     <>
       <AboutShell className="about-shell-team">
+        <TeamCards members={members} />
         {members.length ? (
-          <div className="team-grid">
-            {members.map((member) => (
-              <article key={member.id} className="team-card">
-                <div className="team-card-photo relative">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    unoptimized={isCmsAssetUrl(member.image)}
-                    className="object-cover"
-                    sizes="(max-width: 800px) 50vw, 20vw"
-                  />
-                  <div className="team-card-meta">
-                    <TeamBadge name={member.name} role={member.role} />
-                  </div>
-                </div>
-              </article>
-            ))}
+          <div className="flex-row-center mt36">
+            <Link href="/about/team/list" className="btn btn-primary btn-pill">
+              View More
+              <Image
+                src="/images/6.png"
+                alt=""
+                width={16}
+                height={16}
+                aria-hidden="true"
+              />
+            </Link>
           </div>
         ) : null}
       </AboutShell>

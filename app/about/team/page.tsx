@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TeamPage() {
   const [{ banner }, members, gallery] = await Promise.all([
     getAboutSection('team'),
-    getTeamMembers(),
+    getTeamMembers({ recommendedOnly: true }),
     getTeamGallery(),
   ]);
 

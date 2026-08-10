@@ -64,7 +64,7 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
     <>
       <AboutShell>
         <div className="box1">
-          <Image src="/images/12.png" className='absolute' style={{ bottom: '0', left: '30%' }} alt="Julia Wang, President & CEO" width={851} height={370} />
+          <Image src="/images/12.png" className='absolute' style={{ bottom: '0', left: '30%' }} alt="Julia Wang, President & CEO" width={851} height={320} />
           <Image src="/images/11.png" className='absolute' style={{ bottom: 0, right: 0 }} alt="Julia Wang, President & CEO" width={434} height={370} />
           <div style={{ width: '50%' }}>
               <h2 className="font40 font-bold colfff">Julia Wang</h2>

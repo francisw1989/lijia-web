@@ -48,12 +48,15 @@ export async function POST(request: NextRequest) {
     revalidatePath('/manufacturing');
     revalidatePath('/manufacturing/mahjong');
     revalidatePath('/about/news');
+    revalidatePath('/about/team');
+    revalidatePath('/about/team/list');
     revalidatePath('/');
 
     if (type === 'product' && id && Number.isFinite(id)) {
       revalidateTag(`product-${id}`, { expire: 0 });
       revalidatePath(`/manufacturing/${id}`);
       revalidatePath(`/about/news/${id}`);
+      revalidatePath(`/about/team/${id}`);
     }
     if (type === 'product-category') {
       revalidatePath('/manufacturing/mahjong', 'layout');
@@ -64,6 +67,8 @@ export async function POST(request: NextRequest) {
       revalidatePath('/tools/safety');
       revalidatePath('/tools/dice');
       revalidatePath('/about/news');
+      revalidatePath('/about/team');
+      revalidatePath('/about/team/list');
     }
   } else if (type === 'album') {
     revalidateTag('albums', { expire: 0 });

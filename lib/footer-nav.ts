@@ -64,7 +64,7 @@ export async function getFooterNavColumns(): Promise<FooterColumn[]> {
     {
       title: 'Home',
       href: '/',
-      links: [],
+      links: [{ href: '/site-map', label: 'Site Map' }],
     },
     {
       title: 'About us',

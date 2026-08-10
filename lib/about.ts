@@ -1,5 +1,6 @@
 import {
   getAlbums,
+  getProduct,
   getProductCategories,
   getProducts,
   type Album,
@@ -155,34 +156,77 @@ export type TeamMember = {
   image: string;
 };
 
+export type TeamMemberDetail = TeamMember & {
+  content: string;
+  description: string;
+  keywords: string;
+};
+
 export type TeamGalleryImage = {
   src: string;
   alt: string;
 };
 
-/** Our Team：栏目下文章 → 成员卡片 */
-export async function getTeamMembers(): Promise<TeamMember[]> {
+function productToTeamMember(item: {
+  id: number;
+  title: string;
+  subtitle: string;
+  cover: string;
+}): TeamMember {
+  return {
+    id: item.id,
+    name: item.title,
+    role: item.subtitle || '',
+    image: item.cover,
+  };
+}
+
+async function getTeamCategory() {
+  const categories = await getProductCategories();
+  return findAboutCategory(categories, ABOUT_SECTIONS.team.categoryName);
+}
+
+/** Our Team：栏目下文章 → 成员卡片；recommendedOnly 时仅推荐 */
+export async function getTeamMembers(
+  options?: { recommendedOnly?: boolean },
+): Promise<TeamMember[]> {
   try {
-    const categories = await getProductCategories();
-    const category = findAboutCategory(
-      categories,
-      ABOUT_SECTIONS.team.categoryName,
-    );
+    const category = await getTeamCategory();
     if (!category) return [];
 
-    const { list } = await getProducts(1, 100, category.id);
+    const { list } = await getProducts(1, 100, category.id, {
+      isRecommended: options?.recommendedOnly ? true : undefined,
+    });
     return [...list]
       .filter((item) => item.cover)
       .sort((a, b) => a.id - b.id)
-      .map((item) => ({
-        id: item.id,
-        name: item.title,
-        role: item.subtitle || '',
-        image: item.cover,
-      }));
+      .map(productToTeamMember);
   } catch (error) {
     console.error('[getTeamMembers]', error);
     return [];
+  }
+}
+
+/** Our Team：成员详情（校验归属 Our Team 栏目） */
+export async function getTeamMember(
+  id: number,
+): Promise<TeamMemberDetail | null> {
+  try {
+    const category = await getTeamCategory();
+    if (!category) return null;
+
+    const product = await getProduct(id);
+    if (!product || product.category_id !== category.id) return null;
+
+    return {
+      ...productToTeamMember(product),
+      content: product.content || '',
+      description: product.description || '',
+      keywords: product.keywords || '',
+    };
+  } catch (error) {
+    console.error('[getTeamMember]', error);
+    return null;
   }
 }
 
