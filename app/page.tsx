@@ -67,8 +67,8 @@ export default async function HomePage() {
       <section className="relative min-h-hero place-center colfff overflow-hidden">
         <video
           className="absoluteCover object-cover"
-          src="https://images.wangsanshui.com/files/1786326857534-z0hbe9.mp4"
-          poster="https://images.wangsanshui.com/images/1786338871319-8oad7y.jpg"
+          src="https://images.wangsanshui.com/files/1786359788618-81ayf4.mp4"
+          poster="https://images.wangsanshui.com/images/1786360663993-bekn15.jpg"
           autoPlay
           muted
           loop
@@ -155,7 +155,7 @@ export default async function HomePage() {
       <section className="reveal presence-section relative colfff overflow-hidden rounded">
         <Image
           className="object-cover"
-          src="https://images.wangsanshui.com/images/1786285976282-nwzrrs.jpg"
+          src="https://images.wangsanshui.com/images/1786360344634-0rxn6o.jpg"
           alt="The world knows Lijia Manufacturing"
           unoptimized
           fill
