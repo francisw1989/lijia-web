@@ -9,11 +9,12 @@ export function TeamCards({ members }: { members: TeamMember[] }) {
 
   return (
     <div className="team-grid">
-      {members.map((member) => (
+      {members.map((member, index) => (
         <Link
           key={member.id}
           href={`/about/team/${member.id}`}
-          className="team-card"
+          className="team-card reveal"
+          style={{ transitionDelay: `${Math.min(index, 7) * 70}ms` }}
         >
           <div className="team-card-photo relative">
             <Image
@@ -21,7 +22,7 @@ export function TeamCards({ members }: { members: TeamMember[] }) {
               alt={member.name}
               fill
               unoptimized={isCmsAssetUrl(member.image)}
-              className="object-cover"
+              className="object-cover team-card-img"
               sizes="(max-width: 800px) 50vw, 20vw"
             />
             <div className="team-card-meta">
