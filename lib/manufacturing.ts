@@ -2,6 +2,7 @@ import {
   getProduct,
   getProductCategories,
   getProducts,
+  compareBySortThen,
   type Product,
   type ProductCategory,
   type ProductListItem,
@@ -305,7 +306,7 @@ function pageFromCategory(
   const items = products.length
     ? products
         .slice()
-        .sort((a, b) => a.id - b.id)
+        .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
         .map(mapProductToComponent)
         .filter((item) => item.icon)
     : MFG_COMPONENTS;
@@ -354,7 +355,7 @@ export async function getHomeManufacturingComponents(
     });
     const items = list
       .slice()
-      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .map(mapProductToComponent)
       .filter((item) => item.icon)
       .slice(0, limit);

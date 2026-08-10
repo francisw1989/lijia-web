@@ -49,6 +49,7 @@ export type ProductListItem = {
   keywords: string;
   description: string;
   is_recommended?: number;
+  sort?: number;
   icon?: string;
   hover_icon?: string;
   use_custom_link?: number;
@@ -116,6 +117,17 @@ export async function getProduct(id: number) {
   }
 
   return res.json() as Promise<Product>;
+}
+
+/** 文章列表：先按 sort 升序，再按次级比较函数 */
+export function compareBySortThen<T extends { sort?: number | null; id: number }>(
+  a: T,
+  b: T,
+  secondary: (x: T, y: T) => number,
+) {
+  const sortDiff = (Number(a.sort) || 0) - (Number(b.sort) || 0);
+  if (sortDiff !== 0) return sortDiff;
+  return secondary(a, b);
 }
 
 export type AlbumImage = {

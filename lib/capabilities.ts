@@ -3,6 +3,7 @@ import {
   getProduct,
   getProductCategories,
   getProducts,
+  compareBySortThen,
   type Product,
   type ProductCategory,
   type ProductListItem,
@@ -173,7 +174,7 @@ function mapProductsByCategory(products: ProductListItem[]) {
     map.set(product.category_id, list);
   }
   for (const list of map.values()) {
-    list.sort((a, b) => a.id - b.id);
+    list.sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id));
   }
   return map;
 }

@@ -1,4 +1,4 @@
-import { getProductCategories, getProducts } from '@/lib/cms';
+import { getProductCategories, getProducts, compareBySortThen } from '@/lib/cms';
 import { ABOUT_NAV } from '@/lib/history';
 import {
   manufacturingDetailHref,
@@ -36,7 +36,7 @@ async function getManufacturingFooterLinks(limit = 8): Promise<FooterLink[]> {
     const { list } = await getProducts(1, 100, root.id);
     const links = list
       .slice()
-      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .slice(0, limit)
       .map((item) => {
         const customHref =

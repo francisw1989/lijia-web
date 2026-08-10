@@ -2,6 +2,7 @@ import { cache } from 'react';
 import {
   getProductCategories,
   getProducts,
+  compareBySortThen,
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
@@ -226,7 +227,7 @@ function mapTabs(children: ProductCategory[]): MahjongNavItem[] {
 function mapCards(products: ProductListItem[]): MahjongCard[] {
   return products
     .slice()
-    .sort((a, b) => a.id - b.id)
+    .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
     .filter((item) => item.cover?.trim())
     .map((item) => {
       const image = item.cover.trim();

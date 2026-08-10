@@ -1,4 +1,9 @@
-import { getProductCategories, getProducts, type ProductListItem } from '@/lib/cms';
+import {
+  getProductCategories,
+  getProducts,
+  compareBySortThen,
+  type ProductListItem,
+} from '@/lib/cms';
 
 export type StoryNode = {
   year: string;
@@ -41,9 +46,17 @@ export async function getStoryNodes(): Promise<StoryNode[]> {
     if (!list.length) return [];
 
     return [...list]
+      .sort((a, b) =>
+        compareBySortThen(
+          a,
+          b,
+          (x, y) =>
+            Number(y.title) - Number(x.title) ||
+            String(y.title).localeCompare(String(x.title)),
+        ),
+      )
       .map(productToStoryNode)
-      .filter((n) => n.year && n.image)
-      .sort((a, b) => Number(b.year) - Number(a.year) || b.year.localeCompare(a.year));
+      .filter((n) => n.year && n.image);
   } catch (error) {
     console.error('[getStoryNodes]', error);
     return [];

@@ -830,7 +830,7 @@ input {
   border: 1.5px solid var(--white);
 }
 .btn-pill {
-  border-radius: 999px;
+  border-radius: var(--radius);
   gap: 10px;
   padding: 0 22px 0 28px;
 }
@@ -875,7 +875,7 @@ input {
 }
 .capa-panel-body p {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.92);
   max-height: 0;

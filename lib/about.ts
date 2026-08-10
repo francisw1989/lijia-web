@@ -3,6 +3,7 @@ import {
   getProduct,
   getProductCategories,
   getProducts,
+  compareBySortThen,
   type Album,
   type ProductCategory,
 } from '@/lib/cms';
@@ -199,7 +200,7 @@ export async function getTeamMembers(
     });
     return [...list]
       .filter((item) => item.cover)
-      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .map(productToTeamMember);
   } catch (error) {
     console.error('[getTeamMembers]', error);
@@ -257,6 +258,7 @@ export type NewsItem = {
   keywords: string;
   created_at: string;
   is_recommended: boolean;
+  sort: number;
 };
 
 export type NewsPageData = {
@@ -272,6 +274,7 @@ function productToNewsItem(item: {
   keywords: string;
   created_at: string;
   is_recommended?: number;
+  sort?: number;
 }): NewsItem {
   return {
     id: item.id,
@@ -281,6 +284,7 @@ function productToNewsItem(item: {
     keywords: item.keywords || '',
     created_at: item.created_at,
     is_recommended: Number(item.is_recommended) === 1,
+    sort: Number(item.sort) || 0,
   };
 }
 
@@ -297,15 +301,18 @@ export async function getNewsPageData(): Promise<NewsPageData> {
     const { list } = await getProducts(1, 100, category.id);
     const articles = [...list]
       .map(productToNewsItem)
-      .sort(
-        (a, b) =>
-          new Date(b.created_at.replace(' ', 'T')).getTime() -
-            new Date(a.created_at.replace(' ', 'T')).getTime() || b.id - a.id,
+      .sort((a, b) =>
+        compareBySortThen(a, b, (x, y) => {
+          const t =
+            new Date(y.created_at.replace(' ', 'T')).getTime() -
+            new Date(x.created_at.replace(' ', 'T')).getTime();
+          return t || y.id - x.id;
+        }),
       );
 
     const featured = [...list]
       .filter((item) => Number(item.is_recommended) === 1)
-      .sort((a, b) => a.id - b.id)
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .slice(0, 3)
       .map(productToNewsItem);
 
