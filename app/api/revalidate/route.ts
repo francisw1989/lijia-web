@@ -7,6 +7,21 @@ type RevalidateBody = {
   action?: string;
 };
 
+const ALL_TAGS = [
+  'faqs',
+  'products',
+  'product-categories',
+  'albums',
+] as const;
+
+function revalidateAll() {
+  for (const tag of ALL_TAGS) {
+    revalidateTag(tag, { expire: 0 });
+  }
+  // 失效根 layout，覆盖全站页面缓存（增量：下次访问时按需再生）
+  revalidatePath('/', 'layout');
+}
+
 export async function POST(request: NextRequest) {
   const secret =
     request.headers.get('x-revalidate-secret') ||
@@ -26,7 +41,9 @@ export async function POST(request: NextRequest) {
   const type = body.type || 'article';
   const id = body.id != null ? Number(body.id) : undefined;
 
-  if (type === 'faq') {
+  if (type === 'all' || type === 'publish') {
+    revalidateAll();
+  } else if (type === 'faq') {
     revalidateTag('faqs', { expire: 0 });
     revalidatePath('/tools');
     revalidatePath('/tools/faq');
