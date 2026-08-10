@@ -24,7 +24,7 @@ export default async function QualityPage() {
 
   return (
     <>
-      <section className="reveal about-hero container">
+      <section className="about-hero container">
         {hero.image ? (
           <Image
             src={hero.image}

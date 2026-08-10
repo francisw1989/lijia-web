@@ -68,6 +68,7 @@ export default async function HomePage() {
         <video
           className="absoluteCover object-cover"
           src="https://images.wangsanshui.com/files/1786326857534-z0hbe9.mp4"
+          poster="https://images.wangsanshui.com/images/1786338871319-8oad7y.jpg"
           autoPlay
           muted
           loop

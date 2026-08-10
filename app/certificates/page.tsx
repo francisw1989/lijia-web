@@ -32,13 +32,14 @@ export default async function CertificatesPage() {
           sizes="(max-width: 1400px) 100vw, 1400px"
         />
       </section>
-      <section className="container mt48">
+      <section className="container mt48 certificates-logos">
         <Image
           src="/images/13.png"
           alt={meta.title}
           width={906}
           height={835}
-          className="auto"
+          className="certificates-logos-img"
+          sizes="(max-width: 1400px) 100vw, 906px"
         />
       </section>
     </main>

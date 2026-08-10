@@ -10,10 +10,12 @@ export function AboutNav() {
   const rootRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    // 手机端为 2x2 网格，无需横向滚到当前项
+    if (window.matchMedia('(max-width: 800px)').matches) return;
     const active = rootRef.current?.querySelector<HTMLElement>('.about-tab.is-active');
     active?.scrollIntoView({
       behavior: 'smooth',
-      inline: 'center',
+      inline: 'nearest',
       block: 'nearest',
     });
   }, [pathname]);

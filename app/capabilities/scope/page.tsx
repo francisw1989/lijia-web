@@ -22,18 +22,16 @@ export default async function ScopePage() {
 
   return (
     <>
-      <section className="reveal about-hero container">
-        {
-          <Image
-            src={hero.image}
-            alt={hero.title}
-            fill
-            priority
-            unoptimized={isCmsAssetUrl(hero.image)}
-            className="object-cover"
-            sizes="(max-width: 1400px) 100vw, 1400px"
-          />
-        }
+      <section className="about-hero container">
+        <Image
+          src={hero.image}
+          alt={hero.title}
+          fill
+          priority
+          unoptimized={isCmsAssetUrl(hero.image)}
+          className="object-cover"
+          sizes="(max-width: 1400px) 100vw, 1400px"
+        />
         <div className="cap-hero-inner cap-hero-banner">
           <h1 className="cap-hero-title">{hero.title}</h1>
         </div>

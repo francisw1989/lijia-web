@@ -64,12 +64,31 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
     <>
       <AboutShell>
         <div className="box1">
-          <Image src="/images/12.png" className='absolute' style={{ bottom: '0', left: '30%' }} alt="Julia Wang, President & CEO" width={851} height={320} />
-          <Image src="/images/11.png" className='absolute' style={{ bottom: 0, right: 0 }} alt="Julia Wang, President & CEO" width={434} height={370} />
-          <div style={{ width: '50%' }}>
-              <h2 className="font40 font-bold colfff">Julia Wang</h2>
-              <p className="font14 font-medium colfff">President &amp; CEO</p>
-              <p className="font16 font-medium colfff mt48">We are committed to ensuring maximum customer satisfaction by supplying one-stop-shop service under top tenet of &quot;Quality First, Clients Supreme, Credit Upmost&quot;.We warmly welcome new and old customers, internal and external clients to visit and supervise our facilities.</p>
+          <Image
+            src="/images/12.png"
+            className="box1-deco"
+            alt=""
+            width={851}
+            height={320}
+            aria-hidden
+          />
+          <Image
+            src="/images/11.png"
+            className="box1-photo"
+            alt="Julia Wang, President & CEO"
+            width={434}
+            height={370}
+          />
+          <div className="box1-copy">
+            <h2 className="font40 font-bold colfff">Julia Wang</h2>
+            <p className="font14 font-medium colfff">President &amp; CEO</p>
+            <p className="font16 font-medium colfff box1-lead">
+              We are committed to ensuring maximum customer satisfaction by
+              supplying one-stop-shop service under top tenet of &quot;Quality
+              First, Clients Supreme, Credit Upmost&quot;.We warmly welcome new
+              and old customers, internal and external clients to visit and
+              supervise our facilities.
+            </p>
           </div>
         </div>
       </AboutShell>

@@ -23,20 +23,25 @@ export function RevealInit() {
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          const el = entry.target;
+          const el = entry.target as HTMLElement;
           io.unobserve(el);
-          // 先保证首帧是隐藏态，再触发出现动画
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              el.classList.add('is-in');
-            });
-          });
+          el.classList.add('is-in');
         });
       },
-      { threshold: 0.18, rootMargin: '0px 0px -6% 0px' },
+      { threshold: 0.08, rootMargin: '0px 0px -4% 0px' },
     );
 
-    nodes.forEach((el) => io.observe(el));
+    nodes.forEach((el) => {
+      // 已在视口内的（含首屏）立刻显示，避免 opacity:0 白屏
+      const rect = el.getBoundingClientRect();
+      const inView =
+        rect.top < window.innerHeight * 0.92 && rect.bottom > 0;
+      if (inView) {
+        el.classList.add('is-in');
+        return;
+      }
+      io.observe(el);
+    });
     return () => io.disconnect();
   }, [pathname]);
 

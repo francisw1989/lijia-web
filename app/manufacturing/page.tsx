@@ -54,7 +54,7 @@ export default async function ManufacturingPage() {
 
   return (
     <>
-      <section className="reveal about-hero mfg-hero container">
+      <section className="about-hero mfg-hero container">
         {hero.image ? (
           <Image
             src={hero.image}

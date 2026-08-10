@@ -83,11 +83,11 @@ export function ScopeContent({ items }: { items: ScopeItem[] }) {
       <div className="cap-detail">
         <button
           type="button"
-          className="cap-detail-nav cap-detail-prev"
+          className="news-nav-btn cap-detail-nav cap-detail-prev"
           aria-label="Previous capability"
           onClick={() => go(-1)}
         >
-          <Image src="/images/9.png" alt="" width={40} height={40} />
+          <Image src="/images/9.png" alt="" width={36} height={36} />
         </button>
 
         <div className="cap-detail-body">
@@ -123,11 +123,11 @@ export function ScopeContent({ items }: { items: ScopeItem[] }) {
 
         <button
           type="button"
-          className="cap-detail-nav cap-detail-next"
+          className="news-nav-btn cap-detail-nav cap-detail-next"
           aria-label="Next capability"
           onClick={() => go(1)}
         >
-          <Image src="/images/10.png" alt="" width={40} height={40} />
+          <Image src="/images/10.png" alt="" width={36} height={36} />
         </button>
       </div>
     </>
