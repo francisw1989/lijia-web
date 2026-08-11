@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CapabilitiesShell } from '@/components/capabilities-shell';
+import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { getScopePageData } from '@/lib/capabilities';
 import { ScopeContent } from './content';
@@ -23,7 +24,7 @@ export default async function ScopePage() {
     <>
       <section className="about-hero container">
         <HeroMedia src={hero.image} poster={hero.poster} alt={hero.title} priority />
-        <h1 className="sr-only">{hero.title}</h1>
+        <HeroBannerCopy title={hero.title} subtitle={hero.subtitle} />
       </section>
 
       <CapabilitiesShell>

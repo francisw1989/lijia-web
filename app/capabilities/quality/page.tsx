@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CapabilitiesNav } from '@/components/capabilities-nav';
+import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { getQualityGallery, getQualityPageData } from '@/lib/capabilities';
 import { QualityContent } from './content';
@@ -27,7 +28,7 @@ export default async function QualityPage() {
         {hero.image ? (
           <HeroMedia src={hero.image} poster={hero.poster} alt={hero.title} priority />
         ) : null}
-        <h1 className="sr-only">{hero.title}</h1>
+        <HeroBannerCopy title={hero.title} subtitle={hero.subtitle} />
       </section>
 
       <div className="container page-tabs-wrap">

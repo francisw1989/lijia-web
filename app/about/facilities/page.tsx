@@ -20,7 +20,7 @@ export default async function FacilitiesPage() {
 
   return (
     <>
-      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} title={banner.title} subtitle={banner.subtitle} />
       <FacilitiesContent albums={albums} />
     </>
   );

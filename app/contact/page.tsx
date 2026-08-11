@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { RevealInit } from '@/components/reveal-init';
+import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { getContactPageData } from '@/lib/contact';
 import { ContactContent } from './content';
@@ -28,6 +29,7 @@ export default async function ContactPage() {
           alt={banner.alt || meta.title}
           priority
         />
+        <HeroBannerCopy title={banner.title} subtitle={banner.subtitle} />
       </section>
       <ContactContent />
     </main>

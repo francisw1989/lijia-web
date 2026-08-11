@@ -4,7 +4,7 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
-import { categoryBannerMedia } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 import type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
 
 export type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
@@ -24,7 +24,8 @@ export type ToolsPageData = {
     image: string;
     poster?: string;
     alt: string;
-    text: string;
+    title: string;
+    subtitle: string;
   };
 };
 
@@ -109,17 +110,15 @@ function displayTitle(name?: string | null) {
   return raw;
 }
 
-function heroText(category: ProductCategory | null) {
-  const desc = category?.description?.trim() || '';
-  const title = displayTitle(category?.name);
-  if (desc && desc.toLowerCase() !== title.toLowerCase() && desc.length > 20) {
-    return desc;
-  }
-  return FALLBACK_HERO_TEXT;
+function heroCopy(category: ProductCategory | null) {
+  const copy = categoryBannerCopy(category);
+  if (copy.title || copy.subtitle) return copy;
+  return { title: '', subtitle: FALLBACK_HERO_TEXT };
 }
 
 function fromCategory(category: ProductCategory | null): ToolsPageData {
   const title = displayTitle(category?.name);
+  const copy = heroCopy(category);
   return {
     meta: {
       title,
@@ -130,7 +129,8 @@ function fromCategory(category: ProductCategory | null): ToolsPageData {
       image: categoryBannerMedia(category).image || FALLBACK_BANNER,
       poster: categoryBannerMedia(category).poster,
       alt: category?.subtitle?.trim() || title,
-      text: heroText(category),
+      title: copy.title,
+      subtitle: copy.subtitle,
     },
   };
 }

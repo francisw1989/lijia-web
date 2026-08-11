@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { RevealInit } from '@/components/reveal-init';
+import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { getCertificatesPageData } from '@/lib/certificates';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
 import Image from 'next/image';
 
 export const dynamic = 'force-static';
@@ -29,6 +29,7 @@ export default async function CertificatesPage() {
           alt={banner.alt || meta.title}
           priority
         />
+        <HeroBannerCopy title={banner.title} subtitle={banner.subtitle} />
       </section>
       <section className="container mt48 certificates-logos">
         <Image

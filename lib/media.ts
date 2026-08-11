@@ -20,3 +20,14 @@ export function categoryBannerMedia(category?: {
     poster: isVideo ? String(category?.banner_cover || '').trim() : '',
   };
 }
+
+/** 栏目 banner 叠字文案 */
+export function categoryBannerCopy(category?: {
+  banner_title?: string | null;
+  banner_subtitle?: string | null;
+} | null) {
+  return {
+    title: String(category?.banner_title || '').trim(),
+    subtitle: String(category?.banner_subtitle || '').trim(),
+  };
+}

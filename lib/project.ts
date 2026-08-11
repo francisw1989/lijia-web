@@ -1,5 +1,5 @@
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
-import { categoryBannerMedia } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
 export const PROJECT_SERVICE_LINKS = [
   { label: 'Our video', href: '/tools/videos' },
@@ -22,6 +22,8 @@ export type ProjectPageData = {
     image: string;
     poster?: string;
     alt: string;
+    title?: string;
+    subtitle?: string;
   };
 };
 
@@ -51,6 +53,7 @@ function fromCategory(category: ProductCategory | null): ProjectPageData {
     banner: {
       image: categoryBannerMedia(category).image || FALLBACK_BANNER,
       poster: categoryBannerMedia(category).poster,
+      ...categoryBannerCopy(category),
       alt: category?.subtitle?.trim() || title,
     },
   };

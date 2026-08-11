@@ -1,3 +1,4 @@
+import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { MahjongNav } from '@/components/mahjong-nav';
 import { getMahjongPageData } from '@/lib/mahjong';
@@ -16,6 +17,7 @@ export default async function MahjongLayout({
         {hero.image ? (
           <HeroMedia src={hero.image} poster={hero.poster} alt={hero.alt || 'Mahjong'} priority />
         ) : null}
+        <HeroBannerCopy title={hero.title} subtitle={hero.subtitle} />
       </section>
 
       <section className="section-pad">

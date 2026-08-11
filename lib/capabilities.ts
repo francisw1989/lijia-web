@@ -8,7 +8,7 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
-import { categoryBannerMedia } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
 export const CAPABILITIES_NAV = [
   { href: '/capabilities/scope', label: 'Scope of capabilities' },
@@ -103,33 +103,27 @@ function findQualityRoot(categories: ProductCategory[]) {
   );
 }
 
-/** 栏目文案若为空或仍是栏目名，则回退到默认 banner 文案 */
+/** 优先用 banner 文案字段；空则回退默认叠字 */
 function capHeroText(
   value: string | undefined,
   fallback: string,
-  categoryName: string,
 ) {
   const text = value?.trim() || '';
-  if (!text || text === categoryName) return fallback;
-  return text;
+  return text || fallback;
 }
 
 function capHeroFromCategory(
   category: ProductCategory | null,
-  fallbackName: string,
+  _fallbackName: string,
   fallback: { title: string; subtitle: string },
 ) {
-  const name = category?.name?.trim() || fallbackName;
   const media = categoryBannerMedia(category);
+  const copy = categoryBannerCopy(category);
   return {
     image: media.image || category?.thumbnail?.trim() || '',
     poster: media.poster,
-    title: capHeroText(
-      category?.keywords || category?.subtitle,
-      fallback.title,
-      name,
-    ),
-    subtitle: capHeroText(category?.description, fallback.subtitle, name),
+    title: capHeroText(copy.title, fallback.title),
+    subtitle: capHeroText(copy.subtitle, fallback.subtitle),
   };
 }
 

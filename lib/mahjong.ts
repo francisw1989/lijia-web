@@ -6,7 +6,7 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
-import { categoryBannerMedia, isVideoMediaUrl } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia, isVideoMediaUrl } from '@/lib/media';
 
 export { isVideoMediaUrl } from '@/lib/media';
 
@@ -111,6 +111,8 @@ export type MahjongPageData = {
     image: string;
     poster?: string;
     alt: string;
+    title?: string;
+    subtitle?: string;
   };
   tabs: MahjongNavItem[];
   defaultTabId: string;
@@ -278,6 +280,7 @@ export const getMahjongPageData = cache(async (): Promise<MahjongPageData> => {
       hero: {
         image: categoryBannerMedia(root).image || MAHJONG_HERO_FALLBACK,
         poster: categoryBannerMedia(root).poster,
+        ...categoryBannerCopy(root),
         alt: root.subtitle?.trim() || root.name || 'Lijia mahjong products',
       },
       tabs,

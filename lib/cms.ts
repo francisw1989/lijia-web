@@ -39,6 +39,8 @@ export type ProductCategory = {
   thumbnail: string;
   banner_type?: 'image' | 'video' | string;
   banner_cover?: string;
+  banner_title?: string;
+  banner_subtitle?: string;
   subtitle: string;
   keywords: string;
   description: string;

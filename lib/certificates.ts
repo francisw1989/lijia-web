@@ -1,5 +1,5 @@
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
-import { categoryBannerMedia } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
 const CERTIFICATES_NAME = 'Certificates';
 
@@ -16,6 +16,8 @@ export type CertificatesPageData = {
     image: string;
     poster?: string;
     alt: string;
+    title?: string;
+    subtitle?: string;
   };
 };
 
@@ -42,6 +44,7 @@ function fromCategory(category: ProductCategory | null): CertificatesPageData {
     banner: {
       image: categoryBannerMedia(category).image || FALLBACK_BANNER,
       poster: categoryBannerMedia(category).poster,
+      ...categoryBannerCopy(category),
       alt: category?.keywords?.trim() || category?.subtitle?.trim() || title,
     },
   };

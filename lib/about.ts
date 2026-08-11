@@ -7,7 +7,7 @@ import {
   type Album,
   type ProductCategory,
 } from '@/lib/cms';
-import { categoryBannerMedia } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
 export type AboutSectionKey = 'history' | 'facilities' | 'team' | 'news';
 
@@ -21,6 +21,8 @@ export type AboutSectionData = {
     image: string;
     poster?: string;
     alt: string;
+    title?: string;
+    subtitle?: string;
   };
   categoryId: number | null;
 };
@@ -100,6 +102,7 @@ function sectionFromCategory(
     meta: { title, description, keywords },
     banner: {
       ...categoryBannerMedia(category),
+      ...categoryBannerCopy(category),
       alt: keywords || category?.subtitle?.trim() || title,
     },
     categoryId: category?.id ?? null,
