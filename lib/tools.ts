@@ -110,15 +110,9 @@ function displayTitle(name?: string | null) {
   return raw;
 }
 
-function heroCopy(category: ProductCategory | null) {
-  const copy = categoryBannerCopy(category);
-  if (copy.title || copy.subtitle) return copy;
-  return { title: '', subtitle: FALLBACK_HERO_TEXT };
-}
-
 function fromCategory(category: ProductCategory | null): ToolsPageData {
   const title = displayTitle(category?.name);
-  const copy = heroCopy(category);
+  const copy = categoryBannerCopy(category);
   return {
     meta: {
       title,

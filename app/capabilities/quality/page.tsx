@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function QualityPage() {
-  const [{ hero }, gallery] = await Promise.all([
+  const [{ meta, hero }, gallery] = await Promise.all([
     getQualityPageData(),
     getQualityGallery(),
   ]);
@@ -26,9 +26,15 @@ export default async function QualityPage() {
     <>
       <section className="about-hero container">
         {hero.image ? (
-          <HeroMedia src={hero.image} poster={hero.poster} alt={hero.title} priority />
+          <HeroMedia
+            src={hero.image}
+            poster={hero.poster}
+            alt={hero.title || meta.title}
+            priority
+          />
         ) : null}
         <HeroBannerCopy title={hero.title} subtitle={hero.subtitle} />
+        {!hero.title ? <h1 className="sr-only">{meta.title}</h1> : null}
       </section>
 
       <div className="container page-tabs-wrap">

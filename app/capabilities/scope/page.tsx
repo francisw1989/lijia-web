@@ -18,13 +18,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ScopePage() {
-  const { hero, items } = await getScopePageData();
+  const { meta, hero, items } = await getScopePageData();
 
   return (
     <>
       <section className="about-hero container">
-        <HeroMedia src={hero.image} poster={hero.poster} alt={hero.title} priority />
+        <HeroMedia
+          src={hero.image}
+          poster={hero.poster}
+          alt={hero.title || meta.title}
+          priority
+        />
         <HeroBannerCopy title={hero.title} subtitle={hero.subtitle} />
+        {!hero.title ? <h1 className="sr-only">{meta.title}</h1> : null}
       </section>
 
       <CapabilitiesShell>

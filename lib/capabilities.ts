@@ -61,19 +61,6 @@ const SCOPE_ICONS = [
 const DEFAULT_SCOPE_IMAGE =
   'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80';
 
-export const CAP_HERO = {
-  scope: {
-    title: 'Scientific innovation keeps pace with the times',
-    subtitle:
-      'End-to-end manufacturing capabilities for plastic, printing, assembly and quality control — built for board games and consumer products.',
-  },
-  quality: {
-    title: 'Worried about quality issues?',
-    subtitle:
-      'Our professional QA/QC team ensures end-to-end traceability: every detail measured, every step recorded. From raw materials to finished products, we deliver verifiable certainty, so you can trust every shipment.',
-  },
-} as const;
-
 const QUALITY_ROOT_NAME = 'Quality Control';
 
 export type QualityPageData = {
@@ -103,27 +90,15 @@ function findQualityRoot(categories: ProductCategory[]) {
   );
 }
 
-/** 优先用 banner 文案字段；空则回退默认叠字 */
-function capHeroText(
-  value: string | undefined,
-  fallback: string,
-) {
-  const text = value?.trim() || '';
-  return text || fallback;
-}
-
-function capHeroFromCategory(
-  category: ProductCategory | null,
-  _fallbackName: string,
-  fallback: { title: string; subtitle: string },
-) {
+/** banner 叠字只取 banner_title / banner_subtitle，空则不展示 */
+function capHeroFromCategory(category: ProductCategory | null) {
   const media = categoryBannerMedia(category);
   const copy = categoryBannerCopy(category);
   return {
     image: media.image || category?.thumbnail?.trim() || '',
     poster: media.poster,
-    title: capHeroText(copy.title, fallback.title),
-    subtitle: capHeroText(copy.subtitle, fallback.subtitle),
+    title: copy.title,
+    subtitle: copy.subtitle,
   };
 }
 
@@ -135,7 +110,7 @@ function qualityFromCategory(category: ProductCategory | null): QualityPageData 
       description: category?.description?.trim() || undefined,
       keywords: category?.keywords?.trim() || undefined,
     },
-    hero: capHeroFromCategory(category, QUALITY_ROOT_NAME, CAP_HERO.quality),
+    hero: capHeroFromCategory(category),
   };
 }
 
@@ -273,7 +248,7 @@ export async function getScopePageData(): Promise<ScopePageData> {
     if (!root) {
       return {
         meta: scopeMetaFromRoot(null),
-        hero: capHeroFromCategory(null, SCOPE_ROOT_NAME, CAP_HERO.scope),
+        hero: capHeroFromCategory(null),
         items: [],
       };
     }
@@ -304,14 +279,14 @@ export async function getScopePageData(): Promise<ScopePageData> {
 
     return {
       meta: scopeMetaFromRoot(root),
-      hero: capHeroFromCategory(root, SCOPE_ROOT_NAME, CAP_HERO.scope),
+      hero: capHeroFromCategory(root),
       items,
     };
   } catch (error) {
     console.error('[getScopePageData]', error);
     return {
       meta: scopeMetaFromRoot(null),
-      hero: capHeroFromCategory(null, SCOPE_ROOT_NAME, CAP_HERO.scope),
+      hero: capHeroFromCategory(null),
       items: [],
     };
   }
