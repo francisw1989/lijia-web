@@ -2,7 +2,7 @@
 export default function ScopeLoading() {
   return (
     <>
-      <section className="about-hero container cap-scope-skeleton-hero" aria-hidden />
+      <section className="about-hero cap-scope-skeleton-hero" aria-hidden />
       <section className="cap-shell">
         <div className="container">
           <div className="page-tabs cap-scope-skeleton-tabs" aria-hidden>

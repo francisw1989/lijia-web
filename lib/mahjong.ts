@@ -6,6 +6,9 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
+import { isVideoMediaUrl } from '@/lib/media';
+
+export { isVideoMediaUrl } from '@/lib/media';
 
 export const MAHJONG_BASE = '/manufacturing/mahjong';
 
@@ -96,12 +99,6 @@ export function planMahjongRows(count: number): number[] {
   }
 
   return rows;
-}
-
-export function isVideoMediaUrl(url: string, coverType?: string) {
-  if (coverType === 'video') return true;
-  if (coverType === 'image' || coverType === 'document') return false;
-  return /\.(mp4|webm|mov|m4v|avi|mkv|ogg)(\?|$)/i.test(url || '');
 }
 
 export type MahjongPageData = {

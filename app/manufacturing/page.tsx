@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
+import { HeroMedia } from '@/components/hero-media';
 import { getManufacturingPageData, type MfgComponent } from '@/lib/manufacturing';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 export const dynamic = 'force-static';
 
@@ -54,17 +53,9 @@ export default async function ManufacturingPage() {
 
   return (
     <>
-      <section className="about-hero mfg-hero container">
+      <section className="about-hero mfg-hero">
         {hero.image ? (
-          <Image
-            src={hero.image}
-            alt="Lijia manufacturing"
-            fill
-            priority
-            unoptimized={isCmsAssetUrl(hero.image)}
-            className="object-cover"
-            sizes="(max-width: 1400px) 100vw, 1400px"
-          />
+          <HeroMedia src={hero.image} alt="Lijia manufacturing" priority />
         ) : null}
         <div className="mask mask-dark mfg-hero-mask" />
         <div className="mfg-hero-inner">

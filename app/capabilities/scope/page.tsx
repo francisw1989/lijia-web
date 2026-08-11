@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { CapabilitiesShell } from '@/components/capabilities-shell';
+import { HeroMedia } from '@/components/hero-media';
 import { getScopePageData } from '@/lib/capabilities';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { ScopeContent } from './content';
 
 /** 构建时生成静态页；不读 searchParams，避免被标成动态 */
@@ -22,19 +21,9 @@ export default async function ScopePage() {
 
   return (
     <>
-      <section className="about-hero container">
-        <Image
-          src={hero.image}
-          alt={hero.title}
-          fill
-          priority
-          unoptimized={isCmsAssetUrl(hero.image)}
-          className="object-cover"
-          sizes="(max-width: 1400px) 100vw, 1400px"
-        />
-        <div className="cap-hero-inner cap-hero-banner">
-          <h1 className="cap-hero-title">{hero.title}</h1>
-        </div>
+      <section className="about-hero">
+        <HeroMedia src={hero.image} alt={hero.title} priority />
+        <h1 className="sr-only">{hero.title}</h1>
       </section>
 
       <CapabilitiesShell>

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { RevealInit } from '@/components/reveal-init';
+import { HeroMedia } from '@/components/hero-media';
 import { getCertificatesPageData } from '@/lib/certificates';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
+import Image from 'next/image';
 
 export const dynamic = 'force-static';
 
@@ -21,15 +22,11 @@ export default async function CertificatesPage() {
   return (
     <main className="bg-white min-h-page">
       <RevealInit />
-      <section className="reveal about-hero container">
-        <Image
+      <section className="reveal about-hero">
+        <HeroMedia
           src={banner.image}
           alt={banner.alt || meta.title}
-          fill
           priority
-          unoptimized={isCmsAssetUrl(banner.image)}
-          className="object-cover"
-          sizes="(max-width: 1400px) 100vw, 1400px"
         />
       </section>
       <section className="container mt48 certificates-logos">

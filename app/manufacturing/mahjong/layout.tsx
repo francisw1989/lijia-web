@@ -1,7 +1,6 @@
-import Image from 'next/image';
+import { HeroMedia } from '@/components/hero-media';
 import { MahjongNav } from '@/components/mahjong-nav';
 import { getMahjongPageData } from '@/lib/mahjong';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 /** 各 Tab 独立页共用 layout：banner 只取一级栏目 Mahjong 主图 */
 export default async function MahjongLayout({
@@ -13,18 +12,9 @@ export default async function MahjongLayout({
 
   return (
     <>
-      <section className="about-hero container">
+      <section className="about-hero">
         {hero.image ? (
-          <Image
-            key={hero.image}
-            src={hero.image}
-            alt={hero.alt || 'Mahjong'}
-            fill
-            priority
-            unoptimized={isCmsAssetUrl(hero.image)}
-            className="object-cover"
-            sizes="(max-width: 1400px) 100vw, 1400px"
-          />
+          <HeroMedia src={hero.image} alt={hero.alt || 'Mahjong'} priority />
         ) : null}
       </section>
 

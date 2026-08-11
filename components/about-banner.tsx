@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
+import { HeroMedia } from '@/components/hero-media';
 
 export function AboutBanner({
   src,
@@ -11,17 +10,8 @@ export function AboutBanner({
   if (!src) return null;
 
   return (
-    <section className="reveal about-hero container">
-      <Image
-        key={src}
-        src={src}
-        alt={alt}
-        fill
-        priority
-        unoptimized={isCmsAssetUrl(src)}
-        className="object-cover"
-        sizes="(max-width: 1400px) 100vw, 1400px"
-      />
+    <section className="reveal about-hero">
+      <HeroMedia src={src} alt={alt} priority />
     </section>
   );
 }
