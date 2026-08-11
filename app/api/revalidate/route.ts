@@ -12,6 +12,7 @@ const ALL_TAGS = [
   'products',
   'product-categories',
   'albums',
+  'homepage',
 ] as const;
 
 function revalidateAll() {
@@ -43,6 +44,9 @@ export async function POST(request: NextRequest) {
 
   if (type === 'all' || type === 'publish') {
     revalidateAll();
+  } else if (type === 'homepage') {
+    revalidateTag('homepage', { expire: 0 });
+    revalidatePath('/');
   } else if (type === 'faq') {
     revalidateTag('faqs', { expire: 0 });
     revalidatePath('/tools');

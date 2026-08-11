@@ -7,6 +7,7 @@ import { RevealInit } from '@/components/reveal-init';
 import { getNewsPageData } from '@/lib/about';
 import { getHomeCapabilityPanels } from '@/lib/capabilities';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
+import { getHomepageSettings, titleLines } from '@/lib/homepage';
 import { getHomeManufacturingComponents } from '@/lib/manufacturing';
 
 const CERTS = [
@@ -44,12 +45,16 @@ const STATS = [
 ];
 
 export default async function HomePage() {
-  const [{ articles: newsArticles }, capaItems, productItems] =
+  const [home, { articles: newsArticles }, capaItems, productItems] =
     await Promise.all([
+      getHomepageSettings(),
       getNewsPageData(),
       getHomeCapabilityPanels(3),
       getHomeManufacturingComponents(6),
     ]);
+
+  const { banner, presence } = home;
+  const bannerTitle = titleLines(banner.title);
 
   const news = newsArticles.slice(0, 12).map((item) => ({
     id: item.id,
@@ -67,8 +72,8 @@ export default async function HomePage() {
       <section className="relative min-h-hero place-center colfff overflow-hidden">
         <video
           className="absoluteCover object-cover"
-          src="https://images.wangsanshui.com/files/1786359788618-81ayf4.mp4"
-          poster="https://images.wangsanshui.com/images/1786360663993-bekn15.jpg"
+          src={banner.videoUrl}
+          poster={banner.imageUrl || undefined}
           autoPlay
           muted
           loop
@@ -79,12 +84,17 @@ export default async function HomePage() {
         <div className="mask mask-hero" />
         <div className="relative z-1 container text-center rise-in hero-content">
           <h1 className="title-lg">
-            Your Safe, Compliant &amp; Fun Game <br className="br-desktop" /> Manufacturing Partner
+            {bannerTitle.map((line, index) => (
+              <span key={`${line}-${index}`}>
+                {index > 0 ? <br className="br-desktop" /> : null}
+                {index > 0 ? ' ' : null}
+                {line}
+              </span>
+            ))}
           </h1>
-          <p className="font-medium font24 mb28 hero-lead">
-            We deliver full custom board game production from prototype to global
-            shipment.
-          </p>
+          {banner.subtitle ? (
+            <p className="font-medium font24 mb28 hero-lead">{banner.subtitle}</p>
+          ) : null}
           <div className="flex-row-center flex-wrap gap-24 hero-actions">
             <Link href="/manufacturing" className="btn btn-light btn-lg btn-light-border">
               Learn More
@@ -155,9 +165,9 @@ export default async function HomePage() {
       <section className="reveal presence-section relative colfff overflow-hidden rounded">
         <Image
           className="object-cover"
-          src="https://images.wangsanshui.com/images/1786360344634-0rxn6o.jpg"
-          alt="The world knows Lijia Manufacturing"
-          unoptimized
+          src={presence.imageUrl}
+          alt={presence.subtitle || presence.title}
+          unoptimized={isCmsAssetUrl(presence.imageUrl)}
           fill
           sizes="100vw"
         />
@@ -166,14 +176,16 @@ export default async function HomePage() {
             className="uppercase font-extrabold font40 mb8 presence-title"
             style={{ letterSpacing: '0.04em' }}
           >
-            Global Presence
+            {presence.title}
           </h2>
-          <p
-            className="font-medium font22 mb36 presence-sub"
-            style={{ color: 'rgba(255,255,255,0.92)' }}
-          >
-            The world knows Lijia Manufacturing
-          </p>
+          {presence.subtitle ? (
+            <p
+              className="font-medium font22 mb36 presence-sub"
+              style={{ color: 'rgba(255,255,255,0.92)' }}
+            >
+              {presence.subtitle}
+            </p>
+          ) : null}
           <div className="presence-stats">
             {STATS.map((stat) => (
               <Link

@@ -10,10 +10,17 @@ if (!CMS_API_URL) {
 
 async function cmsFetch<T>(path: string, tags: string[]): Promise<T> {
   const base = CMS_API_URL?.replace(/\/$/, '') || 'http://localhost:3000';
-  const res = await fetch(`${base}${path}`, {
-    // 静态缓存；CMS 变更时靠 /api/revalidate + revalidateTag 刷新
-    next: { tags, revalidate: false },
-  });
+  // 开发环境不缓存，避免本地改 CMS 后重启仍看到旧数据
+  // （生产 CMS 的 revalidate 只会打到生产前台，清不了本机）
+  const res = await fetch(
+    `${base}${path}`,
+    process.env.NODE_ENV === 'development'
+      ? { cache: 'no-store' }
+      : {
+          // 静态缓存；CMS 变更时靠 /api/revalidate + revalidateTag 刷新
+          next: { tags, revalidate: false },
+        }
+  );
 
   if (!res.ok) {
     throw new Error(`CMS request failed: ${path} (${res.status})`);
@@ -21,6 +28,8 @@ async function cmsFetch<T>(path: string, tags: string[]): Promise<T> {
 
   return res.json() as Promise<T>;
 }
+
+export { cmsFetch };
 
 export type ProductCategory = {
   id: number;
@@ -107,9 +116,12 @@ export async function getProducts(
 
 export async function getProduct(id: number) {
   const base = CMS_API_URL?.replace(/\/$/, '') || 'http://localhost:3000';
-  const res = await fetch(`${base}/api/web/products/${id}`, {
-    next: { tags: ['products', `product-${id}`], revalidate: false },
-  });
+  const res = await fetch(
+    `${base}/api/web/products/${id}`,
+    process.env.NODE_ENV === 'development'
+      ? { cache: 'no-store' }
+      : { next: { tags: ['products', `product-${id}`], revalidate: false } }
+  );
 
   if (res.status === 404) return null;
   if (!res.ok) {
