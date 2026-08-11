@@ -22,7 +22,7 @@ export default async function TeamListPage() {
 
   return (
     <>
-      <AboutBanner src={banner.image} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
       <AboutShell className="about-shell-team">
         <Link href="/about/team" className="about-news-more">
           &lt; back to {meta.title || 'Our Team'}

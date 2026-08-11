@@ -3,16 +3,19 @@ import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { isVideoMediaUrl } from '@/lib/media';
 
 /**
- * 栏目主图：图片或视频，铺满父级（如 .about-hero），高度跟随父级，全屏宽。
+ * 栏目 banner：图片或视频，铺满父级（如 .about-hero）。
+ * 视频可传 poster（封面图）。
  */
 export function HeroMedia({
   src,
   alt = '',
+  poster,
   priority = false,
   className = 'object-cover',
 }: {
   src: string;
   alt?: string;
+  poster?: string;
   priority?: boolean;
   className?: string;
 }) {
@@ -23,6 +26,7 @@ export function HeroMedia({
       <video
         className={`hero-media-fill ${className}`.trim()}
         src={src}
+        poster={poster || undefined}
         autoPlay
         muted
         loop

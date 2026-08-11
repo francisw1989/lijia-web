@@ -47,7 +47,7 @@ export default async function TeamMemberDetailPage({ params }: Props) {
 
   return (
     <>
-      <AboutBanner src={banner.image} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
       <AboutShell>
         <article className="team-detail">
           <Link href="/about/team/list" className="about-news-more">

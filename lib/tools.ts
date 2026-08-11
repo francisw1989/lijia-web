@@ -4,6 +4,7 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
+import { categoryBannerMedia } from '@/lib/media';
 import type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
 
 export type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
@@ -21,6 +22,7 @@ export type ToolsPageData = {
   };
   banner: {
     image: string;
+    poster?: string;
     alt: string;
     text: string;
   };
@@ -125,7 +127,8 @@ function fromCategory(category: ProductCategory | null): ToolsPageData {
       keywords: category?.keywords?.trim() || undefined,
     },
     banner: {
-      image: category?.image?.trim() || FALLBACK_BANNER,
+      image: categoryBannerMedia(category).image || FALLBACK_BANNER,
+      poster: categoryBannerMedia(category).poster,
       alt: category?.subtitle?.trim() || title,
       text: heroText(category),
     },

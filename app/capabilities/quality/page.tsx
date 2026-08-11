@@ -23,9 +23,9 @@ export default async function QualityPage() {
 
   return (
     <>
-      <section className="about-hero">
+      <section className="about-hero container">
         {hero.image ? (
-          <HeroMedia src={hero.image} alt={hero.title} priority />
+          <HeroMedia src={hero.image} poster={hero.poster} alt={hero.title} priority />
         ) : null}
         <h1 className="sr-only">{hero.title}</h1>
       </section>

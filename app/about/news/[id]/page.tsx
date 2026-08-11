@@ -53,7 +53,7 @@ export default async function AboutNewsDetailPage({ params }: Props) {
 
   return (
     <>
-      <AboutBanner src={banner.image} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
       <AboutShell>
         <article className="about-news-detail">
           <Link href="/about/news" className="about-news-more">

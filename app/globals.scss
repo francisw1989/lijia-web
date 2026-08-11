@@ -1259,14 +1259,12 @@ input {
   line-height: 1;
 }
 
-/* About us — banner 全屏宽，紧贴头部导航，定高 400 */
+/* About us — banner 恢复原尺寸（container 宽 + 自适应高度） */
 .about-hero {
   position: relative;
-  width: 100%;
-  max-width: none;
-  height: 400px;
-  margin-top: 0;
-  border-radius: 0;
+  height: clamp(220px, 28vw, 360px);
+  margin-top: 28px;
+  border-radius: var(--radius);
   overflow: hidden;
   background: #0b1b33;
 }
@@ -1604,7 +1602,7 @@ a.contact-info-line:hover {
 .tools-hero {
   display: grid;
   place-items: center;
-  height: 400px;
+  height: clamp(260px, 32vw, 400px);
 }
 .tools-hero-inner {
   position: relative;
@@ -2466,16 +2464,16 @@ a.contact-info-line:hover {
   color: rgba(255, 255, 255, 0.95);
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.22);
 }
-/* 有标题叠字的 Banner：统一定高 400 */
+/* 有标题叠字的 Banner：高度随文案撑开，避免固定高度裁切 */
 .about-hero:has(.cap-hero-banner) {
-  height: 400px;
-  min-height: 400px;
+  height: auto;
+  min-height: clamp(220px, 28vw, 360px);
 }
 .about-hero:has(.cap-hero-banner) .cap-hero-inner {
   position: relative;
   inset: auto;
   z-index: 1;
-  min-height: 400px;
+  min-height: clamp(220px, 28vw, 360px);
   box-sizing: border-box;
 }
 .cap-shell {
@@ -3877,15 +3875,15 @@ a.contact-info-line:hover {
     grid-template-columns: 1fr;
   }
   .about-hero {
-    margin-top: 0;
-    height: 400px;
+    margin-top: 12px;
+    height: 180px;
   }
   .about-hero:has(.cap-hero-banner) {
-    height: 400px;
-    min-height: 400px;
+    height: auto;
+    min-height: 200px;
   }
   .about-hero:has(.cap-hero-banner) .cap-hero-inner {
-    min-height: 400px;
+    min-height: 200px;
     padding: 28px 16px;
   }
   .cap-hero-banner {

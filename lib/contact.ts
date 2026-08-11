@@ -1,4 +1,5 @@
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
+import { categoryBannerMedia } from '@/lib/media';
 
 export type ContactLocation = {
   id: string;
@@ -54,6 +55,7 @@ export type ContactPageData = {
   };
   banner: {
     image: string;
+    poster?: string;
     alt: string;
   };
 };
@@ -88,7 +90,8 @@ function fromCategory(category: ProductCategory | null): ContactPageData {
       keywords: category?.keywords?.trim() || undefined,
     },
     banner: {
-      image: category?.image?.trim() || FALLBACK_BANNER,
+      image: categoryBannerMedia(category).image || FALLBACK_BANNER,
+      poster: categoryBannerMedia(category).poster,
       alt: category?.subtitle?.trim() || title,
     },
   };

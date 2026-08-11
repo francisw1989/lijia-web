@@ -102,7 +102,7 @@ export default async function AboutNewsPage() {
 
   return (
     <>
-      <AboutBanner src={banner.image} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
       <AboutShell>
         <div className="about-news-page">
           {featured.length ? (

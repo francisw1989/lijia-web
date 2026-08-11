@@ -7,6 +7,7 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
+import { categoryBannerMedia } from '@/lib/media';
 import {
   isMeaningfulDescription,
   plainTextFromHtml,
@@ -199,6 +200,7 @@ export type ManufacturingPageData = {
   };
   hero: {
     image: string;
+    poster?: string;
     title: string;
     questions: readonly { mark: string; text: string }[];
     concern: string;
@@ -319,7 +321,8 @@ function pageFromCategory(
     },
     hero: {
       ...MFG_HERO,
-      image: category?.image?.trim() || MFG_HERO.image,
+      image: categoryBannerMedia(category).image || MFG_HERO.image,
+      poster: categoryBannerMedia(category).poster,
     },
     items,
   };

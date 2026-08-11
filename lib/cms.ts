@@ -37,6 +37,8 @@ export type ProductCategory = {
   parent_id: number | null;
   image: string;
   thumbnail: string;
+  banner_type?: 'image' | 'video' | string;
+  banner_cover?: string;
   subtitle: string;
   keywords: string;
   description: string;

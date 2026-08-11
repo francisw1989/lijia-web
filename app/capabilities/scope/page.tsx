@@ -21,8 +21,8 @@ export default async function ScopePage() {
 
   return (
     <>
-      <section className="about-hero">
-        <HeroMedia src={hero.image} alt={hero.title} priority />
+      <section className="about-hero container">
+        <HeroMedia src={hero.image} poster={hero.poster} alt={hero.title} priority />
         <h1 className="sr-only">{hero.title}</h1>
       </section>
 

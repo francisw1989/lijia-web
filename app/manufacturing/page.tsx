@@ -53,9 +53,9 @@ export default async function ManufacturingPage() {
 
   return (
     <>
-      <section className="about-hero mfg-hero">
+      <section className="about-hero mfg-hero container">
         {hero.image ? (
-          <HeroMedia src={hero.image} alt="Lijia manufacturing" priority />
+          <HeroMedia src={hero.image} poster={hero.poster} alt="Lijia manufacturing" priority />
         ) : null}
         <div className="mask mask-dark mfg-hero-mask" />
         <div className="mfg-hero-inner">

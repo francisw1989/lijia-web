@@ -8,6 +8,7 @@ import {
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
+import { categoryBannerMedia } from '@/lib/media';
 
 export const CAPABILITIES_NAV = [
   { href: '/capabilities/scope', label: 'Scope of capabilities' },
@@ -38,6 +39,7 @@ export type ScopePageData = {
   };
   hero: {
     image: string;
+    poster?: string;
     title: string;
     subtitle: string;
   };
@@ -82,6 +84,7 @@ export type QualityPageData = {
   };
   hero: {
     image: string;
+    poster?: string;
     title: string;
     subtitle: string;
   };
@@ -117,8 +120,10 @@ function capHeroFromCategory(
   fallback: { title: string; subtitle: string },
 ) {
   const name = category?.name?.trim() || fallbackName;
+  const media = categoryBannerMedia(category);
   return {
-    image: category?.image?.trim() || category?.thumbnail?.trim() || '',
+    image: media.image || category?.thumbnail?.trim() || '',
+    poster: media.poster,
     title: capHeroText(
       category?.keywords || category?.subtitle,
       fallback.title,

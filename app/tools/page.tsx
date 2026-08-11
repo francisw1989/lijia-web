@@ -29,9 +29,10 @@ export default async function ToolsPage() {
   return (
     <main className="bg-white min-h-page">
       <RevealInit />
-      <section className="reveal about-hero tools-hero">
+      <section className="reveal about-hero tools-hero container">
         <HeroMedia
           src={banner.image}
+          poster={banner.poster}
           alt={banner.alt || meta.title}
           priority
         />

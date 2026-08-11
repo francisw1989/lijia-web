@@ -12,9 +12,9 @@ export default async function MahjongLayout({
 
   return (
     <>
-      <section className="about-hero">
+      <section className="about-hero container">
         {hero.image ? (
-          <HeroMedia src={hero.image} alt={hero.alt || 'Mahjong'} priority />
+          <HeroMedia src={hero.image} poster={hero.poster} alt={hero.alt || 'Mahjong'} priority />
         ) : null}
       </section>
 

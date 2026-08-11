@@ -21,7 +21,7 @@ export default async function TeamPage() {
 
   return (
     <>
-      <AboutBanner src={banner.image} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
       <TeamContent members={members} gallery={gallery} />
     </>
   );

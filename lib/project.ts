@@ -1,4 +1,5 @@
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
+import { categoryBannerMedia } from '@/lib/media';
 
 export const PROJECT_SERVICE_LINKS = [
   { label: 'Our video', href: '/tools/videos' },
@@ -19,6 +20,7 @@ export type ProjectPageData = {
   };
   banner: {
     image: string;
+    poster?: string;
     alt: string;
   };
 };
@@ -47,7 +49,8 @@ function fromCategory(category: ProductCategory | null): ProjectPageData {
       keywords: category?.keywords?.trim() || undefined,
     },
     banner: {
-      image: category?.image?.trim() || FALLBACK_BANNER,
+      image: categoryBannerMedia(category).image || FALLBACK_BANNER,
+      poster: categoryBannerMedia(category).poster,
       alt: category?.subtitle?.trim() || title,
     },
   };

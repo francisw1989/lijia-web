@@ -22,7 +22,7 @@ export default async function AboutHistoryPage() {
 
   return (
     <>
-      <AboutBanner src={banner.image} alt={banner.alt} />
+      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} />
       <AboutShell>
         <AboutStorySwiper nodes={nodes} />
       </AboutShell>
