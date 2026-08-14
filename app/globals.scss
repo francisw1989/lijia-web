@@ -3108,6 +3108,7 @@ a.contact-info-line:hover {
   line-height: 1.6;
   color: #9aa3b2;
   margin-bottom: 20px;
+  transition: color 0.25s ease;
 }
 .about-node-text strong {
   display: inline;
@@ -3115,6 +3116,7 @@ a.contact-info-line:hover {
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: inherit;
+  transition: color 0.25s ease;
 }
 .about-timeline .swiper-slide-active .about-node-text {
   color: #333;
@@ -3136,12 +3138,30 @@ a.contact-info-line:hover {
   padding: 0;
   background: transparent;
   cursor: zoom-in;
+  overflow: hidden;
 }
-.about-node-media-btn:hover {
-  opacity: 0.92;
+.about-node-media-btn img {
+  transition: transform 0.35s ease;
+  transform-origin: center center;
 }
 .about-timeline .swiper-slide-active .about-node-media {
   height: 260px;
+}
+
+/* 整块节点悬停：文字高亮 + 图片放大 */
+@media (hover: hover) {
+  .about-node:hover .about-year {
+    color: var(--fg);
+  }
+  .about-node:hover .about-node-text {
+    color: #333;
+  }
+  .about-node:hover .about-node-text strong {
+    color: var(--fg);
+  }
+  .about-node:hover .about-node-media-btn img {
+    transform: scale(1.12);
+  }
 }
 
 .img-lightbox {
