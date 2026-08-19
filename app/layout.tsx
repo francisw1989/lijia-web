@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { League_Spartan } from 'next/font/google';
+import { ScrollToTop } from '@/components/scroll-to-top';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import './globals.scss';
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={leagueSpartan.variable}>
       <body>
+        <ScrollToTop />
         <SiteHeader />
         {children}
         <SiteFooter />

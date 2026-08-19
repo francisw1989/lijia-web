@@ -3,7 +3,7 @@ import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
 export const PROJECT_SERVICE_LINKS = [
   { label: 'Our video', href: '/tools/videos' },
-  { label: 'Our Templates', href: '/tools#templates' },
+  { label: 'Our Templates', href: '/tools/generator' },
   { label: 'Safety Standard', href: '/tools/safety' },
   { label: 'Terms of sale', href: '/tools/terms' },
   { label: 'FAQ', href: '/tools/faq' },

@@ -348,6 +348,51 @@ export async function getToolsDocPageData(
   }
 }
 
+const GENERATOR_NAME = 'Template Generator';
+const GENERATOR_DESCRIPTION =
+  'Generate print-ready PDF dielines for two-piece game boxes — custom size, material and wrap/bleed guides.';
+
+export type TemplateGeneratorPageData = {
+  meta: {
+    title: string;
+    description?: string;
+    keywords?: string;
+  };
+};
+
+function findGeneratorCategory(
+  categories: ProductCategory[],
+  root: ProductCategory | null,
+) {
+  const match = (item: ProductCategory) =>
+    /template\s*generator/i.test(item.name.trim());
+  return (
+    (root && categories.find((item) => item.parent_id === root.id && match(item))) ||
+    categories.find(match) ||
+    null
+  );
+}
+
+/** Template Generator：栏目 → metadata */
+export async function getTemplateGeneratorPageData(): Promise<TemplateGeneratorPageData> {
+  try {
+    const categories = await getProductCategories();
+    const child = findGeneratorCategory(categories, findToolsCategory(categories));
+    return {
+      meta: {
+        title: child?.name?.trim() || GENERATOR_NAME,
+        description: child?.description?.trim() || GENERATOR_DESCRIPTION,
+        keywords: child?.keywords?.trim() || undefined,
+      },
+    };
+  } catch (error) {
+    console.error('[getTemplateGeneratorPageData]', error);
+    return {
+      meta: { title: GENERATOR_NAME, description: GENERATOR_DESCRIPTION },
+    };
+  }
+}
+
 /** @deprecated 使用 getToolsPageData().banner */
 export const TOOLS_HERO = {
   image: FALLBACK_BANNER,

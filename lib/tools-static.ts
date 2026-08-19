@@ -20,7 +20,7 @@ export const TOOLS_INTRO =
 
 export const TOOL_GENERATOR = {
   title: 'Template Generator',
-  href: '#',
+  href: '/tools/generator',
   icon: '/images/t/5.png',
 } as const;
 
