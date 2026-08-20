@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { MarqueeTrack } from '@/components/marquee-track';
+import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { QC_PHASES, type QualityGalleryImage } from '@/lib/capabilities';
 
 function MagnifierIcon() {
@@ -54,7 +55,13 @@ export function QualityContent({
         <div className="qc-phases">
           {QC_PHASES.map((phase) => (
             <div key={phase.id} className="qc-phase">
-              <Image src={phase.icon} alt={phase.label} width={332} height={180} />
+              <Image
+                src={phase.icon}
+                alt={phase.label}
+                width={332}
+                height={180}
+                unoptimized={isCmsAssetUrl(phase.icon)}
+              />
               <p className="qc-phase-label">{phase.label}</p>
             </div>
           ))}

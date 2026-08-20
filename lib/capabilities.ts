@@ -359,22 +359,22 @@ export const QC_PHASES = [
   {
     id: 'iqc',
     label: 'IQC: Incoming Quality Control',
-    icon: '/images/qc1.png',
+    icon: 'https://images.wangsanshui.com/images/1787230866540-eus7ro.png',
   },
   {
     id: 'ipqc',
     label: 'IPQC: In Process Quality Control',
-    icon: '/images/qc2.png',
+    icon: 'https://images.wangsanshui.com/images/1787230866814-ngx76d.png',
   },
   {
     id: 'fqc',
     label: 'FQC: Final Quality Control',
-    icon: '/images/qc3.png',
+    icon: 'https://images.wangsanshui.com/images/1787230866731-igmes3.png',
   },
   {
     id: 'oqc',
     label: 'OQC: Outgoing Quality Control',
-    icon: '/images/qc4.png',
+    icon: 'https://images.wangsanshui.com/images/1787230866608-ifw759.png',
   },
 ];
 
