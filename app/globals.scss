@@ -3201,7 +3201,7 @@ a.contact-info-line:hover {
 .facilities-marquee-track {
   display: flex;
   width: max-content;
-  animation: facilities-marquee 40s linear infinite;
+  animation: facilities-marquee var(--marquee-duration, 40s) linear infinite;
   will-change: transform;
 }
 .facilities-marquee-wrap:hover .facilities-marquee-track {
@@ -4201,9 +4201,6 @@ a.contact-info-line:hover {
   .facilities-marquee-group {
     gap: 12px;
     padding-right: 12px;
-  }
-  .facilities-marquee-track {
-    animation-duration: 28s;
   }
   .team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
+import { MarqueeTrack } from '@/components/marquee-track';
 import { TeamCards } from '@/components/team-cards';
 import type { TeamGalleryImage, TeamMember } from '@/lib/about';
 
@@ -77,7 +78,7 @@ export function TeamContent({
           className="facilities-marquee-wrap"
           aria-label="Team activities"
         >
-          <div className="facilities-marquee-track">
+          <MarqueeTrack deps={[gallery.length]}>
             {[0, 1].map((copy) => (
               <div
                 key={copy}
@@ -101,7 +102,7 @@ export function TeamContent({
                 ))}
               </div>
             ))}
-          </div>
+          </MarqueeTrack>
         </section>
       ) : null}
 

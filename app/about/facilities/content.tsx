@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
+import { MarqueeTrack } from '@/components/marquee-track';
 import type { FacilityAlbumTab } from '@/lib/about';
 
 function MagnifierIcon() {
@@ -127,7 +128,7 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
             className="facilities-marquee-wrap"
             aria-label={`${album.label} gallery`}
           >
-            <div className="facilities-marquee-track">
+            <MarqueeTrack deps={[album.id, album.images.length, isActive]}>
               {[0, 1].map((copy) => (
                 <div
                   key={copy}
@@ -154,7 +155,7 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
                   ))}
                 </div>
               ))}
-            </div>
+            </MarqueeTrack>
           </section>
         );
       })}

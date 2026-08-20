@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { MarqueeTrack } from '@/components/marquee-track';
 import { QC_PHASES, type QualityGalleryImage } from '@/lib/capabilities';
 
 function MagnifierIcon() {
@@ -62,7 +63,7 @@ export function QualityContent({
 
       {items.length ? (
         <section className="facilities-marquee-wrap" aria-label="Quality control gallery">
-          <div className="facilities-marquee-track">
+          <MarqueeTrack deps={[items.length]}>
             {[0, 1].map((copy) => (
               <div key={copy} className="facilities-marquee-group" aria-hidden={copy === 1}>
                 {items.map((item, index) => (
@@ -82,7 +83,7 @@ export function QualityContent({
                 ))}
               </div>
             ))}
-          </div>
+          </MarqueeTrack>
         </section>
       ) : null}
 
