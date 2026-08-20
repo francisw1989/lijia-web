@@ -93,6 +93,17 @@ export async function getFooterNavColumns(): Promise<FooterColumn[]> {
       links: manufacturingLinks,
     },
     {
+      title: 'Tools',
+      href: '/tools',
+      links: [
+        { href: '/tools/videos', label: 'Our video' },
+        { href: '/tools/generator', label: 'Template Generator' },
+        { href: '/tools/safety', label: 'Safety Standard' },
+        { href: '/tools/terms', label: 'Terms of sale' },
+        { href: '/tools/faq', label: 'FAQ' },
+      ],
+    },
+    {
       title: 'Contact us',
       href: '/contact',
       links: [{ href: '/contact', label: 'Contact us' }],

@@ -27,11 +27,9 @@ export function FaqList({ items }: { items: FaqItem[] }) {
               <span className="tools-faq-question">{item.question}</span>
               <span className="tools-faq-toggle" aria-hidden="true" />
             </button>
-            {open ? (
-              <div className="tools-faq-a">
-                <p>{item.answer}</p>
-              </div>
-            ) : null}
+            <div className="tools-faq-a" hidden={!open}>
+              <p>{item.answer}</p>
+            </div>
           </article>
         );
       })}

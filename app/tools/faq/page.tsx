@@ -3,9 +3,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { RevealInit } from '@/components/reveal-init';
 import { FaqList } from '@/components/faq-list';
+import { JsonLd } from '@/components/json-ld';
 import { getFaqs } from '@/lib/cms';
+import { faqPageSchema } from '@/lib/schema';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   title: 'FAQ',
@@ -27,6 +29,7 @@ export default async function ToolsFaqPage() {
   return (
     <main className="bg-white min-h-page">
       <RevealInit />
+      {items.length ? <JsonLd data={faqPageSchema(items)} /> : null}
 
       <section className="container tools-doc-page">
         <div className="tools-doc-back">

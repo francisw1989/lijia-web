@@ -57,7 +57,7 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
     links: [
       { href: '/tools', label: 'Tools' },
       { href: '/tools/videos', label: 'Our video' },
-      { href: '/tools/generator', label: 'Our Templates' },
+      { href: '/tools/generator', label: 'Template Generator' },
       { href: '/tools/safety', label: 'Safety Standard' },
       { href: '/tools/terms', label: 'Terms of sale' },
       { href: '/tools/faq', label: 'FAQ' },
