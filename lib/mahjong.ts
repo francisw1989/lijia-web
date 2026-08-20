@@ -34,6 +34,8 @@ export type MahjongCard = {
   title: string;
   image: string;
   mediaType: 'image' | 'video';
+  /** 视频封面（CMS video_cover） */
+  poster?: string;
 };
 
 /** 4 列栅格下单卡占列数 */
@@ -231,11 +233,14 @@ function mapCards(products: ProductListItem[]): MahjongCard[] {
     .filter((item) => item.cover?.trim())
     .map((item) => {
       const image = item.cover.trim();
+      const isVideo = isVideoMediaUrl(image, item.cover_type);
+      const poster = item.video_cover?.trim() || '';
       return {
         id: String(item.id),
         title: item.title,
         image,
-        mediaType: isVideoMediaUrl(image, item.cover_type) ? 'video' : 'image',
+        mediaType: isVideo ? ('video' as const) : ('image' as const),
+        ...(isVideo && poster ? { poster } : {}),
       };
     });
 }

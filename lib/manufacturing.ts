@@ -166,29 +166,29 @@ export const MFG_COMPONENTS: MfgComponent[] = [
 export const MFG_HERO = {
   image: '/images/14.jpg',
   title:
-    'As you develop your game concept into a marketable product, you will encounter the following questions:',
+    'When turning your original game idea into a sell‑ready physical product, brand creators often face these key challenges:',
   questions: [
     {
       mark: 'A',
-      text: "What game components work for the game's mechanics? (e.g. Dice, Meeples, Game Board, etc.)",
+      text: "Which components best fit your game mechanics? (Dice, meeples, game boards, tokens and more)",
     },
     {
       mark: 'B',
-      text: 'What materials are available to make the game components? Which one is the most suitable? (e.g. Plastic, Metal, Wooden, Paper, etc.)',
+      text: 'What material options exist for your parts, and how do you pick the best fit? (Plastic, metal, wood, paper‑based materials)',
     },
     {
       mark: 'C',
-      text: 'How to control the manufacturing cost in consideration of the marketing price?',
+      text: 'How do you balance production costs against your target retail price?',
     },
     {
       mark: 'D',
-      text: 'How to package the game with easy storage and easy setup?',
+      text: 'How to design practical packaging for convenient storage and quick setup for end‑users?',
     },
   ],
   concern:
-    'What are the other concerns about marketing a product? (e.g. safety standard, shipment)',
+    'What other critical factors should you consider, such as toy‑safety compliance and global shipment arrangements?',
   closing:
-    "Our experienced team are here to answer your concerns. Let's get started with the Component List and contact us at",
+    "Our in‑house project team supports you through all these decision‑making points. Share your component list with us, and reach out: ",
   email: 'info@lijiagames.com',
 } as const;
 

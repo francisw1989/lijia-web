@@ -52,6 +52,7 @@ export default async function MahjongTabPage({ params }: Props) {
                 <video
                   className="mj-card-video"
                   src={card.image}
+                  poster={card.poster || undefined}
                   controls
                   playsInline
                   preload="metadata"
