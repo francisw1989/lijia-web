@@ -28,8 +28,16 @@ export default async function CertificatesPage() {
           poster={banner.poster}
           alt={banner.alt || meta.title}
           priority
+          mask={true}
         />
         <HeroBannerCopy title={banner.title} subtitle={banner.subtitle} />
+      </section>
+      <section className="reveal container certificates-intro">
+        <div className="certificates-intro-inner">
+          <p>
+            Lijia games are certified by ICTI, GSV, FSC, Disney, ISO9001. As an important toy and game manufacturer, Lijia Game has always supported and adhered to the ICTI CARE process and is an authorized long-term manufacturer partner of Hasbro, Disney, Walmart, TJX, etc.
+          </p>
+        </div>
       </section>
       <section className="container mt48 certificates-logos">
         <Image

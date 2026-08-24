@@ -1,8 +1,11 @@
 import {
+  getProduct,
   getProductCategories,
+  getProductTags,
   getProducts,
   type ProductCategory,
   type ProductListItem,
+  type ProductTag,
 } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 import type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
@@ -30,6 +33,41 @@ export type ToolsPageData = {
 };
 
 export type ToolsResourceSlug = 'terms' | 'safety' | 'dice';
+
+export type ToolsArticleSlug =
+  | 'terms'
+  | 'ip-protection'
+  | 'confidentiality-nda';
+
+export type ToolsArticlePageData = {
+  slug: string;
+  meta: {
+    title: string;
+    description?: string;
+    keywords?: string;
+  };
+  title: string;
+  cover: string;
+  content: string;
+};
+
+function productToToolsArticle(
+  slug: string,
+  product: Awaited<ReturnType<typeof getProduct>>,
+): ToolsArticlePageData | null {
+  if (!product || product.status !== 1) return null;
+  return {
+    slug,
+    meta: {
+      title: product.title,
+      description: product.description?.trim() || undefined,
+      keywords: product.keywords?.trim() || undefined,
+    },
+    title: product.title,
+    cover: product.cover?.trim() || '',
+    content: product.content || '',
+  };
+}
 
 export type ToolsDocItem = {
   id: number;
@@ -86,6 +124,25 @@ const RESOURCE_DEFS: {
     icon: '/images/t/4.png',
     intro:
       'Download printable dice templates and artwork guides for custom dice production.',
+  },
+];
+
+/** tools 根栏目下的单篇文章页（按标题匹配） */
+const ROOT_ARTICLE_DEFS: {
+  slug: ToolsArticleSlug;
+  titleMatch: RegExp;
+}[] = [
+  {
+    slug: 'terms',
+    titleMatch: /^terms\s*of\s*sale$/i,
+  },
+  {
+    slug: 'ip-protection',
+    titleMatch: /^intellectual\s*property/i,
+  },
+  {
+    slug: 'confidentiality-nda',
+    titleMatch: /^confidentiality/i,
   },
 ];
 
@@ -244,6 +301,44 @@ export function isToolsResourceSlug(value: string): value is ToolsResourceSlug {
   return RESOURCE_DEFS.some((d) => d.slug === value);
 }
 
+export function isToolsArticleSlug(value: string): value is ToolsArticleSlug {
+  return ROOT_ARTICLE_DEFS.some((d) => d.slug === value);
+}
+
+/** tools 一级栏目下的单篇文章（如 Terms of sale 正文页） */
+export async function getToolsRootArticlePageData(
+  titleMatch: RegExp,
+  slug = 'article',
+): Promise<ToolsArticlePageData | null> {
+  try {
+    const categories = await getProductCategories();
+    const root = findToolsCategory(categories);
+    if (!root) return null;
+
+    const { list } = await getProducts(1, 100, root.id, { fresh: true });
+    const match = list.find(
+      (item) =>
+        item.category_id === root.id && titleMatch.test(item.title.trim()),
+    );
+    if (!match) return null;
+
+    const product = await getProduct(match.id);
+    return productToToolsArticle(slug, product);
+  } catch (error) {
+    console.error('[getToolsRootArticlePageData]', error);
+    return null;
+  }
+}
+
+/** tools 根栏目文章页（Terms / IP / NDA） */
+export async function getToolsArticlePageData(
+  slug: string,
+): Promise<ToolsArticlePageData | null> {
+  if (!isToolsArticleSlug(slug)) return null;
+  const def = ROOT_ARTICLE_DEFS.find((item) => item.slug === slug)!;
+  return getToolsRootArticlePageData(def.titleMatch, slug);
+}
+
 function mapVideo(item: ProductListItem): ToolsVideoItem | null {
   const src = item.cover?.trim();
   if (!src) return null;
@@ -254,16 +349,22 @@ function mapVideo(item: ProductListItem): ToolsVideoItem | null {
     description: item.description?.trim() || '',
     src,
     poster: item.video_cover?.trim() || '',
+    tagId: item.content_tag_id ?? null,
+    tagName: item.content_tag_name?.trim() || '',
   };
 }
 
 /** Tools 视频栏目：Discover Tips… */
 export async function getToolsVideos(): Promise<{
   heading: string;
+  tags: ProductTag[];
   videos: ToolsVideoItem[];
 }> {
   try {
-    const categories = await getProductCategories();
+    const [categories, tags] = await Promise.all([
+      getProductCategories(),
+      getProductTags(),
+    ]);
     const root = findToolsCategory(categories);
     const child =
       root &&
@@ -274,7 +375,7 @@ export async function getToolsVideos(): Promise<{
       );
 
     if (!child) {
-      return { heading: TOOLS_VIDEOS_HEADING, videos: [] };
+      return { heading: TOOLS_VIDEOS_HEADING, tags, videos: [] };
     }
 
     const { list } = await getProducts(1, 100, child.id, { fresh: true });
@@ -284,11 +385,12 @@ export async function getToolsVideos(): Promise<{
 
     return {
       heading: child.name?.trim() || TOOLS_VIDEOS_HEADING,
+      tags,
       videos,
     };
   } catch (error) {
     console.error('[getToolsVideos]', error);
-    return { heading: TOOLS_VIDEOS_HEADING, videos: [] };
+    return { heading: TOOLS_VIDEOS_HEADING, tags: [], videos: [] };
   }
 }
 

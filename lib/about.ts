@@ -35,10 +35,10 @@ export type FacilityAlbumTab = {
 
 /** Our Facilities 前台固定使用的四个图集分类名 */
 export const FACILITY_ALBUM_NAMES = [
-  'Building',
-  'Environment',
-  'Machine',
-  'Working condition',
+  'Premises',
+  'Workshop',
+  'Machinery',
+  'Production',
 ] as const;
 
 const ABOUT_SECTIONS: Record<

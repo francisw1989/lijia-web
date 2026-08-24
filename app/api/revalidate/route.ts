@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     revalidatePath('/tools/faq');
   } else if (type === 'product' || type === 'product-category') {
     revalidateTag('products', { expire: 0 });
+    revalidateTag('product-tags', { expire: 0 });
     revalidateTag('product-categories', { expire: 0 });
     revalidatePath('/capabilities/scope');
     revalidatePath('/capabilities/quality');
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
     revalidatePath('/tools/safety');
     revalidatePath('/tools/dice');
     revalidatePath('/tools/videos');
+    revalidatePath('/tools/ip-protection');
+    revalidatePath('/tools/confidentiality-nda');
     revalidatePath('/tools/faq');
     revalidatePath('/manufacturing');
     revalidatePath('/manufacturing/mahjong');
@@ -76,6 +79,7 @@ export async function POST(request: NextRequest) {
     if (type === 'product' && id && Number.isFinite(id)) {
       revalidateTag(`product-${id}`, { expire: 0 });
       revalidatePath(`/manufacturing/${id}`);
+      revalidatePath('/manufacturing/mahjong', 'layout');
       revalidatePath(`/about/news/${id}`);
       revalidatePath(`/about/team/${id}`);
     }

@@ -12,29 +12,34 @@ export function HeroMedia({
   poster,
   priority = false,
   className = 'object-cover',
+  mask = false,
 }: {
   src: string;
   alt?: string;
   poster?: string;
   priority?: boolean;
   className?: string;
+  mask?: boolean;
 }) {
   if (!src) return null;
 
   if (isVideoMediaUrl(src)) {
     return (
-      <video
-        className={`hero-media-fill ${className}`.trim()}
-        src={src}
-        poster={poster || undefined}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-hidden={alt ? undefined : true}
-        aria-label={alt || undefined}
-      />
+      <span className="hero-media-fill" aria-hidden={!alt}>
+        <video
+          className={className}
+          src={src}
+          poster={poster || undefined}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden={alt ? undefined : true}
+          aria-label={alt || undefined}
+        />
+        {mask ? <div className="mask mask-dark" /> : null}
+      </span>
     );
   }
 
@@ -50,6 +55,7 @@ export function HeroMedia({
         className={className}
         sizes="100vw"
       />
+      {mask ? <div className="mask mask-dark" /> : null}
     </span>
   );
 }

@@ -28,7 +28,13 @@ export function FaqList({ items }: { items: FaqItem[] }) {
               <span className="tools-faq-toggle" aria-hidden="true" />
             </button>
             <div className="tools-faq-a" hidden={!open}>
-              <p>{item.answer}</p>
+              {item.answer
+                .split(/\n+/)
+                .map((para) => para.trim())
+                .filter(Boolean)
+                .map((para, paraIndex) => (
+                  <p key={`${item.id}-${paraIndex}`}>{para}</p>
+                ))}
             </div>
           </article>
         );

@@ -23,8 +23,8 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
     title: 'About us',
     href: '/about',
     links: [
-      { href: '/about/history', label: 'Our Story & Philosophy' },
       { href: '/about/facilities', label: 'Our Facilities' },
+      { href: '/about/history', label: 'Our Story & Philosophy' },
       { href: '/about/team', label: 'Our Team' },
       { href: '/about/team/list', label: 'Our Team — All Members' },
       { href: '/about/news', label: 'News & Events' },
@@ -60,6 +60,8 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
       { href: '/tools/generator', label: 'Template Generator' },
       { href: '/tools/safety', label: 'Safety Standard' },
       { href: '/tools/terms', label: 'Terms of sale' },
+      { href: '/tools/ip-protection', label: 'Intellectual Property Protection' },
+      { href: '/tools/confidentiality-nda', label: 'Confidentiality & NDA' },
       { href: '/tools/faq', label: 'FAQ' },
     ],
   },

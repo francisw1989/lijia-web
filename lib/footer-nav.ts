@@ -1,112 +1,112 @@
-import { getProductCategories, getProducts, compareBySortThen } from '@/lib/cms';
-import { ABOUT_NAV } from '@/lib/history';
-import {
-  manufacturingDetailHref,
-  MFG_COMPONENTS,
-} from '@/lib/manufacturing';
+import { getProductCategories } from '@/lib/cms';
 
 export type FooterLink = {
-  href: string;
   label: string;
+  /** 未确定时可不传，页脚只显示文案不可点 */
+  href?: string;
 };
 
 export type FooterColumn = {
   title: string;
-  href: string;
+  href?: string;
   links: FooterLink[];
 };
 
-async function getManufacturingFooterLinks(limit = 8): Promise<FooterLink[]> {
-  const fallback = MFG_COMPONENTS.slice(0, limit).map((item) => ({
-    href: item.href,
-    label: item.title,
-  }));
+export type FooterNavData = {
+  slogan: string[];
+  columns: FooterColumn[];
+};
 
+/** 从 Scope of capabilities 下按名称匹配二级栏目 */
+async function scopeCategoryHrefByName(match: RegExp): Promise<string | undefined> {
   try {
     const categories = await getProductCategories();
     const root =
       categories.find(
-        (item) => item.parent_id == null && item.name === 'Manufacturing',
-      ) ??
-      categories.find(
-        (item) => item.parent_id == null && /manufacturing/i.test(item.name),
-      );
-    if (!root) return fallback;
-
-    const { list } = await getProducts(1, 100, root.id);
-    const links = list
-      .slice()
-      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
-      .slice(0, limit)
-      .map((item) => {
-        const customHref =
-          Number(item.use_custom_link) === 1
-            ? item.custom_link?.trim() || ''
-            : '';
-        return {
-          href: customHref || manufacturingDetailHref(item.id),
-          label: item.title,
-        };
-      });
-
-    return links.length ? links : fallback;
+        (item) =>
+          item.parent_id == null &&
+          /^scope\s*of\s*capabilities$/i.test(item.name.trim()),
+      ) ?? null;
+    if (!root) return undefined;
+    const child = categories.find(
+      (item) => item.parent_id === root.id && match.test(item.name.trim()),
+    );
+    return child ? `/capabilities/scope#${child.id}` : undefined;
   } catch (error) {
-    console.error('[getManufacturingFooterLinks]', error);
-    return fallback;
+    console.error('[scopeCategoryHrefByName]', error);
+    return undefined;
   }
 }
 
-/** 底部导航：真实栏目/页面 + Manufacturing 前 8 个组件（带链接） */
-export async function getFooterNavColumns(): Promise<FooterColumn[]> {
-  const manufacturingLinks = await getManufacturingFooterLinks(8);
+/**
+ * 底部导航（对齐客户「底部栏目重构」）：
+ * 左口号 + About Us / Capabilities & Manufacturing / Support & Resources / Legal & Compliance
+ */
+export async function getFooterNavData(): Promise<FooterNavData> {
+  const [prototypingHref, sourcingHref] = await Promise.all([
+    scopeCategoryHrefByName(/^prototyp/i),
+    scopeCategoryHrefByName(/^sourc/i),
+  ]);
 
-  return [
-    {
-      title: 'Home',
-      href: '/',
-      links: [{ href: '/site-map', label: 'Site Map' }],
-    },
-    {
-      title: 'About us',
-      href: '/about',
-      links: ABOUT_NAV.map((item) => ({
-        href: item.href,
-        label: item.label,
-      })),
-    },
-    {
-      title: 'Certificates',
-      href: '/certificates',
-      links: [{ href: '/certificates', label: 'Certificates' }],
-    },
-    {
-      title: 'Capabilities',
-      href: '/capabilities',
-      links: [
-        { href: '/capabilities/scope', label: 'Scope of capabilities' },
-        { href: '/capabilities/quality', label: 'Quality Control' },
-      ],
-    },
-    {
-      title: 'Manufacturing',
-      href: '/manufacturing',
-      links: manufacturingLinks,
-    },
-    {
-      title: 'Tools',
-      href: '/tools',
-      links: [
-        { href: '/tools/videos', label: 'Our video' },
-        { href: '/tools/generator', label: 'Template Generator' },
-        { href: '/tools/safety', label: 'Safety Standard' },
-        { href: '/tools/terms', label: 'Terms of sale' },
-        { href: '/tools/faq', label: 'FAQ' },
-      ],
-    },
-    {
-      title: 'Contact us',
-      href: '/contact',
-      links: [{ href: '/contact', label: 'Contact us' }],
-    },
-  ];
+  return {
+    slogan: [
+      'For decades',
+      'we only do one thing',
+      'Game manufacturing',
+    ],
+    columns: [
+      {
+        title: 'About Us',
+        href: '/about',
+        links: [
+          { label: 'Company Profile', href: '/about/history' },
+          { label: 'Factory Tour', href: '/about/facilities' },
+          { label: 'Certifications', href: '/certificates' },
+          { label: 'Our Team', href: '/about/team' },
+          { label: 'Our History', href: '/about/history' },
+        ],
+      },
+      {
+        title: 'Capabilities & Manufacturing',
+        href: '/capabilities',
+        links: [
+          { label: 'Our Capabilities', href: '/capabilities/scope' },
+          { label: 'Quality Control', href: '/capabilities/quality' },
+          {
+            label: 'Prototyping & Engineering',
+            href: prototypingHref,
+          },
+          {
+            label: 'Component Sourcing',
+            href: sourcingHref,
+          },
+          { label: 'Game‑Ready Components', href: '/manufacturing' },
+          { label: 'Mahjong', href: '/manufacturing/mahjong' },
+        ],
+      },
+      {
+        title: 'Support & Resources',
+        links: [
+          { label: 'Contact Us', href: '/contact' },
+          { label: 'Help center', href: '/tools' },
+          { label: 'FAQ', href: '/tools/faq' },
+        ],
+      },
+      {
+        title: 'Legal & Compliance',
+        links: [
+          { label: 'Intellectual Property Protection', href: '/tools/ip-protection' },
+          { label: 'Confidentiality & NDA', href: '/tools/confidentiality-nda' },
+          { label: 'Factory & Product Compliance', href: '/tools/safety' },
+          { label: 'Terms & Privacy', href: '/tools/terms' },
+        ],
+      },
+    ],
+  };
+}
+
+/** @deprecated 使用 getFooterNavData */
+export async function getFooterNavColumns(): Promise<FooterColumn[]> {
+  const { columns } = await getFooterNavData();
+  return columns;
 }

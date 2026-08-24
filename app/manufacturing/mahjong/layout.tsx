@@ -21,11 +21,9 @@ export default async function MahjongLayout({
       </section>
 
       <section className="section-pad">
-        <div className="container">
-          <div className="page-tabs-wrap mj-tabs-wrap">
-            <MahjongNav tabs={tabs} />
-          </div>
-          {children}
+        <div className="container about-layout mj-layout">
+          <MahjongNav tabs={tabs} />
+          <div className="about-panel mj-panel">{children}</div>
         </div>
       </section>
     </>

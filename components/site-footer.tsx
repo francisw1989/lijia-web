@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { Logo } from './logo';
-import { getFooterNavColumns } from '@/lib/footer-nav';
+import { getFooterNavData } from '@/lib/footer-nav';
 
 const SOCIAL = [
   {
     label: 'Youtube',
-    href: '#',
+    href: 'https://www.youtube.com/@LijiaGames',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.5 31.5 0 0 0 0 12a31.5 31.5 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 24 12a31.5 31.5 0 0 0-.5-5.8zM9.8 15.5v-7l6.2 3.5-6.2 3.5z" />
@@ -14,7 +14,7 @@ const SOCIAL = [
   },
   {
     label: 'Facebook',
-    href: '#',
+    href: 'https://www.facebook.com/LijiaGameProduction',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.43c0-3.007 1.792-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
@@ -23,7 +23,7 @@ const SOCIAL = [
   },
   {
     label: 'Instagram',
-    href: '#',
+    href: 'https://www.instagram.com/lijia_game_production',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm11 1.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
@@ -42,22 +42,35 @@ const SOCIAL = [
 ];
 
 export async function SiteFooter() {
-  const columns = await getFooterNavColumns();
+  const { slogan, columns } = await getFooterNavData();
 
   return (
     <footer className="site-footer">
       <div className="container">
         <nav className="footer-nav" aria-label="Footer">
+          <div className="footer-col footer-slogan">
+            {slogan.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
           {columns.map((col) => (
             <div key={col.title} className="footer-col">
               <h3>
-                <Link href={col.href}>{col.title}</Link>
+                {col.href ? (
+                  <Link href={col.href}>{col.title}</Link>
+                ) : (
+                  col.title
+                )}
               </h3>
-              {col.links.length > 0 ? (
+              {col.links.length ? (
                 <ul>
                   {col.links.map((link) => (
-                    <li key={`${col.title}-${link.href}-${link.label}`}>
-                      <Link href={link.href}>{link.label}</Link>
+                    <li key={`${col.title}-${link.label}`}>
+                      {link.href ? (
+                        <Link href={link.href}>{link.label}</Link>
+                      ) : (
+                        <span className="footer-link-plain">{link.label}</span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -72,7 +85,14 @@ export async function SiteFooter() {
           </Link>
           <div className="footer-social" aria-label="Social">
             {SOCIAL.map((item) => (
-              <a key={item.label} href={item.href} aria-label={item.label}>
+              <a
+                key={item.label}
+                href={item.href}
+                aria-label={item.label}
+                {...(item.href.startsWith('http')
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {})}
+              >
                 {item.icon}
                 <span>{item.label}</span>
               </a>
@@ -83,7 +103,8 @@ export async function SiteFooter() {
         <p className="footer-copy">
           © {new Date().getFullYear()} Lijia Game Maker All rights reserved |{' '}
           <Link href="/capabilities">Services</Link> |{' '}
-          <Link href="/about/team">our team</Link> | Need service? Please contact us{' '}
+          <Link href="/about/team">our team</Link> |{' '}
+          <Link href="/site-map">site map</Link> | Need service? Please contact us{' '}
           <a href="mailto:info@lijia-games.com">info@lijia-games.com</a>
         </p>
       </div>

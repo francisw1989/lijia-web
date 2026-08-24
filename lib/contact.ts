@@ -1,5 +1,5 @@
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
-import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
+import { categoryBannerCopy } from '@/lib/media';
 
 export type ContactLocation = {
   id: string;
@@ -8,6 +8,7 @@ export type ContactLocation = {
   emails: string[];
   apps: { label: string; value: string }[];
   address: string[];
+  banner: string;
 };
 
 export const CONTACT_LOCATIONS: ContactLocation[] = [
@@ -25,6 +26,7 @@ export const CONTACT_LOCATIONS: ContactLocation[] = [
       'Yinzhou District, 315100,',
       'Ningbo, Zhejiang, China',
     ],
+    banner: 'https://images.wangsanshui.com/images/1787540747987-c8wpex.png',
   },
   {
     id: 'jiangsu',
@@ -41,11 +43,11 @@ export const CONTACT_LOCATIONS: ContactLocation[] = [
       'Taixing, Jiangsu,',
       'China 225400',
     ],
+    banner: 'https://images.wangsanshui.com/images/1787298822505-cv3wb5.png',
   },
 ];
 
 const CONTACT_NAME = 'Contact us';
-const FALLBACK_BANNER = '/images/banner/1.jpg';
 
 export type ContactPageData = {
   meta: {
@@ -53,9 +55,8 @@ export type ContactPageData = {
     description?: string;
     keywords?: string;
   };
+  /** CMS 叠字；图片由 CONTACT_LOCATIONS.banner 提供 */
   banner: {
-    image: string;
-    poster?: string;
     alt: string;
     title?: string;
     subtitle?: string;
@@ -92,15 +93,13 @@ function fromCategory(category: ProductCategory | null): ContactPageData {
       keywords: category?.keywords?.trim() || undefined,
     },
     banner: {
-      image: categoryBannerMedia(category).image || FALLBACK_BANNER,
-      poster: categoryBannerMedia(category).poster,
       ...categoryBannerCopy(category),
       alt: category?.subtitle?.trim() || title,
     },
   };
 }
 
-/** Contact us：一级栏目 → metadata / banner */
+/** Contact us：一级栏目 → metadata / banner 叠字；图片见 CONTACT_LOCATIONS */
 export async function getContactPageData(): Promise<ContactPageData> {
   try {
     const categories = await getProductCategories();
@@ -111,5 +110,5 @@ export async function getContactPageData(): Promise<ContactPageData> {
   }
 }
 
-/** @deprecated 使用 getContactPageData().banner */
-export const CONTACT_HERO = FALLBACK_BANNER;
+/** @deprecated 使用 CONTACT_LOCATIONS[0].banner */
+export const CONTACT_HERO = CONTACT_LOCATIONS[0].banner;

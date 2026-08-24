@@ -13,6 +13,8 @@ export type ToolsVideoItem = {
   description: string;
   src: string;
   poster: string;
+  tagId: number | null;
+  tagName: string;
 };
 
 export const TOOLS_INTRO =

@@ -67,6 +67,8 @@ export type ProductListItem = {
   hover_icon?: string;
   use_custom_link?: number;
   custom_link?: string;
+  content_tag_id?: number | null;
+  content_tag_name?: string | null;
   created_at: string;
   updated_at: string;
   category_name: string | null;
@@ -76,6 +78,16 @@ export type Product = ProductListItem & {
   content: string;
   status: number;
 };
+
+export type ProductTag = {
+  id: number;
+  name: string;
+  sort: number;
+};
+
+export async function getProductTags(): Promise<ProductTag[]> {
+  return cmsFetch<ProductTag[]>('/api/web/product-tags', ['product-tags', 'products']);
+}
 
 export type ProductListResponse = {
   list: ProductListItem[];
@@ -160,7 +172,7 @@ export type Album = {
   images: AlbumImage[];
 };
 
-/** 图集分类列表；names 可选，逗号分隔，如 Building,Environment */
+/** 图集分类列表；names 可选，逗号分隔，如 Premises,Workshop */
 export async function getAlbums(names?: string[]) {
   const qs =
     names?.length

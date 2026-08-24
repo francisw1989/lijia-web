@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { RevealInit } from '@/components/reveal-init';
-import { ToolsVideoGrid } from '@/components/tools-video-section';
+import { ToolsVideosContent } from '@/components/tools-videos-content';
 import { getToolsVideos, TOOLS_VIDEOS_HEADING } from '@/lib/tools';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ToolsVideosPage() {
-  const { heading, videos } = await getToolsVideos();
+  const { heading, tags, videos } = await getToolsVideos();
 
   return (
     <main className="bg-white min-h-page">
@@ -31,7 +31,7 @@ export default async function ToolsVideosPage() {
           {heading || TOOLS_VIDEOS_HEADING}
         </h1>
         {videos.length ? (
-          <ToolsVideoGrid videos={videos} />
+          <ToolsVideosContent tags={tags} videos={videos} />
         ) : (
           <p className="tools-doc-empty">Videos will be available soon.</p>
         )}

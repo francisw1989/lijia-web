@@ -1,12 +1,19 @@
 import { cache } from 'react';
 import {
+  getProduct,
   getProductCategories,
   getProducts,
   compareBySortThen,
+  type Product,
   type ProductCategory,
   type ProductListItem,
 } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia, isVideoMediaUrl } from '@/lib/media';
+
+export {
+  isMeaningfulDescription,
+  plainTextFromHtml,
+} from '@/lib/capabilities';
 
 export { isVideoMediaUrl } from '@/lib/media';
 
@@ -36,6 +43,8 @@ export type MahjongCard = {
   mediaType: 'image' | 'video';
   /** 视频封面（CMS video_cover） */
   poster?: string;
+  /** CMS 文章详情页 */
+  href?: string;
 };
 
 /** 4 列栅格下单卡占列数 */
@@ -226,6 +235,22 @@ function mapTabs(children: ProductCategory[]): MahjongNavItem[] {
     });
 }
 
+export function mahjongTabHref(tabId: string) {
+  return `${MAHJONG_BASE}/${tabId}`;
+}
+
+export function mahjongProductHref(tabId: string, productId: number) {
+  return `${MAHJONG_BASE}/${tabId}/${productId}`;
+}
+
+function withCardHrefs(tabId: string, cards: MahjongCard[]) {
+  return cards.map((card) =>
+    /^\d+$/.test(card.id)
+      ? { ...card, href: mahjongProductHref(tabId, Number(card.id)) }
+      : card,
+  );
+}
+
 function mapCards(products: ProductListItem[]): MahjongCard[] {
   return products
     .slice()
@@ -335,6 +360,10 @@ export async function getMahjongTabPageData(
 
     const { list } = await getProducts(1, 100, category.id);
     const cards = mapCards(list);
+    const resolved =
+      cards.length > 0
+        ? cards
+        : (MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? []);
     return {
       meta: {
         title: category.name?.trim() || tab.label,
@@ -346,9 +375,7 @@ export async function getMahjongTabPageData(
         label: category.name,
         href: `${MAHJONG_BASE}/${tabId}`,
       },
-      cards: cards.length
-        ? cards
-        : (MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? []),
+      cards: withCardHrefs(tabId, resolved),
     };
   } catch (error) {
     console.error('[getMahjongTabPageData]', error);
@@ -376,4 +403,64 @@ export function isMahjongTabId(
 export function getMahjongTab(id: string, tabs?: MahjongNavItem[]) {
   const list = tabs?.length ? tabs : MAHJONG_NAV_FALLBACK;
   return list.find((item) => item.id === id) ?? list[0];
+}
+
+/** Mahjong 文章详情（三级页） */
+export async function getMahjongProductDetail(
+  tabId: string,
+  productId: number,
+): Promise<{
+  product: Product;
+  category: ProductCategory;
+  tab: MahjongNavItem;
+} | null> {
+  try {
+    const page = await getMahjongPageData();
+    const tab = page.tabs.find((item) => item.id === tabId);
+    if (!tab) return null;
+
+    const categories = await getProductCategories();
+    const root = findMahjongRoot(categories);
+    if (!root) return null;
+
+    const category =
+      categories
+        .filter((item) => item.parent_id === root.id)
+        .find((item) => tabSlug(item) === tabId) ?? null;
+    if (!category) return null;
+
+    const product = await getProduct(productId);
+    if (!product || product.category_id !== category.id) return null;
+
+    return { product, category, tab };
+  } catch (error) {
+    console.error('[getMahjongProductDetail]', error);
+    return null;
+  }
+}
+
+export async function allMahjongProductParams() {
+  try {
+    const page = await getMahjongPageData();
+    const categories = await getProductCategories();
+    const root = findMahjongRoot(categories);
+    if (!root) return [];
+
+    const children = categories.filter((item) => item.parent_id === root.id);
+    const params: { tab: string; productId: string }[] = [];
+
+    for (const child of children) {
+      const tabId = tabSlug(child);
+      if (!page.tabs.some((item) => item.id === tabId)) continue;
+      const { list } = await getProducts(1, 100, child.id);
+      for (const item of list) {
+        params.push({ tab: tabId, productId: String(item.id) });
+      }
+    }
+
+    return params;
+  } catch (error) {
+    console.error('[allMahjongProductParams]', error);
+    return [];
+  }
 }

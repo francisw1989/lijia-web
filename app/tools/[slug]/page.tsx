@@ -3,9 +3,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { RevealInit } from '@/components/reveal-init';
+import { renderToolsArticleContent } from '@/components/tools-article-page';
 import { ToolsDocDownload } from '@/components/tools-doc-download';
 import {
+  getToolsArticlePageData,
   getToolsDocPageData,
+  isToolsArticleSlug,
   isToolsResourceSlug,
   type ToolsDocItem,
 } from '@/lib/tools';
@@ -18,14 +21,45 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  return [{ slug: 'terms' }, { slug: 'safety' }, { slug: 'dice' }];
+  return [
+    { slug: 'terms' },
+    { slug: 'safety' },
+    { slug: 'dice' },
+    { slug: 'ip-protection' },
+    { slug: 'confidentiality-nda' },
+  ];
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+
+  if (isToolsArticleSlug(slug)) {
+    const article = await getToolsArticlePageData(slug);
+    if (article) {
+      return {
+        title: article.meta.title,
+        description: article.meta.description,
+        keywords: article.meta.keywords,
+      };
+    }
+    // terms 无正文时回退文档列表 metadata
+    if (slug === 'terms' && isToolsResourceSlug(slug)) {
+      const data = await getToolsDocPageData(slug);
+      if (data) {
+        return {
+          title: data.meta.title,
+          description: data.meta.description,
+          keywords: data.meta.keywords,
+        };
+      }
+    }
+    return { title: 'Tools & Resources' };
+  }
+
   if (!isToolsResourceSlug(slug)) return { title: 'Tools & Resources' };
+
   const data = await getToolsDocPageData(slug);
   if (!data) return { title: 'Tools & Resources' };
   return {
@@ -65,8 +99,16 @@ function DocRow({ item }: { item: ToolsDocItem }) {
   );
 }
 
-export default async function ToolsDocListPage({ params }: PageProps) {
+export default async function ToolsSlugPage({ params }: PageProps) {
   const { slug } = await params;
+
+  if (isToolsArticleSlug(slug)) {
+    const article = await getToolsArticlePageData(slug);
+    if (article) return renderToolsArticleContent(article);
+    // terms 无正文时回退文档列表；IP / NDA 无文则回 tools
+    if (slug !== 'terms') redirect('/tools');
+  }
+
   // Turbopack 下 notFound() 会触发 require is not defined，改用 redirect
   if (!isToolsResourceSlug(slug)) redirect('/tools');
 
