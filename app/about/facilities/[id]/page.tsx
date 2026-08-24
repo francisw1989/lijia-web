@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { AboutBanner } from '@/components/about-banner';
+import { FacilitiesHero } from '@/components/facilities-hero';
 import { AboutShell } from '@/components/about-shell';
 import {
   getAboutSection,
@@ -39,7 +39,7 @@ export default async function FacilitiesArticlePage({ params }: Props) {
 
   return (
     <>
-      <AboutBanner
+      <FacilitiesHero
         src={banner.image}
         poster={banner.poster}
         alt={banner.alt}
