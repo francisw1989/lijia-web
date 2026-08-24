@@ -62,6 +62,7 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
       { href: '/tools/terms', label: 'Terms of sale' },
       { href: '/tools/ip-protection', label: 'Intellectual Property Protection' },
       { href: '/tools/confidentiality-nda', label: 'Confidentiality & NDA' },
+      { href: '/tools/cookies-privacy', label: 'Cookies & Privacy' },
       { href: '/tools/faq', label: 'FAQ' },
     ],
   },

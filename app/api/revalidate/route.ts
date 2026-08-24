@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
     revalidatePath('/tools/videos');
     revalidatePath('/tools/ip-protection');
     revalidatePath('/tools/confidentiality-nda');
+    revalidatePath('/tools/cookies-privacy');
     revalidatePath('/tools/faq');
     revalidatePath('/manufacturing');
     revalidatePath('/manufacturing/mahjong');

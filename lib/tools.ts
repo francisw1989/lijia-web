@@ -37,7 +37,8 @@ export type ToolsResourceSlug = 'terms' | 'safety' | 'dice';
 export type ToolsArticleSlug =
   | 'terms'
   | 'ip-protection'
-  | 'confidentiality-nda';
+  | 'confidentiality-nda'
+  | 'cookies-privacy';
 
 export type ToolsArticlePageData = {
   slug: string;
@@ -143,6 +144,10 @@ const ROOT_ARTICLE_DEFS: {
   {
     slug: 'confidentiality-nda',
     titleMatch: /^confidentiality/i,
+  },
+  {
+    slug: 'cookies-privacy',
+    titleMatch: /^cookies?\s*&\s*privacy$/i,
   },
 ];
 

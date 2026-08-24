@@ -27,6 +27,7 @@ export async function generateStaticParams() {
     { slug: 'dice' },
     { slug: 'ip-protection' },
     { slug: 'confidentiality-nda' },
+    { slug: 'cookies-privacy' },
   ];
 }
 

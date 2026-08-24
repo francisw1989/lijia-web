@@ -99,6 +99,7 @@ export async function getFooterNavData(): Promise<FooterNavData> {
           { label: 'Confidentiality & NDA', href: '/tools/confidentiality-nda' },
           { label: 'Factory & Product Compliance', href: '/tools/safety' },
           { label: 'Terms & Privacy', href: '/tools/terms' },
+          { label: 'Cookies & Privacy', href: '/tools/cookies-privacy' },
         ],
       },
     ],
