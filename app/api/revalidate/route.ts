@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
     revalidatePath('/manufacturing');
     revalidatePath('/manufacturing/mahjong');
     revalidatePath('/about/news');
+    revalidatePath('/about/facilities');
     revalidatePath('/about/team');
     revalidatePath('/about/team/list');
     revalidatePath('/');
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
       revalidatePath(`/manufacturing/${id}`);
       revalidatePath('/manufacturing/mahjong', 'layout');
       revalidatePath(`/about/news/${id}`);
+      revalidatePath(`/about/facilities/${id}`);
       revalidatePath(`/about/team/${id}`);
     }
     if (type === 'product-category') {
@@ -93,6 +95,7 @@ export async function POST(request: NextRequest) {
       revalidatePath('/tools/safety');
       revalidatePath('/tools/dice');
       revalidatePath('/about/news');
+      revalidatePath('/about/facilities');
       revalidatePath('/about/team');
       revalidatePath('/about/team/list');
     }

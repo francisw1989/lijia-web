@@ -155,6 +155,96 @@ export async function getFacilityAlbums(): Promise<FacilityAlbumTab[]> {
   }
 }
 
+export type FacilitiesArticle = {
+  id: number;
+  title: string;
+  description: string;
+  keywords: string;
+  content: string;
+  cover: string;
+};
+
+/** Our Facilities 栏目下标题为 Our Facilities 的介绍文（Learn More） */
+export async function getFacilitiesIntroArticle(): Promise<FacilitiesArticle | null> {
+  try {
+    const categories = await getProductCategories();
+    const category = findAboutCategory(
+      categories,
+      ABOUT_SECTIONS.facilities.categoryName,
+    );
+    if (!category) return null;
+
+    const { list } = await getProducts(1, 50, category.id, { fresh: true });
+    const match = list.find(
+      (item) =>
+        item.category_id === category.id &&
+        /^our\s*facilities$/i.test(item.title.trim()),
+    );
+    if (!match) return null;
+
+    const product = await getProduct(match.id);
+    if (!product || product.status !== 1) return null;
+
+    return {
+      id: product.id,
+      title: product.title,
+      description: product.description || '',
+      keywords: product.keywords || '',
+      content: product.content || '',
+      cover: product.cover || '',
+    };
+  } catch (error) {
+    console.error('[getFacilitiesIntroArticle]', error);
+    return null;
+  }
+}
+
+/** Our Facilities 文章详情（校验归属栏目） */
+export async function getFacilitiesArticle(
+  id: number,
+): Promise<FacilitiesArticle | null> {
+  try {
+    const categories = await getProductCategories();
+    const category = findAboutCategory(
+      categories,
+      ABOUT_SECTIONS.facilities.categoryName,
+    );
+    if (!category) return null;
+
+    const product = await getProduct(id);
+    if (!product || product.status !== 1 || product.category_id !== category.id) {
+      return null;
+    }
+
+    return {
+      id: product.id,
+      title: product.title,
+      description: product.description || '',
+      keywords: product.keywords || '',
+      content: product.content || '',
+      cover: product.cover || '',
+    };
+  } catch (error) {
+    console.error('[getFacilitiesArticle]', error);
+    return null;
+  }
+}
+
+export async function getFacilitiesArticleParams(): Promise<{ id: string }[]> {
+  try {
+    const categories = await getProductCategories();
+    const category = findAboutCategory(
+      categories,
+      ABOUT_SECTIONS.facilities.categoryName,
+    );
+    if (!category) return [];
+    const { list } = await getProducts(1, 100, category.id);
+    return list.map((item) => ({ id: String(item.id) }));
+  } catch {
+    return [];
+  }
+}
+
 export type TeamMember = {
   id: number;
   name: string;

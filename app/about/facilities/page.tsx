@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
-import { AboutBanner } from '@/components/about-banner';
-import { getAboutSection, getFacilityAlbums } from '@/lib/about';
+import { FacilitiesHero } from '@/components/facilities-hero';
+import {
+  getAboutSection,
+  getFacilitiesIntroArticle,
+  getFacilityAlbums,
+} from '@/lib/about';
 import { FacilitiesContent } from './content';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,14 +17,22 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function FacilitiesPage() {
-  const [{ banner }, albums] = await Promise.all([
+  const [{ banner }, albums, intro] = await Promise.all([
     getAboutSection('facilities'),
     getFacilityAlbums(),
+    getFacilitiesIntroArticle(),
   ]);
 
   return (
     <>
-      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} title={banner.title} subtitle={banner.subtitle} />
+      <FacilitiesHero
+        src={banner.image}
+        poster={banner.poster}
+        alt={banner.alt}
+        title={banner.title}
+        subtitle={banner.subtitle}
+        learnMoreHref={intro ? `/about/facilities/${intro.id}` : undefined}
+      />
       <FacilitiesContent albums={albums} />
     </>
   );
