@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
     revalidateTag('albums', { expire: 0 });
     revalidateTag('product-categories', { expire: 0 });
     revalidatePath('/about/facilities');
+    revalidatePath('/about/facilities/gallery', 'layout');
     revalidatePath('/about/team');
     revalidatePath('/about');
     revalidatePath('/capabilities/quality');

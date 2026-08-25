@@ -156,6 +156,28 @@ export const getFacilityAlbums = cache(async (): Promise<FacilityAlbumTab[]> => 
   }
 });
 
+/** Our Facilities：单个图集（View More 全览页） */
+export async function getFacilityAlbum(
+  id: string,
+): Promise<FacilityAlbumTab | null> {
+  try {
+    const albums = await getFacilityAlbums();
+    return albums.find((item) => item.id === String(id)) ?? null;
+  } catch (error) {
+    console.error('[getFacilityAlbum]', error);
+    return null;
+  }
+}
+
+export async function getFacilityAlbumParams(): Promise<{ id: string }[]> {
+  try {
+    const albums = await getFacilityAlbums();
+    return albums.map((item) => ({ id: item.id }));
+  } catch {
+    return [];
+  }
+}
+
 export type FacilitiesArticle = {
   id: number;
   title: string;

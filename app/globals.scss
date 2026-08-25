@@ -3396,7 +3396,41 @@ a.contact-info-line:hover {
   width: 100%;
   overflow: hidden;
   margin-top: 28px;
-  padding: 8px 0 48px;
+  padding: 8px 0 8px;
+}
+.facilities-view-more {
+  margin: 28px auto 48px;
+}
+.facilities-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+.facilities-gallery-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  border: 0;
+  padding: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #e8edf3;
+  cursor: zoom-in;
+}
+.facilities-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+.facilities-gallery-item:hover img {
+  transform: scale(1.04);
+}
+.facilities-gallery-item:hover .facilities-marquee-zoom {
+  opacity: 1;
 }
 .facilities-marquee-track {
   display: flex;
@@ -4473,6 +4507,14 @@ a.contact-info-line:hover {
   .facilities-marquee-group {
     gap: 12px;
     padding-right: 12px;
+  }
+  .facilities-view-more {
+    margin: 20px auto 36px;
+  }
+  .facilities-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 20px;
   }
   .team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

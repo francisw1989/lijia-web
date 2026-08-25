@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
 import { MarqueeTrack } from '@/components/marquee-track';
@@ -164,6 +165,24 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
           </section>
         );
       })}
+
+      {active ? (
+        <div className="container flex-row-center facilities-view-more">
+          <Link
+            href={`/about/facilities/gallery/${active.id}`}
+            className="btn btn-primary btn-pill"
+          >
+            View More
+            <Image
+              src="/images/6.png"
+              alt=""
+              width={16}
+              height={16}
+              aria-hidden="true"
+            />
+          </Link>
+        </div>
+      ) : null}
 
       {preview ? (
         <div
