@@ -7,6 +7,11 @@ import { AboutShell } from '@/components/about-shell';
 import { MarqueeTrack } from '@/components/marquee-track';
 import type { FacilityAlbumTab } from '@/lib/about';
 
+/** 悬停标题去掉常见图片后缀，如 Premises 01.gif → Premises 01 */
+function imageTitle(value: string) {
+  return value.replace(/\.(gif|jpe?g|png|webp|avif|bmp|svg|tiff?)$/i, '').trim();
+}
+
 function MagnifierIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -154,8 +159,13 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
                         loading={isActive && copy === 0 ? 'eager' : 'lazy'}
                         decoding="async"
                       />
-                      <span className="facilities-marquee-zoom">
+                      <span className="facilities-img-hover">
                         <MagnifierIcon />
+                        {item.alt ? (
+                          <span className="facilities-img-title">
+                            {imageTitle(item.alt)}
+                          </span>
+                        ) : null}
                       </span>
                     </button>
                   ))}
@@ -215,7 +225,7 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
           </button>
           <div className="img-lightbox-stage" onClick={(e) => e.stopPropagation()}>
             <img src={preview.src} alt={preview.alt} className="img-lightbox-img" />
-            <p className="img-lightbox-caption">{preview.alt}</p>
+            <p className="img-lightbox-caption">{imageTitle(preview.alt)}</p>
           </div>
           <button
             type="button"
