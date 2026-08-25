@@ -147,7 +147,12 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
                         setPreviewIndex(index);
                       }}
                     >
-                      <img src={item.src} alt={item.alt} />
+                      <img
+                        src={item.src}
+                        alt={item.alt}
+                        loading={isActive && copy === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                      />
                       <span className="facilities-marquee-zoom">
                         <MagnifierIcon />
                       </span>

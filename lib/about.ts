@@ -164,8 +164,8 @@ export type FacilitiesArticle = {
   cover: string;
 };
 
-/** Our Facilities 栏目下标题为 Our Facilities 的介绍文（Learn More） */
-export async function getFacilitiesIntroArticle(): Promise<FacilitiesArticle | null> {
+/** Our Facilities 栏目下标题为 Our Facilities 的介绍文 id（列表页 Learn More） */
+export async function getFacilitiesIntroArticleId(): Promise<number | null> {
   try {
     const categories = await getProductCategories();
     const category = findAboutCategory(
@@ -174,27 +174,15 @@ export async function getFacilitiesIntroArticle(): Promise<FacilitiesArticle | n
     );
     if (!category) return null;
 
-    const { list } = await getProducts(1, 50, category.id, { fresh: true });
+    const { list } = await getProducts(1, 50, category.id);
     const match = list.find(
       (item) =>
         item.category_id === category.id &&
         /^our\s*facilities$/i.test(item.title.trim()),
     );
-    if (!match) return null;
-
-    const product = await getProduct(match.id);
-    if (!product || product.status !== 1) return null;
-
-    return {
-      id: product.id,
-      title: product.title,
-      description: product.description || '',
-      keywords: product.keywords || '',
-      content: product.content || '',
-      cover: product.cover || '',
-    };
+    return match?.id ?? null;
   } catch (error) {
-    console.error('[getFacilitiesIntroArticle]', error);
+    console.error('[getFacilitiesIntroArticleId]', error);
     return null;
   }
 }

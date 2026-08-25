@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { FaqItem } from '@/lib/faq';
 
 export type { FaqItem } from '@/lib/faq';
@@ -96,12 +97,12 @@ export type ProductListResponse = {
   pageSize: number;
 };
 
-export async function getProductCategories() {
+export const getProductCategories = cache(async () => {
   return cmsFetch<ProductCategory[]>('/api/web/product-categories', [
     'product-categories',
     'products',
   ]);
-}
+});
 
 export async function getProducts(
   page = 1,
