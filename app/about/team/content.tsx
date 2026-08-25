@@ -4,18 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
+import { GalleryImgHover, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
 import { TeamCards } from '@/components/team-cards';
 import type { TeamGalleryImage, TeamMember } from '@/lib/about';
-
-function MagnifierIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="2" />
-      <path d="M16 16l4.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export function TeamContent({
   members,
@@ -100,9 +92,7 @@ export function TeamContent({
                       loading={copy === 0 ? 'eager' : 'lazy'}
                       decoding="async"
                     />
-                    <span className="facilities-marquee-zoom">
-                      <MagnifierIcon />
-                    </span>
+                    <GalleryImgHover title={item.alt} />
                   </button>
                 ))}
               </div>
@@ -142,7 +132,7 @@ export function TeamContent({
           </button>
           <div className="img-lightbox-stage" onClick={(e) => e.stopPropagation()}>
             <img src={preview.src} alt={preview.alt} className="img-lightbox-img" />
-            <p className="img-lightbox-caption">{preview.alt}</p>
+            <p className="img-lightbox-caption">{imageTitle(preview.alt)}</p>
           </div>
           <button
             type="button"
