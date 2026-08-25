@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
 import { categoryBannerCopy } from '@/lib/media';
 
@@ -100,7 +101,7 @@ function fromCategory(category: ProductCategory | null): ContactPageData {
 }
 
 /** Contact us：一级栏目 → metadata / banner 叠字；图片见 CONTACT_LOCATIONS */
-export async function getContactPageData(): Promise<ContactPageData> {
+export const getContactPageData = cache(async (): Promise<ContactPageData> => {
   try {
     const categories = await getProductCategories();
     return fromCategory(findContactCategory(categories));
@@ -108,7 +109,5 @@ export async function getContactPageData(): Promise<ContactPageData> {
     console.error('[getContactPageData]', error);
     return fromCategory(null);
   }
-}
-
-/** @deprecated 使用 CONTACT_LOCATIONS[0].banner */
+});
 export const CONTACT_HERO = CONTACT_LOCATIONS[0].banner;

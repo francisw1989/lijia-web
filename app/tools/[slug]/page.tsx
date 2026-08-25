@@ -13,8 +13,8 @@ import {
   type ToolsDocItem,
 } from '@/lib/tools';
 
-// 文档列表需及时拿到 cover_file_name，避免静态缓存里仍是哈希名
-export const dynamic = 'force-dynamic';
+// 文档列表依赖 products 缓存；CMS 变更时由 /api/revalidate 刷新
+export const dynamic = 'force-static';
 
 type PageProps = {
   params: Promise<{ slug: string }>;

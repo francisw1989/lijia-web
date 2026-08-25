@@ -174,13 +174,13 @@ export type Album = {
 };
 
 /** 图集分类列表；names 可选，逗号分隔，如 Premises,Workshop */
-export async function getAlbums(names?: string[]) {
+export const getAlbums = cache(async (names?: string[]) => {
   const qs =
     names?.length
       ? `?names=${encodeURIComponent(names.join(','))}`
       : '';
   return cmsFetch<Album[]>(`/api/web/albums${qs}`, ['albums']);
-}
+});
 
 export async function getFaqs() {
   return cmsFetch<FaqItem[]>('/api/web/faqs', ['faqs']);

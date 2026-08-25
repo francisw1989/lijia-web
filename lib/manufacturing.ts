@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import {
   getProduct,
   getProductCategories,
@@ -329,7 +330,7 @@ function pageFromCategory(
 }
 
 /** Manufacturing：一级栏目 metadata / banner + 栏目下文章组件列表 */
-export async function getManufacturingPageData(): Promise<ManufacturingPageData> {
+export const getManufacturingPageData = cache(async (): Promise<ManufacturingPageData> => {
   try {
     const categories = await getProductCategories();
     const root = findMfgRoot(categories);
@@ -341,12 +342,12 @@ export async function getManufacturingPageData(): Promise<ManufacturingPageData>
     console.error('[getManufacturingPageData]', error);
     return pageFromCategory(null, []);
   }
-}
+});
 
 /** 首页 Game Development Components：Manufacturing 下推荐文章 */
-export async function getHomeManufacturingComponents(
+export const getHomeManufacturingComponents = cache(async (
   limit = 6,
-): Promise<MfgComponent[]> {
+): Promise<MfgComponent[]> => {
   const fallback = MFG_COMPONENTS.slice(0, limit);
   try {
     const categories = await getProductCategories();
@@ -368,4 +369,4 @@ export async function getHomeManufacturingComponents(
     console.error('[getHomeManufacturingComponents]', error);
     return fallback;
   }
-}
+});

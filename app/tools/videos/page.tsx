@@ -4,7 +4,7 @@ import { RevealInit } from '@/components/reveal-init';
 import { ToolsVideosContent } from '@/components/tools-videos-content';
 import { getToolsVideos, TOOLS_VIDEOS_HEADING } from '@/lib/tools';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { heading } = await getToolsVideos();

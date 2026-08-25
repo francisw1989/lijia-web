@@ -94,7 +94,12 @@ export function TeamContent({
                     tabIndex={copy === 1 ? -1 : undefined}
                     onClick={() => setPreviewIndex(index)}
                   >
-                    <img src={item.src} alt={item.alt} />
+                    <img
+                      src={item.src}
+                      alt={item.alt}
+                      loading={copy === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
                     <span className="facilities-marquee-zoom">
                       <MagnifierIcon />
                     </span>

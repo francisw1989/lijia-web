@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { cmsFetch } from '@/lib/cms';
 
 export type HomepageBanner = {
@@ -60,7 +61,7 @@ function normalizePresence(
   };
 }
 
-export async function getHomepageSettings(): Promise<HomepageSettings> {
+export const getHomepageSettings = cache(async (): Promise<HomepageSettings> => {
   try {
     const data = await cmsFetch<Partial<HomepageSettings>>('/api/web/homepage', [
       'homepage',
@@ -73,7 +74,7 @@ export async function getHomepageSettings(): Promise<HomepageSettings> {
     console.error('[getHomepageSettings]', error);
     return FALLBACK;
   }
-}
+});
 
 export function titleLines(title: string): string[] {
   return String(title || '')

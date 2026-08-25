@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import {
   getAlbums,
   getProduct,
@@ -123,9 +124,9 @@ function albumsToTabs(albums: Album[]): FacilityAlbumTab[] {
 }
 
 /** 四个 About 子页：metadata / banner 来自对应二级栏目 */
-export async function getAboutSection(
+export const getAboutSection = cache(async (
   key: AboutSectionKey,
-): Promise<AboutSectionData> {
+): Promise<AboutSectionData> => {
   const conf = ABOUT_SECTIONS[key];
   try {
     const categories = await getProductCategories();
@@ -135,10 +136,10 @@ export async function getAboutSection(
     console.error(`[getAboutSection:${key}]`, error);
     return sectionFromCategory(key, null);
   }
-}
+});
 
 /** Our Facilities：按固定四个图集分类拉取 */
-export async function getFacilityAlbums(): Promise<FacilityAlbumTab[]> {
+export const getFacilityAlbums = cache(async (): Promise<FacilityAlbumTab[]> => {
   try {
     const albums = await getAlbums([...FACILITY_ALBUM_NAMES]);
     const byName = new Map(
@@ -153,7 +154,7 @@ export async function getFacilityAlbums(): Promise<FacilityAlbumTab[]> {
     console.error('[getFacilityAlbums]', error);
     return [];
   }
-}
+});
 
 export type FacilitiesArticle = {
   id: number;
@@ -271,9 +272,9 @@ async function getTeamCategory() {
 }
 
 /** Our Team：栏目下文章 → 成员卡片；recommendedOnly 时仅推荐 */
-export async function getTeamMembers(
+export const getTeamMembers = cache(async (
   options?: { recommendedOnly?: boolean },
-): Promise<TeamMember[]> {
+): Promise<TeamMember[]> => {
   try {
     const category = await getTeamCategory();
     if (!category) return [];
@@ -289,7 +290,7 @@ export async function getTeamMembers(
     console.error('[getTeamMembers]', error);
     return [];
   }
-}
+});
 
 /** Our Team：成员详情（校验归属 Our Team 栏目） */
 export async function getTeamMember(
@@ -315,7 +316,7 @@ export async function getTeamMember(
 }
 
 /** Our Team：图集分类「Our Team」下的活动照片 */
-export async function getTeamGallery(): Promise<TeamGalleryImage[]> {
+export const getTeamGallery = cache(async (): Promise<TeamGalleryImage[]> => {
   try {
     const albums = await getAlbums(['Our Team']);
     const album =
@@ -331,7 +332,7 @@ export async function getTeamGallery(): Promise<TeamGalleryImage[]> {
     console.error('[getTeamGallery]', error);
     return [];
   }
-}
+});
 
 export type NewsItem = {
   id: number;
@@ -372,7 +373,7 @@ function productToNewsItem(item: {
 }
 
 /** News & Events：推荐新闻 + 全部列表 */
-export async function getNewsPageData(): Promise<NewsPageData> {
+export const getNewsPageData = cache(async (): Promise<NewsPageData> => {
   try {
     const categories = await getProductCategories();
     const category = findAboutCategory(
@@ -404,4 +405,32 @@ export async function getNewsPageData(): Promise<NewsPageData> {
     console.error('[getNewsPageData]', error);
     return { featured: [], articles: [] };
   }
-}
+});
+
+/** 首页新闻轮播：只取最近 N 条，避免拉全量列表 */
+export const getNewsCarouselItems = cache(async (limit = 12): Promise<NewsItem[]> => {
+  try {
+    const categories = await getProductCategories();
+    const category = findAboutCategory(
+      categories,
+      ABOUT_SECTIONS.news.categoryName,
+    );
+    if (!category) return [];
+
+    const { list } = await getProducts(1, limit, category.id);
+    return [...list]
+      .map(productToNewsItem)
+      .sort((a, b) =>
+        compareBySortThen(a, b, (x, y) => {
+          const t =
+            new Date(y.created_at.replace(' ', 'T')).getTime() -
+            new Date(x.created_at.replace(' ', 'T')).getTime();
+          return t || y.id - x.id;
+        }),
+      )
+      .slice(0, limit);
+  } catch (error) {
+    console.error('[getNewsCarouselItems]', error);
+    return [];
+  }
+});

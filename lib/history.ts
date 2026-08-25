@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import {
   getProductCategories,
   getProducts,
@@ -33,7 +34,7 @@ function productToStoryNode(item: ProductListItem): StoryNode {
 }
 
 /** 从 CMS「Our Story & Philosophy」栏目读取时间线 */
-export async function getStoryNodes(): Promise<StoryNode[]> {
+export const getStoryNodes = cache(async (): Promise<StoryNode[]> => {
   try {
     const categories = await getProductCategories();
     const category =
@@ -61,4 +62,4 @@ export async function getStoryNodes(): Promise<StoryNode[]> {
     console.error('[getStoryNodes]', error);
     return [];
   }
-}
+});

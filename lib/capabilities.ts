@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import {
   getAlbums,
   getProduct,
@@ -115,7 +116,7 @@ function qualityFromCategory(category: ProductCategory | null): QualityPageData 
 }
 
 /** Quality Control：一级栏目 → metadata / banner */
-export async function getQualityPageData(): Promise<QualityPageData> {
+export const getQualityPageData = cache(async (): Promise<QualityPageData> => {
   try {
     const categories = await getProductCategories();
     return qualityFromCategory(findQualityRoot(categories));
@@ -123,7 +124,7 @@ export async function getQualityPageData(): Promise<QualityPageData> {
     console.error('[getQualityPageData]', error);
     return qualityFromCategory(null);
   }
-}
+});
 
 function findScopeRoot(categories: ProductCategory[]) {
   return (
@@ -197,9 +198,9 @@ const HOME_CAPA_FALLBACK: HomeCapabilityPanel[] = [
 ];
 
 /** 首页 Capabilities：Scope of capabilities 下标记推荐的二级栏目 */
-export async function getHomeCapabilityPanels(
+export const getHomeCapabilityPanels = cache(async (
   limit = 3,
-): Promise<HomeCapabilityPanel[]> {
+): Promise<HomeCapabilityPanel[]> => {
   try {
     const categories = await getProductCategories();
     const root = findScopeRoot(categories);
@@ -228,7 +229,7 @@ export async function getHomeCapabilityPanels(
     console.error('[getHomeCapabilityPanels]', error);
     return HOME_CAPA_FALLBACK;
   }
-}
+});
 
 function scopeMetaFromRoot(root: ProductCategory | null): ScopePageData['meta'] {
   if (!root) {
@@ -241,7 +242,7 @@ function scopeMetaFromRoot(root: ProductCategory | null): ScopePageData['meta'] 
   };
 }
 
-export async function getScopePageData(): Promise<ScopePageData> {
+export const getScopePageData = cache(async (): Promise<ScopePageData> => {
   try {
     const categories = await getProductCategories();
     const root = findScopeRoot(categories);
@@ -290,7 +291,7 @@ export async function getScopePageData(): Promise<ScopePageData> {
       items: [],
     };
   }
-}
+});
 
 export async function getScopeProductDetail(
   categoryId: number,
@@ -407,7 +408,7 @@ export type QualityGalleryImage = {
 };
 
 /** Quality Control 图集 → 跑马灯画廊 */
-export async function getQualityGallery(): Promise<QualityGalleryImage[]> {
+export const getQualityGallery = cache(async (): Promise<QualityGalleryImage[]> => {
   try {
     const albums = await getAlbums([QUALITY_ROOT_NAME]);
     const album =
@@ -424,4 +425,4 @@ export async function getQualityGallery(): Promise<QualityGalleryImage[]> {
     console.error('[getQualityGallery]', error);
     return QC_GALLERY;
   }
-}
+});

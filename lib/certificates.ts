@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
@@ -51,7 +52,7 @@ function fromCategory(category: ProductCategory | null): CertificatesPageData {
 }
 
 /** Certificates：一级栏目 → metadata / banner */
-export async function getCertificatesPageData(): Promise<CertificatesPageData> {
+export const getCertificatesPageData = cache(async (): Promise<CertificatesPageData> => {
   try {
     const categories = await getProductCategories();
     return fromCategory(findCertificatesCategory(categories));
@@ -59,4 +60,4 @@ export async function getCertificatesPageData(): Promise<CertificatesPageData> {
     console.error('[getCertificatesPageData]', error);
     return fromCategory(null);
   }
-}
+});

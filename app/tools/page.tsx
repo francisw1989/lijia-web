@@ -9,7 +9,7 @@ import {
 } from '@/lib/tools';
 import { ToolsContent } from './content';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getToolsPageData();

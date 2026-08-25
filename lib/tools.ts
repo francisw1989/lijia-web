@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import {
   getProduct,
   getProductCategories,
@@ -242,7 +243,7 @@ function mapDoc(item: ProductListItem): ToolsDocItem | null {
 }
 
 /** Tools：一级栏目 → metadata / banner */
-export async function getToolsPageData(): Promise<ToolsPageData> {
+export const getToolsPageData = cache(async (): Promise<ToolsPageData> => {
   try {
     const categories = await getProductCategories();
     return fromCategory(findToolsCategory(categories));
@@ -250,10 +251,10 @@ export async function getToolsPageData(): Promise<ToolsPageData> {
     console.error('[getToolsPageData]', error);
     return fromCategory(null);
   }
-}
+});
 
 /** Tools 首页四个资源入口（含 FAQ 占位） */
-export async function getToolsResourceCards(): Promise<ToolsResourceCard[]> {
+export const getToolsResourceCards = cache(async (): Promise<ToolsResourceCard[]> => {
   const fallback: ToolsResourceCard[] = [
     {
       id: 'terms',
@@ -300,7 +301,7 @@ export async function getToolsResourceCards(): Promise<ToolsResourceCard[]> {
     console.error('[getToolsResourceCards]', error);
     return fallback;
   }
-}
+});
 
 export function isToolsResourceSlug(value: string): value is ToolsResourceSlug {
   return RESOURCE_DEFS.some((d) => d.slug === value);
@@ -320,7 +321,7 @@ export async function getToolsRootArticlePageData(
     const root = findToolsCategory(categories);
     if (!root) return null;
 
-    const { list } = await getProducts(1, 100, root.id, { fresh: true });
+    const { list } = await getProducts(1, 100, root.id);
     const match = list.find(
       (item) =>
         item.category_id === root.id && titleMatch.test(item.title.trim()),
@@ -336,13 +337,13 @@ export async function getToolsRootArticlePageData(
 }
 
 /** tools 根栏目文章页（Terms / IP / NDA） */
-export async function getToolsArticlePageData(
+export const getToolsArticlePageData = cache(async (
   slug: string,
-): Promise<ToolsArticlePageData | null> {
+): Promise<ToolsArticlePageData | null> => {
   if (!isToolsArticleSlug(slug)) return null;
   const def = ROOT_ARTICLE_DEFS.find((item) => item.slug === slug)!;
   return getToolsRootArticlePageData(def.titleMatch, slug);
-}
+});
 
 function mapVideo(item: ProductListItem): ToolsVideoItem | null {
   const src = item.cover?.trim();
@@ -360,11 +361,11 @@ function mapVideo(item: ProductListItem): ToolsVideoItem | null {
 }
 
 /** Tools 视频栏目：Discover Tips… */
-export async function getToolsVideos(): Promise<{
+export const getToolsVideos = cache(async (): Promise<{
   heading: string;
   tags: ProductTag[];
   videos: ToolsVideoItem[];
-}> {
+}> => {
   try {
     const [categories, tags] = await Promise.all([
       getProductCategories(),
@@ -383,7 +384,7 @@ export async function getToolsVideos(): Promise<{
       return { heading: TOOLS_VIDEOS_HEADING, tags, videos: [] };
     }
 
-    const { list } = await getProducts(1, 100, child.id, { fresh: true });
+    const { list } = await getProducts(1, 100, child.id);
     const videos = list
       .map(mapVideo)
       .filter((x): x is ToolsVideoItem => Boolean(x));
@@ -397,12 +398,12 @@ export async function getToolsVideos(): Promise<{
     console.error('[getToolsVideos]', error);
     return { heading: TOOLS_VIDEOS_HEADING, tags: [], videos: [] };
   }
-}
+});
 
 /** Tools 文档列表页 */
-export async function getToolsDocPageData(
+export const getToolsDocPageData = cache(async (
   slug: string,
-): Promise<ToolsDocPageData | null> {
+): Promise<ToolsDocPageData | null> => {
   if (!isToolsResourceSlug(slug)) return null;
 
   const def = RESOURCE_DEFS.find((d) => d.slug === slug)!;
@@ -426,7 +427,7 @@ export async function getToolsDocPageData(
 
     let documents: ToolsDocItem[] = [];
     if (child) {
-      const { list } = await getProducts(1, 100, child.id, { fresh: true });
+      const { list } = await getProducts(1, 100, child.id);
       documents = list
         .map(mapDoc)
         .filter((x): x is ToolsDocItem => Boolean(x));
@@ -453,8 +454,7 @@ export async function getToolsDocPageData(
       documents: [],
     };
   }
-}
-
+});
 const GENERATOR_NAME = 'Template Generator';
 const GENERATOR_DESCRIPTION =
   'Generate print-ready PDF dielines for two-piece game boxes — custom size, material and wrap/bleed guides.';

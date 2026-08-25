@@ -4,7 +4,7 @@ import { ConnectCta } from '@/components/connect-cta';
 import { CountUp } from '@/components/count-up';
 import { NewsCarousel } from '@/components/news-carousel';
 import { RevealInit } from '@/components/reveal-init';
-import { getNewsPageData } from '@/lib/about';
+import { getNewsCarouselItems } from '@/lib/about';
 import { getHomeCapabilityPanels } from '@/lib/capabilities';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { getHomepageSettings, titleLines } from '@/lib/homepage';
@@ -45,10 +45,10 @@ const STATS = [
 ];
 
 export default async function HomePage() {
-  const [home, { articles: newsArticles }, capaItems, productItems] =
+  const [home, newsArticles, capaItems, productItems] =
     await Promise.all([
       getHomepageSettings(),
-      getNewsPageData(),
+      getNewsCarouselItems(12),
       getHomeCapabilityPanels(3),
       getHomeManufacturingComponents(6),
     ]);
@@ -56,7 +56,7 @@ export default async function HomePage() {
   const { banner, presence } = home;
   const bannerTitle = titleLines(banner.title);
 
-  const news = newsArticles.slice(0, 12).map((item) => ({
+  const news = newsArticles.map((item) => ({
     id: item.id,
     title: item.title,
     description: item.description,
