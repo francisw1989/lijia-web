@@ -13,6 +13,7 @@ import { categoryBannerCopy, categoryBannerMedia, isVideoMediaUrl } from '@/lib/
 export {
   isMeaningfulDescription,
   plainTextFromHtml,
+  hasRichContent,
 } from '@/lib/capabilities';
 
 export { isVideoMediaUrl } from '@/lib/media';

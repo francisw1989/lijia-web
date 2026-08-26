@@ -350,6 +350,16 @@ export function plainTextFromHtml(html: string) {
     .trim();
 }
 
+/** 富文本是否有可展示内容（纯文字，或图片/视频等媒体） */
+export function hasRichContent(html: string) {
+  const value = html.trim();
+  if (!value) return false;
+  if (plainTextFromHtml(value)) return true;
+  return /<(img|video|iframe|embed|object|figure|table|ul|ol|blockquote)\b/i.test(
+    value,
+  );
+}
+
 export function isMeaningfulDescription(title: string, description: string) {
   const text = description.trim();
   if (!text) return false;

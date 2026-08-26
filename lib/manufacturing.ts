@@ -299,7 +299,11 @@ export async function allManufacturingProductParams() {
   }
 }
 
-export { isMeaningfulDescription, plainTextFromHtml };
+export {
+  isMeaningfulDescription,
+  plainTextFromHtml,
+  hasRichContent,
+} from '@/lib/capabilities';
 
 function pageFromCategory(
   category: ProductCategory | null,

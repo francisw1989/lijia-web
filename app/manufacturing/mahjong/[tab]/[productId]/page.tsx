@@ -6,6 +6,7 @@ import {
   allMahjongProductParams,
   getMahjongPageData,
   getMahjongProductDetail,
+  hasRichContent,
   isMeaningfulDescription,
   plainTextFromHtml,
 } from '@/lib/mahjong';
@@ -57,7 +58,7 @@ export default async function MahjongProductPage({ params }: Props) {
     ? product.description.trim()
     : '';
   const bodyHtml = product.content?.trim() || '';
-  const hasBody = Boolean(plainTextFromHtml(bodyHtml));
+  const hasBody = hasRichContent(bodyHtml);
 
   return (
     <section className="cap-tag-page">

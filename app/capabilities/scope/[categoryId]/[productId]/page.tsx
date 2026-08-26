@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import {
   allScopeProductParams,
   getScopeProductDetail,
+  hasRichContent,
   isMeaningfulDescription,
   plainTextFromHtml,
   scopeCategoryHref,
@@ -48,7 +49,7 @@ export default async function CapabilityProductPage({ params }: Props) {
     ? product.description.trim()
     : '';
   const bodyHtml = product.content?.trim() || '';
-  const hasBody = Boolean(plainTextFromHtml(bodyHtml));
+  const hasBody = hasRichContent(bodyHtml);
   const backHref = scopeCategoryHref(Number(categoryId));
 
   return (

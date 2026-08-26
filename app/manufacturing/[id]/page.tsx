@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import {
   allManufacturingProductParams,
   getManufacturingProductDetail,
+  hasRichContent,
   isMeaningfulDescription,
   plainTextFromHtml,
 } from '@/lib/manufacturing';
@@ -52,7 +53,7 @@ export default async function ManufacturingDetailPage({ params }: Props) {
     ? product.description.trim()
     : '';
   const bodyHtml = product.content?.trim() || '';
-  const hasBody = Boolean(plainTextFromHtml(bodyHtml));
+  const hasBody = hasRichContent(bodyHtml);
 
   return (
     <section className="cap-tag-page">

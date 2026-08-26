@@ -96,7 +96,7 @@ export default async function HomePage() {
             <p className="font-medium font24 mb28 hero-lead">{banner.subtitle}</p>
           ) : null}
           <div className="flex-row-center flex-wrap gap-24 hero-actions">
-            <Link href="/about/facilities" className="btn btn-light btn-lg btn-light-border">
+            <Link href="/manufacturing" className="btn btn-light btn-lg btn-light-border">
               Learn More
             </Link>
             <Link href="/contact" className="btn btn-glass btn-lg">
