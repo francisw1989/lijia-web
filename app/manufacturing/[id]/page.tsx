@@ -49,9 +49,6 @@ export default async function ManufacturingDetailPage({ params }: Props) {
 
   const { product, category } = data;
   const cover = product.cover?.trim() || '';
-  const intro = isMeaningfulDescription(product.title, product.description)
-    ? product.description.trim()
-    : '';
   const bodyHtml = product.content?.trim() || '';
   const hasBody = hasRichContent(bodyHtml);
 
@@ -77,7 +74,6 @@ export default async function ManufacturingDetailPage({ params }: Props) {
           />
         </div>
       ) : null}
-      {intro ? <p className="cap-tag-page-copy">{intro}</p> : null}
       {hasBody ? (
         <div
           className="cap-tag-page-body"
