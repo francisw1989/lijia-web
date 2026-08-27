@@ -2637,6 +2637,13 @@ a.contact-info-line:hover {
   gap: 12px;
   align-items: stretch;
 }
+/* 详情嵌在侧栏布局里，间距与列表页对齐，去掉 cap-tag-page 的居中和上下留白 */
+.mj-panel .cap-tag-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
 .mj-card {
   display: flex;
   flex-direction: column;
@@ -3011,7 +3018,7 @@ a.contact-info-line:hover {
   padding: 64px 0 80px;
 }
 .cap-tag-page .mj-breadcrumb {
-  margin-bottom: 18px;
+  margin-bottom: 30px;
 }
 .cap-tag-page .about-news-more {
   display: inline-block;
