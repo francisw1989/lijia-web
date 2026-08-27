@@ -267,10 +267,9 @@ function mapCards(products: ProductListItem[]): MahjongCard[] {
   return products
     .slice()
     .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
-    .filter((item) => item.cover?.trim())
     .map((item) => {
-      const image = item.cover.trim();
-      const isVideo = isVideoMediaUrl(image, item.cover_type);
+      const image = item.cover?.trim() || '';
+      const isVideo = Boolean(image) && isVideoMediaUrl(image, item.cover_type);
       const poster = item.video_cover?.trim() || '';
       return {
         id: String(item.id),

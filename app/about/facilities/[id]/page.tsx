@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import { AboutShell } from '@/components/about-shell';
+import { ArticleDetail } from '@/components/article-detail';
 import {
   getAboutSection,
   getFacilitiesArticle,
@@ -47,29 +48,11 @@ export default async function FacilitiesArticlePage({ params }: Props) {
         subtitle={banner.subtitle}
       />
       <AboutShell>
-        <article className="about-news-detail facilities-article" suppressHydrationWarning>
+        <ArticleDetail title={article.title} html={article.content}>
           <Link href="/about/facilities" className="about-news-more">
             &lt; back to Our Facilities
           </Link>
-          <h1 className="about-news-detail-title">{article.title}</h1>
-          {article.cover ? (
-            <div className="about-news-detail-cover">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={article.cover}
-                alt={article.keywords || article.title}
-                className="about-news-detail-cover-img"
-              />
-            </div>
-          ) : null}
-          <div
-            className="about-news-detail-body"
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{
-              __html: article.content || '<p>No content</p>',
-            }}
-          />
-        </article>
+        </ArticleDetail>
       </AboutShell>
     </>
   );

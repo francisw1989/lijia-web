@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
 import { AboutShell } from '@/components/about-shell';
+import { ArticleDetail } from '@/components/article-detail';
 import { getAboutSection, getNewsPageData } from '@/lib/about';
 import { getProduct } from '@/lib/cms';
 
@@ -52,30 +53,15 @@ export default async function AboutNewsDetailPage({ params }: Props) {
     <>
       <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} title={banner.title} subtitle={banner.subtitle} />
       <AboutShell>
-        <article className="about-news-detail" suppressHydrationWarning>
+        <ArticleDetail
+          title={article.title}
+          kicker={formatDate(article.created_at)}
+          html={article.content}
+        >
           <Link href="/about/news" className="about-news-more">
             &lt; back to News &amp; Events
           </Link>
-          <h1 className="about-news-detail-title">{article.title}</h1>
-          <p className="about-news-date">{formatDate(article.created_at)}</p>
-          {article.cover ? (
-            <div className="about-news-detail-cover">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={article.cover}
-                alt={article.keywords || article.title}
-                className="about-news-detail-cover-img"
-              />
-            </div>
-          ) : null}
-          <div
-            className="about-news-detail-body"
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{
-              __html: article.content || '<p>No content</p>',
-            }}
-          />
-        </article>
+        </ArticleDetail>
       </AboutShell>
     </>
   );

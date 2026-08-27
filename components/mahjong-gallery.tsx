@@ -72,9 +72,11 @@ function MahjongCardItem({
   const body = (
     <>
       <h2 className="mj-card-title">{card.title}</h2>
-      <div className="mj-card-media">
-        <MahjongCardMedia card={card} span={span} priority={priority} />
-      </div>
+      {card.image ? (
+        <div className="mj-card-media">
+          <MahjongCardMedia card={card} span={span} priority={priority} />
+        </div>
+      ) : null}
     </>
   );
 

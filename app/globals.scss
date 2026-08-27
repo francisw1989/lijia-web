@@ -2637,8 +2637,10 @@ a.contact-info-line:hover {
   gap: 12px;
   align-items: stretch;
 }
-/* 详情嵌在侧栏布局里，间距与列表页对齐，去掉 cap-tag-page 的居中和上下留白 */
-.mj-panel .cap-tag-page {
+/* 详情嵌在侧栏/文档布局里，间距与列表页对齐 */
+.mj-panel .cap-tag-page,
+.about-panel .cap-tag-page,
+.tools-doc-page .cap-tag-page {
   width: 100%;
   max-width: none;
   margin: 0;
@@ -3085,8 +3087,9 @@ a.contact-info-line:hover {
   height: auto;
   border-radius: var(--radius);
 }
-.ql-align-center img {
-  margin: 0 auto;
+.cap-tag-page-body .ql-align-center img {
+  margin-left: auto;
+  margin-right: auto;
 }
 .cap-detail-media {
   position: relative;
