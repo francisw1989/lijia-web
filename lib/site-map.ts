@@ -48,7 +48,7 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
     href: '/manufacturing',
     links: [
       { href: '/manufacturing', label: 'Manufacturing' },
-      { href: '/manufacturing/mahjong', label: 'Mahjong' },
+      { href: '/manufacturing/mahjong/mahjong-tiles', label: 'Mahjong' },
     ],
   },
   {

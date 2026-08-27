@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { MahjongBreadcrumb } from '@/components/mahjong-nav';
-import { MahjongGallery, MahjongViewMore } from '@/components/mahjong-gallery';
+import { MahjongGallery } from '@/components/mahjong-gallery';
 import {
   allMahjongTabParams,
   getMahjongPageData,
   getMahjongTabPageData,
-  mahjongTabListHref,
 } from '@/lib/mahjong';
 
 type Props = {
@@ -21,30 +20,27 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tab } = await params;
-  const data = await getMahjongTabPageData(tab);
+  const data = await getMahjongTabPageData(tab, { all: true });
   if (!data) return { title: 'Mahjong' };
   return {
-    title: data.meta.title,
+    title: `${data.meta.title} ALL`,
     description: data.meta.description,
     keywords: data.meta.keywords,
   };
 }
 
-export default async function MahjongTabPage({ params }: Props) {
+export default async function MahjongTabListPage({ params }: Props) {
   const { tab } = await params;
   const [data, page] = await Promise.all([
-    getMahjongTabPageData(tab),
+    getMahjongTabPageData(tab, { all: true }),
     getMahjongPageData(),
   ]);
   if (!data) notFound();
 
-  const hasMore = data.allCount > data.cards.length;
-
   return (
     <>
-      <MahjongBreadcrumb tabs={page.tabs} />
+      <MahjongBreadcrumb tabs={page.tabs} current={`${data.tab.label} ALL`} />
       <MahjongGallery cards={data.cards} />
-      {hasMore ? <MahjongViewMore href={mahjongTabListHref(tab)} /> : null}
     </>
   );
 }

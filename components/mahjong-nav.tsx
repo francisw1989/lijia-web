@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { MahjongNavItem } from '@/lib/mahjong';
-import { MAHJONG_BASE } from '@/lib/mahjong';
+import { MAHJONG_HOME } from '@/lib/mahjong';
 
 export function MahjongNav({ tabs }: { tabs: MahjongNavItem[] }) {
   const pathname = usePathname();
@@ -51,7 +51,7 @@ export function MahjongBreadcrumb({
           <Link href="/manufacturing">Manufacturing</Link>
         </li>
         <li>
-          <Link href={MAHJONG_BASE}>Mahjong</Link>
+          <Link href={MAHJONG_HOME}>Mahjong</Link>
         </li>
         {activeTab ? (
           <li>

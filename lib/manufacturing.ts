@@ -48,7 +48,7 @@ export const MFG_COMPONENTS: MfgComponent[] = [
     desc: DEFAULT_DESC,
     icon: '/images/ma/2-1.png',
     iconHover: '/images/ma/2-2.png',
-    href: '/manufacturing/mahjong',
+    href: '/manufacturing/mahjong/mahjong-tiles',
   },
   {
     id: 'pcb',

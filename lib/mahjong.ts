@@ -19,14 +19,27 @@ export {
 export { isVideoMediaUrl } from '@/lib/media';
 
 export const MAHJONG_BASE = '/manufacturing/mahjong';
+/** Mahjong 入口：直接进入第一个二级栏目，避免停留在 /manufacturing/mahjong */
+export const MAHJONG_DEFAULT_TAB = 'mahjong-tiles';
+export const MAHJONG_HOME = `${MAHJONG_BASE}/${MAHJONG_DEFAULT_TAB}`;
 
 /** 本地回退：CMS 不可用时使用 */
 export const MAHJONG_NAV_FALLBACK = [
-  { id: 'set', label: 'Mahjong Set', href: `${MAHJONG_BASE}/set` },
-  { id: 'mat', label: 'Mahjong Mat', href: `${MAHJONG_BASE}/mat` },
-  { id: 'rack', label: 'Mahjong Rack', href: `${MAHJONG_BASE}/rack` },
-  { id: 'tiles', label: 'Mahjong Tiles(Only)', href: `${MAHJONG_BASE}/tiles` },
-  { id: 'bag', label: 'Mahjong Bag', href: `${MAHJONG_BASE}/bag` },
+  {
+    id: 'mahjong-tiles',
+    label: 'Mahjong Tiles',
+    href: `${MAHJONG_BASE}/mahjong-tiles`,
+  },
+  {
+    id: 'domino-tiles',
+    label: 'Domino Tiles',
+    href: `${MAHJONG_BASE}/domino-tiles`,
+  },
+  {
+    id: 'letter-symbol-tiles',
+    label: 'Letter & Symbol Tiles',
+    href: `${MAHJONG_BASE}/letter-symbol-tiles`,
+  },
 ] as const;
 
 export type MahjongTabId = (typeof MAHJONG_NAV_FALLBACK)[number]['id'];
@@ -138,6 +151,8 @@ export type MahjongTabPageData = {
   };
   tab: MahjongNavItem;
   cards: MahjongCard[];
+  /** 栏目下全部文章数（含非推荐），用于 View More */
+  allCount: number;
 };
 
 export const MAHJONG_HERO_FALLBACK = '/images/14.jpg';
@@ -158,35 +173,23 @@ function imgCard(id: string, image: string): MahjongCard {
 }
 
 export const MAHJONG_GALLERY_FALLBACK: Record<MahjongTabId, MahjongCard[]> = {
-  set: [
-    imgCard('set-1', LOCAL.g),
-    imgCard('set-2', LOCAL.f),
-    imgCard('set-3', LOCAL.b),
-    imgCard('set-4', LOCAL.a),
+  'mahjong-tiles': [
+    imgCard('mahjong-tiles-1', LOCAL.g),
+    imgCard('mahjong-tiles-2', LOCAL.f),
+    imgCard('mahjong-tiles-3', LOCAL.b),
+    imgCard('mahjong-tiles-4', LOCAL.a),
   ],
-  mat: [
-    imgCard('mat-1', LOCAL.h),
-    imgCard('mat-2', LOCAL.e),
-    imgCard('mat-3', LOCAL.c),
-    imgCard('mat-4', LOCAL.d),
+  'domino-tiles': [
+    imgCard('domino-tiles-1', LOCAL.h),
+    imgCard('domino-tiles-2', LOCAL.e),
+    imgCard('domino-tiles-3', LOCAL.c),
+    imgCard('domino-tiles-4', LOCAL.d),
   ],
-  rack: [
-    imgCard('rack-1', LOCAL.d),
-    imgCard('rack-2', LOCAL.g),
-    imgCard('rack-3', LOCAL.a),
-    imgCard('rack-4', LOCAL.f),
-  ],
-  tiles: [
-    imgCard('tiles-1', LOCAL.b),
-    imgCard('tiles-2', LOCAL.a),
-    imgCard('tiles-3', LOCAL.f),
-    imgCard('tiles-4', LOCAL.c),
-  ],
-  bag: [
-    imgCard('bag-1', LOCAL.e),
-    imgCard('bag-2', LOCAL.h),
-    imgCard('bag-3', LOCAL.g),
-    imgCard('bag-4', LOCAL.d),
+  'letter-symbol-tiles': [
+    imgCard('letter-symbol-tiles-1', LOCAL.d),
+    imgCard('letter-symbol-tiles-2', LOCAL.g),
+    imgCard('letter-symbol-tiles-3', LOCAL.a),
+    imgCard('letter-symbol-tiles-4', LOCAL.f),
   ],
 };
 
@@ -209,17 +212,21 @@ function findMahjongRoot(categories: ProductCategory[]) {
   );
 }
 
+function slugifyName(name: string) {
+  return (
+    name
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, ' ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || ''
+  );
+}
+
 function tabSlug(category: ProductCategory) {
   const fromKeywords = category.keywords?.trim().toLowerCase();
   if (fromKeywords && /^[a-z0-9-]+$/.test(fromKeywords)) return fromKeywords;
-
-  const name = category.name.trim().toLowerCase();
-  if (name.includes('tiles')) return 'tiles';
-  if (name.includes('mat')) return 'mat';
-  if (name.includes('rack')) return 'rack';
-  if (name.includes('bag')) return 'bag';
-  if (name.includes('set')) return 'set';
-  return name.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || String(category.id);
+  return slugifyName(category.name) || String(category.id);
 }
 
 function mapTabs(children: ProductCategory[]): MahjongNavItem[] {
@@ -238,6 +245,10 @@ function mapTabs(children: ProductCategory[]): MahjongNavItem[] {
 
 export function mahjongTabHref(tabId: string) {
   return `${MAHJONG_BASE}/${tabId}`;
+}
+
+export function mahjongTabListHref(tabId: string) {
+  return `${MAHJONG_BASE}/${tabId}/list`;
 }
 
 export function mahjongProductHref(tabId: string, productId: number) {
@@ -276,7 +287,7 @@ function fallbackPage(): MahjongPageData {
     meta: {
       title: ROOT_NAME,
       description:
-        'Mahjong sets, mats, racks, tiles and bags manufactured for board game brands.',
+        'Mahjong tiles, domino tiles, and letter & symbol tiles manufactured for board game brands.',
       keywords: 'Mahjong',
     },
     hero: {
@@ -284,7 +295,7 @@ function fallbackPage(): MahjongPageData {
       alt: 'Lijia mahjong products',
     },
     tabs: MAHJONG_NAV_FALLBACK.map((item) => ({ ...item })),
-    defaultTabId: 'set',
+    defaultTabId: MAHJONG_DEFAULT_TAB,
   };
 }
 
@@ -323,9 +334,23 @@ export const getMahjongPageData = cache(async (): Promise<MahjongPageData> => {
   }
 });
 
-/** 单个 Tab 页：栏目 metadata + 文章卡片 */
+function fallbackTabPage(
+  tab: MahjongNavItem,
+  tabId: string,
+): MahjongTabPageData {
+  const fallbackCards = MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? [];
+  return {
+    meta: { title: tab.label },
+    tab,
+    cards: fallbackCards,
+    allCount: fallbackCards.length,
+  };
+}
+
+/** 单个 Tab 页：栏目 metadata + 文章卡片；默认仅推荐 */
 export async function getMahjongTabPageData(
   tabId: string,
+  options?: { all?: boolean },
 ): Promise<MahjongTabPageData | null> {
   const page = await getMahjongPageData();
   const tab = page.tabs.find((item) => item.id === tabId);
@@ -334,37 +359,27 @@ export async function getMahjongTabPageData(
   try {
     const categories = await getProductCategories();
     const root = findMahjongRoot(categories);
-    if (!root) {
-      const fallbackCards =
-        MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? [];
-      return {
-        meta: { title: tab.label },
-        tab,
-        cards: fallbackCards,
-      };
-    }
+    if (!root) return fallbackTabPage(tab, tabId);
 
     const category =
       categories
         .filter((item) => item.parent_id === root.id)
         .find((item) => tabSlug(item) === tabId) ?? null;
 
-    if (!category) {
-      const fallbackCards =
-        MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? [];
-      return {
-        meta: { title: tab.label },
-        tab,
-        cards: fallbackCards,
-      };
-    }
+    if (!category) return fallbackTabPage(tab, tabId);
 
     const { list } = await getProducts(1, 100, category.id);
-    const cards = mapCards(list);
+    const recommended = list.filter(
+      (item) => Number(item.is_recommended) === 1,
+    );
+    const source = options?.all ? list : recommended;
+    const cards = mapCards(source);
     const resolved =
       cards.length > 0
         ? cards
-        : (MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? []);
+        : options?.all
+          ? (MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? [])
+          : [];
     return {
       meta: {
         title: category.name?.trim() || tab.label,
@@ -377,14 +392,11 @@ export async function getMahjongTabPageData(
         href: `${MAHJONG_BASE}/${tabId}`,
       },
       cards: withCardHrefs(tabId, resolved),
+      allCount: list.length,
     };
   } catch (error) {
     console.error('[getMahjongTabPageData]', error);
-    return {
-      meta: { title: tab.label },
-      tab,
-      cards: MAHJONG_GALLERY_FALLBACK[tabId as MahjongTabId] ?? [],
-    };
+    return fallbackTabPage(tab, tabId);
   }
 }
 

@@ -81,7 +81,7 @@ export async function getFooterNavData(): Promise<FooterNavData> {
             href: sourcingHref,
           },
           { label: 'Game‑Ready Components', href: '/manufacturing' },
-          { label: 'Mahjong', href: '/manufacturing/mahjong' },
+          { label: 'Mahjong', href: '/manufacturing/mahjong/mahjong-tiles' },
         ],
       },
       {
