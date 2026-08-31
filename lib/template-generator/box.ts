@@ -1,11 +1,6 @@
 import { jsPDF } from 'jspdf';
-import {
-  LINE,
-  drawHeader,
-  drawLegend,
-  loadLogoDataUrl,
-  stroke,
-} from './logo';
+import { drawHeader, drawLegend, loadLogoDataUrl } from './logo';
+import { BLEED, LEGEND_W, PAD, SAFE, WRAP, strokeGuide } from './style';
 
 export const BOX_MATERIALS = [
   { mm: 1, label: '1mm high density mounted cardboard' },
@@ -16,21 +11,10 @@ export const BOX_MATERIALS = [
 
 export type BoxMaterialMm = (typeof BOX_MATERIALS)[number]['mm'];
 
-/** 与 Panda Template Generator 对齐的工艺常数 */
-const BLEED = 3;
-const WRAP = 15;
-const SAFE = 3;
-const TAB = 30; // 2 × wrap
+const TAB = WRAP * 2;
 const CHAMFER = 10;
 const FIT = 3; // 盒底相对盒盖的配合间隙
 const INNER_CLEARANCE = 2.5; // 盖墙+底墙之外的装配间隙（对齐截图内径）
-const PAD = 40;
-
-const C = {
-  dieline: LINE.dieline,
-  bleed: LINE.bleed,
-  margin: LINE.margin,
-};
 
 type Pt = [number, number];
 
@@ -291,16 +275,16 @@ function drawPart(
     subtitle: opts.subtitle,
     extra: opts.actualSize,
   });
-  drawLegend(doc, pageW - 52, 9);
+  drawLegend(doc, pageW - LEGEND_W, 9);
 
-  stroke(doc, C.dieline, false, 0.3);
+  strokeGuide(doc, 'dieline');
   poly(doc, cutOutline(cx, cy, cw, ch, wh));
 
-  stroke(doc, C.dieline, false, 0.28);
+  strokeGuide(doc, 'dieline');
   doc.rect(cx - wh, cy, cw + 2 * wh, ch);
   doc.rect(cx, cy - wh, cw, ch + 2 * wh);
 
-  stroke(doc, C.margin, true, 0.28);
+  strokeGuide(doc, 'margin');
   if (cw > SAFE * 2 && ch > SAFE * 2) {
     doc.rect(cx + SAFE, cy + SAFE, cw - SAFE * 2, ch - SAFE * 2);
   }
@@ -313,7 +297,7 @@ function drawPart(
     doc.rect(cx + cw + SAFE, cy + SAFE, wh - SAFE * 2, ch - SAFE * 2);
   }
 
-  stroke(doc, C.bleed, true, 0.3);
+  strokeGuide(doc, 'bleed');
   poly(doc, bleedOutline(cx, cy, cw, ch, wh));
 }
 

@@ -1879,6 +1879,77 @@ a.contact-info-line:hover {
   font-weight: 600;
   color: var(--navy);
 }
+.tg-punch-face {
+  fill: #eef3f8;
+}
+.tg-punch-token {
+  fill: #fff;
+  stroke: var(--navy);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.tg-punch-mark {
+  fill: var(--navy);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-sans), sans-serif;
+}
+.tg-cards-step {
+  display: grid;
+  gap: 20px;
+}
+.tg-card-modes {
+  justify-content: flex-start;
+}
+.tg-card-preview {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 12px 8px 4px;
+  border-radius: var(--radius);
+}
+.tg-card-preview-title,
+.tg-card-caption {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.tg-card-caption {
+  font-weight: 600;
+  color: #5b6575;
+}
+.tg-card-face {
+  fill: #fff;
+}
+.tg-pad-top {
+  fill: #f7fafc;
+}
+.tg-pad-front {
+  fill: #c5d3e0;
+}
+.tg-pad-side {
+  fill: #9eb3c6;
+}
+.tg-pad-edges {
+  stroke: var(--navy);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.tg-pad-rule {
+  stroke: #9aa8b8;
+  stroke-width: 1.2;
+}
+.tg-sheet-face {
+  fill: #fff;
+}
+.tg-sheet-block {
+  fill: #e6eef5;
+}
+.tg-sheet-rule {
+  stroke: #b7c4d2;
+  stroke-width: 1.2;
+}
 .tg-folded {
   display: grid;
   gap: 4px;

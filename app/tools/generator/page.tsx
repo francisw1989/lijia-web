@@ -29,9 +29,8 @@ export default async function TemplateGeneratorPage() {
         </div>
         <h1 className="tools-doc-heading">{meta.title}</h1>
         <p className="tools-doc-intro tg-lead">
-          Create a custom two-piece game box template. Enter millimetre
-          dimensions, choose board thickness, then download a print-ready PDF
-          with cut, fold, bleed and wrap lines.
+          Create a custom print-ready template. Enter millimetre dimensions,
+          then download a PDF with cut, bleed and margin lines.
         </p>
         <TemplateGeneratorApp />
       </section>

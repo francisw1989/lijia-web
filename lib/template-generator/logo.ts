@@ -1,4 +1,12 @@
 import type { jsPDF } from 'jspdf';
+import {
+  type GuideKind,
+  HEADER_INSET,
+  HEADER_LEGEND_GAP,
+  LEGEND_SWATCH_WIDTH,
+  LEGEND_W,
+  strokeGuide,
+} from './style';
 
 const LOGO_SRC = '/images/logo-2.png';
 /** 与加大后的三行标题齐高 */
@@ -29,33 +37,59 @@ export async function loadLogoDataUrl() {
   return cached;
 }
 
-export type Cmyk = readonly [number, number, number, number];
-
-/** 对照客户刀模图例：绿虚线 / 红实线 / 蓝虚线 */
-export const LINE = {
-  margin: [1, 0, 1, 0] as const,
-  dieline: [0, 1, 1, 0] as const,
-  bleed: [1, 0.55, 0, 0] as const,
-};
-
-export function stroke(
-  doc: jsPDF,
-  color: Cmyk,
-  dashed = false,
-  width = 0.25,
-) {
-  doc.setDrawColor(color[0], color[1], color[2], color[3]);
-  doc.setLineWidth(width);
-  doc.setLineDashPattern(dashed ? [4, 2.2] : [], 0);
-}
-
 export function ink(doc: jsPDF) {
   doc.setTextColor(0, 0, 0, 1);
   doc.setDrawColor(0, 0, 0, 1);
   doc.setLineDashPattern([], 0);
 }
 
-/** 页眉：兔子 logo + 标题作为一个整体水平居中 */
+function headerTextWidth(
+  doc: jsPDF,
+  title: string,
+  subtitle: string,
+  extra?: string,
+) {
+  const extras = extra?.trim() ? [extra.trim()] : [];
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  let textW = doc.getTextWidth(title);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(13);
+  textW = Math.max(textW, doc.getTextWidth(subtitle));
+  extras.forEach((line) => {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(12);
+    textW = Math.max(textW, doc.getTextWidth(line));
+  });
+  return textW;
+}
+
+export function headerBlockWidth(
+  doc: jsPDF,
+  title: string,
+  subtitle: string,
+  extra?: string,
+) {
+  return LOGO_W + 6 + headerTextWidth(doc, title, subtitle, extra);
+}
+
+/** 页眉标题区 + 右侧图例所需的最小页宽 */
+export function headerMinPageWidth(
+  doc: jsPDF,
+  title: string,
+  subtitle: string,
+  extra?: string,
+) {
+  return (
+    HEADER_INSET +
+    headerBlockWidth(doc, title, subtitle, extra) +
+    HEADER_LEGEND_GAP +
+    LEGEND_W +
+    8
+  );
+}
+
+/** 页眉：兔子 logo + 标题。默认居中；窄页用 left，避免和图例重叠 */
 export function drawHeader(
   doc: jsPDF,
   opts: {
@@ -64,24 +98,17 @@ export function drawHeader(
     title: string;
     subtitle: string;
     extra?: string;
+    align?: 'center' | 'left';
   },
 ) {
   const extras = opts.extra?.trim() ? [opts.extra.trim()] : [];
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  let textW = doc.getTextWidth(opts.title);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(13);
-  textW = Math.max(textW, doc.getTextWidth(opts.subtitle));
-  extras.forEach((line) => {
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(12);
-    textW = Math.max(textW, doc.getTextWidth(line));
-  });
-
+  const textW = headerTextWidth(doc, opts.title, opts.subtitle, opts.extra);
   const gap = 6;
   const blockW = LOGO_W + gap + textW;
-  const x0 = (opts.pageW - blockW) / 2;
+  const x0 =
+    opts.align === 'left'
+      ? HEADER_INSET
+      : (opts.pageW - blockW) / 2;
   const y0 = 5;
 
   doc.addImage(opts.logoDataUrl, 'PNG', x0, y0, LOGO_W, LOGO_H);
@@ -108,14 +135,14 @@ export function drawHeader(
 }
 
 export function drawLegend(doc: jsPDF, x: number, y: number) {
-  const rows: { label: string; color: Cmyk; dashed?: boolean }[] = [
-    { label: 'Margin', color: LINE.margin, dashed: true },
-    { label: 'Fold/Dieline', color: LINE.dieline },
-    { label: 'Outer Bleed', color: LINE.bleed, dashed: true },
+  const rows: { label: string; kind: GuideKind }[] = [
+    { label: 'Margin', kind: 'margin' },
+    { label: 'Fold/Dieline', kind: 'dieline' },
+    { label: 'Outer Bleed', kind: 'bleed' },
   ];
   rows.forEach((row, i) => {
     const yy = y + i * 7;
-    stroke(doc, row.color, !!row.dashed, 0.9);
+    strokeGuide(doc, row.kind, LEGEND_SWATCH_WIDTH);
     doc.line(x, yy, x + 14, yy);
     ink(doc);
     doc.setFontSize(11);
