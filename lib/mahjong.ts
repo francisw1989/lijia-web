@@ -201,7 +201,21 @@ export const MAHJONG_GALLERY = MAHJONG_GALLERY_FALLBACK;
 const ROOT_NAME = 'Mahjong';
 
 function findMahjongRoot(categories: ProductCategory[]) {
+  const manufacturing = categories.find(
+    (item) =>
+      item.parent_id == null && /^manufacturing$/i.test(item.name.trim()),
+  );
+  const underManufacturing = manufacturing
+    ? categories.find(
+        (item) =>
+          item.parent_id === manufacturing.id &&
+          (/^\s*mahjong\s*$/i.test(item.name) ||
+            /^mahjong$/i.test(item.keywords || '')),
+      )
+    : null;
+
   return (
+    underManufacturing ??
     categories.find(
       (item) => item.parent_id == null && item.name === ROOT_NAME,
     ) ??
@@ -299,8 +313,8 @@ function fallbackPage(): MahjongPageData {
 }
 
 /**
- * Mahjong 一级栏目：banner / metadata / tab 导航
- * banner 始终取一级栏目主图，各 Tab 子页共用（不读二级栏目图）
+ * Mahjong：Manufacturing 下二级栏目的 banner / metadata / tab 导航
+ * banner 始终取 Mahjong 栏目主图，各 Tab 子页共用（不读三级栏目图）
  */
 export const getMahjongPageData = cache(async (): Promise<MahjongPageData> => {
   try {

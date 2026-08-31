@@ -81,12 +81,14 @@ export async function POST(request: NextRequest) {
     if (type === 'product' && id && Number.isFinite(id)) {
       revalidateTag(`product-${id}`, { expire: 0 });
       revalidatePath(`/manufacturing/${id}`);
+      revalidatePath('/manufacturing', 'layout');
       revalidatePath('/manufacturing/mahjong', 'layout');
       revalidatePath(`/about/news/${id}`);
       revalidatePath(`/about/facilities/${id}`);
       revalidatePath(`/about/team/${id}`);
     }
     if (type === 'product-category') {
+      revalidatePath('/manufacturing', 'layout');
       revalidatePath('/manufacturing/mahjong', 'layout');
       revalidatePath('/contact');
       revalidatePath('/start-a-project');

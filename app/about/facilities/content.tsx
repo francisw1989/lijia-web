@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
-import { GalleryImgHover, imageTitle } from '@/components/gallery-img-hover';
+import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
 import type { FacilityAlbumTab } from '@/lib/about';
 
@@ -129,25 +129,18 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
                   aria-hidden={copy === 1 || !isActive}
                 >
                   {album.images.map((item, index) => (
-                    <button
+                    <GalleryTile
                       key={`${album.id}-${copy}-${item.src}-${index}`}
-                      type="button"
+                      src={item.src}
+                      alt={item.alt}
                       className="facilities-marquee-item"
-                      aria-label={`Preview ${item.alt}`}
+                      loading={isActive && copy === 0 ? 'eager' : 'lazy'}
                       tabIndex={!isActive || copy === 1 ? -1 : undefined}
                       onClick={() => {
                         if (!isActive) return;
                         setPreviewIndex(index);
                       }}
-                    >
-                      <img
-                        src={item.src}
-                        alt={item.alt}
-                        loading={isActive && copy === 0 ? 'eager' : 'lazy'}
-                        decoding="async"
-                      />
-                      <GalleryImgHover title={item.alt} />
-                    </button>
+                    />
                   ))}
                 </div>
               ))}

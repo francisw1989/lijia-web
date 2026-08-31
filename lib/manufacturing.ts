@@ -14,17 +14,79 @@ import {
   plainTextFromHtml,
 } from '@/lib/capabilities';
 
+const MAHJONG_HOME = '/manufacturing/mahjong/mahjong-tiles';
+
+export const MFG_PAGE_SIZE = 12;
+
+export function slugifyMfgName(name: string) {
+  return (
+    name
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, ' ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || ''
+  );
+}
+
+export function isMahjongCategory(category: { name?: string; keywords?: string }) {
+  return (
+    /^\s*mahjong\s*$/i.test(category.name || '') ||
+    /^mahjong$/i.test(category.keywords || '')
+  );
+}
+
+export function manufacturingSectionSlug(category: {
+  id: number;
+  name: string;
+  keywords?: string;
+}) {
+  const kw = category.keywords?.trim().toLowerCase();
+  if (kw && /^[a-z0-9-]+$/.test(kw)) return kw;
+  return slugifyMfgName(category.name) || String(category.id);
+}
+
+export function manufacturingCategoryHref(
+  category: { id: number; name: string; keywords?: string } | string | number,
+) {
+  if (typeof category === 'object') {
+    if (isMahjongCategory(category)) return MAHJONG_HOME;
+    return `/manufacturing/${manufacturingSectionSlug(category)}`;
+  }
+  return `/manufacturing/${category}`;
+}
+
+export function manufacturingProductHref(
+  section: { id: number; name: string; keywords?: string } | string | number,
+  productId: string | number,
+) {
+  const slug =
+    typeof section === 'object' ? manufacturingSectionSlug(section) : String(section);
+  return `/manufacturing/${slug}/${productId}`;
+}
+
 export type MfgComponent = {
   id: string;
   title: string;
   desc: string;
   icon: string;
   iconHover: string;
+  /** 列表封面：栏目缩略图 / banner / 图标 */
+  image?: string;
   href: string;
 };
 
-export function manufacturingDetailHref(productId: string | number) {
-  return `/manufacturing/${productId}`;
+export function paginateItems<T>(items: T[], page: number, pageSize = MFG_PAGE_SIZE) {
+  const total = items.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize) || 1);
+  const current = Math.min(pageCount, Math.max(1, Number.isFinite(page) ? page : 1));
+  const start = (current - 1) * pageSize;
+  return {
+    items: items.slice(start, start + pageSize),
+    page: current,
+    pageCount,
+    total,
+  };
 }
 
 const MFG_ROOT_NAME = 'Manufacturing';
@@ -40,6 +102,7 @@ export const MFG_COMPONENTS: MfgComponent[] = [
     desc: DEFAULT_DESC,
     icon: '/images/ma/1-1.png',
     iconHover: '/images/ma/1-2.png',
+    image: '/images/ma/1-1.png',
     href: '/manufacturing',
   },
   {
@@ -223,11 +286,43 @@ function findMfgRoot(categories: ProductCategory[]) {
   );
 }
 
-function mapProductToComponent(product: ProductListItem): MfgComponent {
+function categoryGalleryImage(category: ProductCategory) {
+  return (
+    category.thumbnail?.trim() ||
+    category.image?.trim() ||
+    category.icon?.trim() ||
+    ''
+  );
+}
+
+function mapCategoryToComponent(category: ProductCategory): MfgComponent {
+  return {
+    id: String(category.id),
+    title: category.name,
+    desc: category.description?.trim() || category.subtitle?.trim() || '',
+    icon: category.icon?.trim() || '',
+    iconHover: category.hover_icon?.trim() || category.icon?.trim() || '',
+    image: categoryGalleryImage(category),
+    href: manufacturingCategoryHref(category),
+  };
+}
+
+function mapProductToComponent(
+  product: ProductListItem,
+  section?: ProductCategory | number | null,
+): MfgComponent {
   const customHref =
     Number(product.use_custom_link) === 1
       ? product.custom_link?.trim() || ''
       : '';
+  const slug =
+    section && typeof section === 'object'
+      ? manufacturingSectionSlug(section)
+      : section != null
+        ? String(section)
+        : product.category_id != null
+          ? String(product.category_id)
+          : '';
 
   return {
     id: String(product.id),
@@ -235,8 +330,58 @@ function mapProductToComponent(product: ProductListItem): MfgComponent {
     desc: product.description?.trim() || '',
     icon: product.icon?.trim() || product.cover?.trim() || '',
     iconHover: product.hover_icon?.trim() || product.icon?.trim() || '',
-    href: customHref || manufacturingDetailHref(product.id),
+    image:
+      product.cover?.trim() ||
+      product.video_cover?.trim() ||
+      product.icon?.trim() ||
+      '',
+    href: customHref || (slug ? manufacturingProductHref(slug, product.id) : '/manufacturing'),
   };
+}
+
+/** 一级页卡片：进入二级列表 /manufacturing/{slug} */
+function mapProductToSection(product: ProductListItem): MfgComponent {
+  const item = mapProductToComponent(product);
+  const customHref =
+    Number(product.use_custom_link) === 1
+      ? product.custom_link?.trim() || ''
+      : '';
+  return {
+    ...item,
+    href: customHref || manufacturingCategoryHref(product.id),
+  };
+}
+
+function manufacturingL2ForCategory(
+  categories: ProductCategory[],
+  rootId: number,
+  categoryId: number | null,
+) {
+  if (categoryId == null) return null;
+  const byId = new Map(categories.map((item) => [item.id, item]));
+  let current = byId.get(categoryId);
+  let guard = 0;
+  while (current && guard < 20) {
+    if (current.parent_id === rootId) return current;
+    if (current.id === rootId || current.parent_id == null) return null;
+    current = byId.get(current.parent_id);
+    guard += 1;
+  }
+  return null;
+}
+
+function findMfgSectionBySlug(
+  categories: ProductCategory[],
+  root: ProductCategory,
+  slug: string,
+) {
+  const sections = categories.filter((item) => item.parent_id === root.id);
+  const normalized = slug.trim().toLowerCase();
+  return (
+    sections.find((item) => manufacturingSectionSlug(item) === normalized) ??
+    sections.find((item) => String(item.id) === slug) ??
+    null
+  );
 }
 
 function isUnderManufacturing(
@@ -260,7 +405,7 @@ function isUnderManufacturing(
 
 export async function getManufacturingProductDetail(productId: number): Promise<{
   product: Product;
-  category: ProductCategory | null;
+  category: ProductCategory;
 } | null> {
   try {
     const [product, categories] = await Promise.all([
@@ -275,12 +420,32 @@ export async function getManufacturingProductDetail(productId: number): Promise<
       return null;
     }
 
-    const category =
-      categories.find((item) => item.id === product.category_id) ?? root;
-    return { product, category };
+    const section = manufacturingL2ForCategory(
+      categories,
+      root.id,
+      product.category_id,
+    );
+    if (!section || isMahjongCategory(section)) return null;
+    if (product.category_id !== section.id) return null;
+
+    return { product, category: section };
   } catch (error) {
     console.error('[getManufacturingProductDetail]', error);
     return null;
+  }
+}
+
+export async function allManufacturingCategoryParams() {
+  try {
+    const categories = await getProductCategories();
+    const root = findMfgRoot(categories);
+    if (!root) return [];
+
+    return categories
+      .filter((item) => item.parent_id === root.id && !isMahjongCategory(item))
+      .map((item) => ({ id: manufacturingSectionSlug(item) }));
+  } catch {
+    return [];
   }
 }
 
@@ -290,12 +455,67 @@ export async function allManufacturingProductParams() {
     const root = findMfgRoot(categories);
     if (!root) return [];
 
-    const { list } = await getProducts(1, 100, root.id);
-    return list
-      .filter((item) => Number(item.use_custom_link) !== 1)
-      .map((item) => ({ id: String(item.id) }));
+    const sections = categories.filter(
+      (item) => item.parent_id === root.id && !isMahjongCategory(item),
+    );
+    const params: { id: string; productId: string }[] = [];
+
+    for (const section of sections) {
+      const { list } = await getProducts(1, 100, section.id);
+      for (const item of list) {
+        if (item.category_id !== section.id) continue;
+        if (Number(item.use_custom_link) === 1) continue;
+        params.push({
+          id: manufacturingSectionSlug(section),
+          productId: String(item.id),
+        });
+      }
+    }
+
+    return params;
   } catch {
     return [];
+  }
+}
+
+/** 旧数字 URL：二级栏目 id → slug；文章 id → /manufacturing/{slug}/{id} */
+export async function resolveManufacturingNumericRedirect(id: number) {
+  try {
+    const categories = await getProductCategories();
+    const root = findMfgRoot(categories);
+    if (!root) return null;
+
+    const section = categories.find(
+      (item) => item.id === id && item.parent_id === root.id,
+    );
+    if (section) return manufacturingCategoryHref(section);
+
+    const product = await getProduct(id);
+    if (!product) return null;
+    if (Number(product.use_custom_link) === 1 && product.custom_link?.trim()) {
+      return product.custom_link.trim();
+    }
+    if (!isUnderManufacturing(categories, product.category_id, root.id)) {
+      return null;
+    }
+
+    const productCat =
+      categories.find((item) => item.id === product.category_id) ?? null;
+    const l2 = manufacturingL2ForCategory(
+      categories,
+      root.id,
+      product.category_id,
+    );
+    if (!l2) return null;
+    if (isMahjongCategory(l2)) {
+      if (productCat && productCat.id !== l2.id) {
+        return `/manufacturing/mahjong/${manufacturingSectionSlug(productCat)}/${product.id}`;
+      }
+      return MAHJONG_HOME;
+    }
+    return manufacturingProductHref(l2, product.id);
+  } catch {
+    return null;
   }
 }
 
@@ -307,16 +527,32 @@ export {
 
 function pageFromCategory(
   category: ProductCategory | null,
+  children: ProductCategory[],
   products: ProductListItem[],
 ): ManufacturingPageData {
   const name = category?.name?.trim() || MFG_ROOT_NAME;
-  const items = products.length
-    ? products
-        .slice()
-        .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
-        .map(mapProductToComponent)
-        .filter((item) => item.icon)
-    : MFG_COMPONENTS;
+  const fromChildren = children
+    .slice()
+    .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
+    .map(mapCategoryToComponent);
+
+  const fromProducts = products
+    .slice()
+    .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
+    .map(mapProductToSection)
+    .filter((item) => item.image || item.icon);
+
+  const items = fromChildren.length
+    ? fromChildren
+    : fromProducts.length
+      ? fromProducts
+      : MFG_COMPONENTS.map((item) => ({
+          ...item,
+          href:
+            item.id === 'mahjong'
+              ? MAHJONG_HOME
+              : `/manufacturing/${item.id}`,
+        }));
 
   return {
     meta: {
@@ -333,22 +569,90 @@ function pageFromCategory(
   };
 }
 
-/** Manufacturing：一级栏目 metadata / banner + 栏目下文章组件列表 */
+export type ManufacturingNavItem = {
+  id: string;
+  label: string;
+  href: string;
+};
+
+/** 二级栏目左侧导航：与一级页卡片同一批栏目 */
+export const getManufacturingNavItems = cache(async (): Promise<ManufacturingNavItem[]> => {
+  const { items } = await getManufacturingPageData();
+  return items.map((item) => ({
+    id: item.id,
+    label: item.title,
+    href: item.href,
+  }));
+});
+
+/** Manufacturing：一级栏目 metadata / banner + 二级栏目列表 */
 export const getManufacturingPageData = cache(async (): Promise<ManufacturingPageData> => {
   try {
     const categories = await getProductCategories();
     const root = findMfgRoot(categories);
-    if (!root) return pageFromCategory(null, []);
+    if (!root) return pageFromCategory(null, [], []);
 
-    const { list } = await getProducts(1, 100, root.id);
-    return pageFromCategory(root, list);
+    const children = categories.filter((item) => item.parent_id === root.id);
+    const { list } = children.length
+      ? { list: [] as ProductListItem[] }
+      : await getProducts(1, 100, root.id);
+    return pageFromCategory(root, children, list);
   } catch (error) {
     console.error('[getManufacturingPageData]', error);
-    return pageFromCategory(null, []);
+    return pageFromCategory(null, [], []);
   }
 });
 
-/** 首页 Game Development Components：Manufacturing 下推荐文章 */
+export type ManufacturingCategoryPage = {
+  root: ProductCategory;
+  category: ProductCategory;
+  hero: { image: string; poster?: string };
+  articles: MfgComponent[];
+};
+
+export const getManufacturingCategoryPage = cache(async (
+  slug: string,
+): Promise<ManufacturingCategoryPage | null> => {
+  try {
+    const categories = await getProductCategories();
+    const root = findMfgRoot(categories);
+    if (!root) return null;
+
+    const category = findMfgSectionBySlug(categories, root, slug);
+    if (!category) return null;
+
+    const { list } = await getProducts(1, 100, category.id);
+    const articles = list
+      .filter((item) => item.category_id === category.id)
+      .slice()
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
+      .map((item) => {
+        const mapped = mapProductToComponent(item, category);
+        return {
+          ...mapped,
+          image: mapped.image || category.icon?.trim() || '',
+        };
+      });
+
+    const banner = categoryBannerMedia(category);
+    const rootBanner = categoryBannerMedia(root);
+
+    return {
+      root,
+      category,
+      hero: {
+        image: banner.image || rootBanner.image || MFG_HERO.image,
+        poster: banner.poster || rootBanner.poster,
+      },
+      articles,
+    };
+  } catch (error) {
+    console.error('[getManufacturingCategoryPage]', error);
+    return null;
+  }
+});
+
+/** 首页 Game Development Components：Manufacturing 下推荐二级栏目 */
 export const getHomeManufacturingComponents = cache(async (
   limit = 6,
 ): Promise<MfgComponent[]> => {
@@ -358,13 +662,28 @@ export const getHomeManufacturingComponents = cache(async (
     const root = findMfgRoot(categories);
     if (!root) return fallback;
 
+    const children = categories
+      .filter((item) => item.parent_id === root.id)
+      .slice()
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id));
+
+    if (children.length) {
+      const recommended = children.filter((item) => Number(item.is_recommended) === 1);
+      const pool = recommended.length ? recommended : children;
+      const items = pool
+        .map(mapCategoryToComponent)
+        .filter((item) => item.icon)
+        .slice(0, limit);
+      return items.length ? items : fallback;
+    }
+
     const { list } = await getProducts(1, 100, root.id, {
       isRecommended: true,
     });
     const items = list
       .slice()
       .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
-      .map(mapProductToComponent)
+      .map(mapProductToSection)
       .filter((item) => item.icon)
       .slice(0, limit);
 

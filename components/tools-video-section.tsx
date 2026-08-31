@@ -22,32 +22,39 @@ function VideoThumb({
   onPlay,
 }: {
   item: ToolsVideoItem;
-  className: string;
+  className?: string;
   onPlay: () => void;
 }) {
   return (
-    <button
-      type="button"
-      className={className}
-      aria-label={`Play ${item.title}`}
-      onClick={onPlay}
-    >
-      {item.poster ? (
-        <Image
-          src={item.poster}
-          alt={item.title}
-          fill
-          unoptimized={isCmsAssetUrl(item.poster)}
-          className="object-cover"
-          sizes="(max-width: 900px) 100vw, 50vw"
-        />
-      ) : (
-        <span className="tools-video-fallback" />
-      )}
-      <span className="tools-video-play">
-        <IconPlay />
-      </span>
-    </button>
+    <div className={`tools-video-tile${className ? ` ${className}` : ''}`}>
+      <button
+        type="button"
+        className="tools-video-thumb"
+        aria-label={`Play ${item.title}`}
+        onClick={onPlay}
+      >
+        {item.poster ? (
+          <Image
+            src={item.poster}
+            alt={item.title}
+            fill
+            unoptimized={isCmsAssetUrl(item.poster)}
+            className="object-cover"
+            sizes="(max-width: 900px) 100vw, 50vw"
+          />
+        ) : (
+          <span className="tools-video-fallback" />
+        )}
+        <span className="tools-video-play">
+          <IconPlay />
+        </span>
+      </button>
+      {item.title ? (
+        <span className="tools-video-caption" title={item.title}>
+          {item.title}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -75,7 +82,7 @@ export function ToolsVideoSection({
             {main ? (
               <VideoThumb
                 item={main}
-                className="tools-video-main tools-video-thumb"
+                className="tools-video-main"
                 onPlay={() => setActive(main)}
               />
             ) : null}
@@ -84,7 +91,6 @@ export function ToolsVideoSection({
                 <VideoThumb
                   key={clip.id}
                   item={clip}
-                  className="tools-video-thumb"
                   onPlay={() => setActive(clip)}
                 />
               ))}
@@ -122,7 +128,7 @@ export function ToolsVideoGrid({ videos }: { videos: ToolsVideoItem[] }) {
           <VideoThumb
             key={item.id}
             item={item}
-            className="tools-video-thumb tools-video-list-card"
+            className="tools-video-list-card"
             onPlay={() => setActive(item)}
           />
         ))}

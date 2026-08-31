@@ -46,6 +46,8 @@ export type ProductCategory = {
   keywords: string;
   description: string;
   is_recommended: number;
+  icon?: string;
+  hover_icon?: string;
   sort: number;
 };
 

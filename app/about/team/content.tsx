@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
-import { GalleryImgHover, imageTitle } from '@/components/gallery-img-hover';
+import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
 import { TeamCards } from '@/components/team-cards';
 import type { TeamGalleryImage, TeamMember } from '@/lib/about';
@@ -78,22 +78,15 @@ export function TeamContent({
                 aria-hidden={copy === 1}
               >
                 {gallery.map((item, index) => (
-                  <button
+                  <GalleryTile
                     key={`${copy}-${item.src}-${index}`}
-                    type="button"
+                    src={item.src}
+                    alt={item.alt}
                     className="facilities-marquee-item"
-                    aria-label={`Preview ${item.alt}`}
+                    loading={copy === 0 ? 'eager' : 'lazy'}
                     tabIndex={copy === 1 ? -1 : undefined}
                     onClick={() => setPreviewIndex(index)}
-                  >
-                    <img
-                      src={item.src}
-                      alt={item.alt}
-                      loading={copy === 0 ? 'eager' : 'lazy'}
-                      decoding="async"
-                    />
-                    <GalleryImgHover title={item.alt} />
-                  </button>
+                  />
                 ))}
               </div>
             ))}

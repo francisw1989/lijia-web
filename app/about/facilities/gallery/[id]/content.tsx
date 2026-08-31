@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { GalleryImgHover, imageTitle } from '@/components/gallery-img-hover';
+import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import type { FacilityAlbumTab } from '@/lib/about';
 
 export function FacilitiesGalleryGrid({ album }: { album: FacilityAlbumTab }) {
@@ -37,17 +37,14 @@ export function FacilitiesGalleryGrid({ album }: { album: FacilityAlbumTab }) {
     <>
       <div className="facilities-gallery-grid">
         {images.map((item, index) => (
-          <button
+          <GalleryTile
             key={`${item.src}-${index}`}
-            type="button"
+            src={item.src}
+            alt={item.alt}
             className="facilities-gallery-item"
-            aria-label={`Preview ${item.alt}`}
+            loading="lazy"
             onClick={() => setPreviewIndex(index)}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.src} alt={item.alt} loading="lazy" decoding="async" />
-            <GalleryImgHover title={item.alt} />
-          </button>
+          />
         ))}
       </div>
 

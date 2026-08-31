@@ -1,5 +1,11 @@
 import { jsPDF } from 'jspdf';
-import { stampLogoOnPages } from './logo';
+import {
+  LINE,
+  drawHeader,
+  drawLegend,
+  loadLogoDataUrl,
+  stroke,
+} from './logo';
 
 export const BOX_MATERIALS = [
   { mm: 1, label: '1mm high density mounted cardboard' },
@@ -17,29 +23,16 @@ const SAFE = 3;
 const TAB = 30; // 2 × wrap
 const CHAMFER = 10;
 const FIT = 3; // 盒底相对盒盖的配合间隙
-const PAD = 30;
+const INNER_CLEARANCE = 2.5; // 盖墙+底墙之外的装配间隙（对齐截图内径）
+const PAD = 40;
 
 const C = {
-  cut: [0, 1, 0, 0] as const,
-  bleed: [1, 0, 0, 0] as const,
-  fold: [0, 0, 1, 0] as const,
-  margin: [1, 0, 0.65, 0] as const,
+  dieline: LINE.dieline,
+  bleed: LINE.bleed,
+  margin: LINE.margin,
 };
 
-type Cmyk = readonly [number, number, number, number];
 type Pt = [number, number];
-
-function stroke(doc: jsPDF, color: Cmyk, dashed = false, width = 0.25) {
-  doc.setDrawColor(color[0], color[1], color[2], color[3]);
-  doc.setLineWidth(width);
-  doc.setLineDashPattern(dashed ? [5, 5] : [], 0);
-}
-
-function ink(doc: jsPDF) {
-  doc.setTextColor(0, 0, 0, 1);
-  doc.setDrawColor(0, 0, 0, 1);
-  doc.setLineDashPattern([], 0);
-}
 
 function poly(doc: jsPDF, pts: Pt[], close = true) {
   const [first, ...rest] = pts;
@@ -113,53 +106,6 @@ function materialToken(mm: number) {
 
 export function boxPdfFileName(x: number, y: number, z: number, thickness: number) {
   return `Box-${materialToken(thickness)}_${x}x${y}x${z}mm.pdf`;
-}
-
-function legend(doc: jsPDF, x: number, y: number) {
-  ink(doc);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Legend', x, y);
-  const rows: { label: string; color: Cmyk; dashed?: boolean }[] = [
-    { label: 'Cut', color: C.cut },
-    { label: 'Bleed', color: C.bleed },
-    { label: 'Margin', color: C.margin, dashed: true },
-    { label: 'Fold', color: C.fold },
-  ];
-  rows.forEach((row, i) => {
-    const yy = y + 5.5 + i * 5.5;
-    stroke(doc, row.color, !!row.dashed, 0.55);
-    doc.line(x, yy, x + 9, yy);
-    ink(doc);
-    doc.setFontSize(7.5);
-    doc.setFont('helvetica', 'normal');
-    doc.text(row.label, x + 12, yy + 1);
-  });
-}
-
-/**
- * 在 (x,y) 处居中绘制标签。
- * jsPDF 的 align:"center" 在旋转时按页坐标减半宽，90/180/270 会偏，故手动锚点。
- */
-function centeredLabel(
-  doc: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  angle: 0 | 90 | 180 | 270,
-) {
-  const w = doc.getTextWidth(text);
-  let ax = x;
-  let ay = y;
-  if (angle === 0) ax = x - w / 2;
-  else if (angle === 180) ax = x + w / 2;
-  else if (angle === 90) ay = y + w / 2;
-  else ay = y - w / 2;
-
-  doc.text(text, ax, ay, {
-    baseline: 'middle',
-    ...(angle === 0 ? {} : { angle }),
-  });
 }
 
 /** Y > X：粘合耳在左右壁；否则在上下壁（对齐 Panda） */
@@ -324,9 +270,9 @@ function drawPart(
     title: string;
     subtitle: string;
     actualSize?: string;
-    /** 盒底与盒盖共用盖的页尺寸（对齐 Panda） */
     pageW: number;
     pageH: number;
+    logoDataUrl: string;
   },
 ) {
   const { cw, ch, wall: wh, pageW, pageH } = opts;
@@ -335,29 +281,22 @@ function drawPart(
 
   doc.addPage([pageW, pageH], pageW >= pageH ? 'l' : 'p');
 
-  // 在页内居中刀模（盒底略小，边距自动加大）
   const cx = (pageW - netW) / 2 + WRAP + wh;
   const cy = (pageH - netH) / 2 + WRAP + wh;
 
-  ink(doc);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text(opts.title, pageW / 2, 9, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.text(opts.subtitle, pageW / 2, 14.5, { align: 'center' });
-  if (opts.actualSize) {
-    doc.setFontSize(8);
-    doc.text(opts.actualSize, pageW / 2, 19.5, { align: 'center' });
-  }
-  legend(doc, pageW - 28, 7);
+  drawHeader(doc, {
+    pageW,
+    logoDataUrl: opts.logoDataUrl,
+    title: opts.title,
+    subtitle: opts.subtitle,
+    extra: opts.actualSize,
+  });
+  drawLegend(doc, pageW - 52, 9);
 
-  
-  // Cut → Fold → Margin → Bleed（Bleed 最后，盖住黄线）
-  stroke(doc, C.cut, false, 0.3);
+  stroke(doc, C.dieline, false, 0.3);
   poly(doc, cutOutline(cx, cy, cw, ch, wh));
 
-  stroke(doc, C.fold, false, 0.28);
+  stroke(doc, C.dieline, false, 0.28);
   doc.rect(cx - wh, cy, cw + 2 * wh, ch);
   doc.rect(cx, cy - wh, cw, ch + 2 * wh);
 
@@ -374,64 +313,66 @@ function drawPart(
     doc.rect(cx + cw + SAFE, cy + SAFE, wh - SAFE * 2, ch - SAFE * 2);
   }
 
-  stroke(doc, C.bleed, false, 0.3);
+  stroke(doc, C.bleed, true, 0.3);
   poly(doc, bleedOutline(cx, cy, cw, ch, wh));
-
-  // Labels — 色带几何中心；旋转时手动锚点（jsPDF align+angle 会偏）
-  ink(doc);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  const wrapText = `Wrap Around ${WRAP}mm`;
-  const bleedText = `Bleed ${BLEED}mm`;
-  const mx = cx + cw / 2;
-  const my = cy + ch / 2;
-
-  centeredLabel(doc, wrapText, mx, cy - wh - WRAP / 2, 0);
-  centeredLabel(doc, bleedText, mx, cy - wh - WRAP - BLEED / 2, 0);
-  centeredLabel(doc, wrapText, mx, cy + ch + wh + WRAP / 2, 180);
-  centeredLabel(doc, bleedText, mx, cy + ch + wh + WRAP + BLEED / 2, 180);
-  centeredLabel(doc, wrapText, cx + cw + wh + WRAP / 2, my, 90);
-  centeredLabel(doc, bleedText, cx + cw + wh + WRAP + BLEED / 2, my, 90);
-  centeredLabel(doc, wrapText, cx - wh - WRAP / 2, my, 270);
-  centeredLabel(doc, bleedText, cx - wh - WRAP - BLEED / 2, my, 270);
 }
 
-export function generateTwoPieceBoxPdf(input: {
-  x: number;
-  y: number;
-  z: number;
-  thickness: number;
-}) {
+function formatMm(n: number) {
+  const rounded = Math.round(n * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
+/** 成品内径：外径减去盖/底各两层灰板 + 装配间隙。300×80 / 2mm → 289.5×76 */
+function innerSize(x: number, y: number, z: number, t: number) {
+  return {
+    x: Math.max(1, x - 4 * t - INNER_CLEARANCE),
+    y: Math.max(1, y - 4 * t - INNER_CLEARANCE),
+    z: Math.max(1, z - 2 * t),
+  };
+}
+
+export function generateTwoPieceBoxPdf(
+  input: {
+    x: number;
+    y: number;
+    z: number;
+    thickness: number;
+  },
+  logoDataUrl: string,
+) {
   const { x, y, z, thickness: t } = input;
   const doc = new jsPDF({ unit: 'mm', format: [10, 10], orientation: 'p' });
   doc.deletePage(1);
 
-  const size = `${x}mm x ${y}mm x ${z}mm - ${t}mm material`;
+  const size = `${x}mm x ${y}mm x ${z}mm / thickness - ${t}mm`;
+  const inner = innerSize(x, y, z, t);
+  const innerLine = `Inner size: ${formatMm(inner.x)}mm x ${formatMm(inner.y)}mm x ${formatMm(inner.z)}mm`;
   const { pageW, pageH } = pageSizeFor(x, y, z);
 
-  // 盒盖：用户尺寸为中心，壁高 = Z
   drawPart(doc, {
     cw: x,
     ch: y,
     wall: z,
-    title: 'Two Piece Box template - box top for',
+    title: 'Set Up Box Template - Top Part',
     subtitle: size,
+    actualSize: innerLine,
     pageW,
     pageH,
+    logoDataUrl,
   });
 
-  // 盒底：中心按材料厚 + 配合间隙缩小（对齐 Panda：100/1mm → 95）
   const bottomX = Math.max(10, x - 2 * t - FIT);
   const bottomY = Math.max(10, y - 2 * t - FIT);
   drawPart(doc, {
     cw: bottomX,
     ch: bottomY,
     wall: z,
-    title: 'Two Piece Box template - box bottom for',
+    title: 'Set Up Box Template - Bottom Part',
     subtitle: size,
-    actualSize: `(${bottomX}mm x ${bottomY}mm x ${z}mm actual size)`,
+    actualSize: innerLine,
     pageW,
     pageH,
+    logoDataUrl,
   });
 
   return doc;
@@ -443,7 +384,7 @@ export async function downloadTwoPieceBoxPdf(input: {
   z: number;
   thickness: number;
 }) {
-  const doc = generateTwoPieceBoxPdf(input);
-  await stampLogoOnPages(doc);
+  const logoDataUrl = await loadLogoDataUrl();
+  const doc = generateTwoPieceBoxPdf(input, logoDataUrl);
   doc.save(boxPdfFileName(input.x, input.y, input.z, input.thickness));
 }

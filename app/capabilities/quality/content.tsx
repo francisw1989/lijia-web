@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { GalleryImgHover, imageTitle } from '@/components/gallery-img-hover';
+import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { QC_PHASES, type QualityGalleryImage } from '@/lib/capabilities';
@@ -66,22 +66,15 @@ export function QualityContent({
             {[0, 1].map((copy) => (
               <div key={copy} className="facilities-marquee-group" aria-hidden={copy === 1}>
                 {items.map((item, index) => (
-                  <button
-                    key={`${copy}-${item.src}-${index}`}
-                    type="button"
-                    className="facilities-marquee-item"
-                    aria-label={`Preview ${item.alt}`}
-                    tabIndex={copy === 1 ? -1 : undefined}
-                    onClick={() => setPreviewIndex(index)}
-                  >
-                    <img
+                    <GalleryTile
+                      key={`${copy}-${item.src}-${index}`}
                       src={item.src}
                       alt={item.alt}
+                      className="facilities-marquee-item"
                       loading={copy === 0 ? 'eager' : 'lazy'}
-                      decoding="async"
+                      tabIndex={copy === 1 ? -1 : undefined}
+                      onClick={() => setPreviewIndex(index)}
                     />
-                    <GalleryImgHover title={item.alt} />
-                  </button>
                 ))}
               </div>
             ))}

@@ -1,20 +1,24 @@
 import { jsPDF } from 'jspdf';
-import { stampLogoOnPages } from './logo';
+import {
+  LINE,
+  drawHeader,
+  drawLegend,
+  ink,
+  loadLogoDataUrl,
+  stroke,
+} from './logo';
 
 /** 与 Panda Game Board 对齐 */
 const BLEED = 3;
 const WRAP = 15;
 const SAFE = 3;
-const PAD = 30;
+const PAD = 40;
 
 const C = {
-  cut: [0, 1, 0, 0] as const,
-  bleed: [1, 0, 0, 0] as const,
-  fold: [0, 0, 1, 0] as const,
-  margin: [1, 0, 0.65, 0] as const,
+  dieline: LINE.dieline,
+  bleed: LINE.bleed,
+  margin: LINE.margin,
 };
-
-type Cmyk = readonly [number, number, number, number];
 
 export const BOARD_FOLDS = [
   { id: 'none', label: 'No Fold' },
@@ -48,61 +52,6 @@ export function foldedBoardSize(x: number, y: number, fold: BoardFoldId) {
     default:
       return { w: x, h: y };
   }
-}
-
-function stroke(doc: jsPDF, color: Cmyk, dashed = false, width = 0.25) {
-  doc.setDrawColor(color[0], color[1], color[2], color[3]);
-  doc.setLineWidth(width);
-  doc.setLineDashPattern(dashed ? [5, 5] : [], 0);
-}
-
-function ink(doc: jsPDF) {
-  doc.setTextColor(0, 0, 0, 1);
-  doc.setDrawColor(0, 0, 0, 1);
-  doc.setLineDashPattern([], 0);
-}
-
-function legend(doc: jsPDF, x: number, y: number) {
-  ink(doc);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Legend', x, y);
-  const rows: { label: string; color: Cmyk; dashed?: boolean }[] = [
-    { label: 'Cut', color: C.cut },
-    { label: 'Bleed', color: C.bleed },
-    { label: 'Margin', color: C.margin, dashed: true },
-    { label: 'Fold', color: C.fold },
-  ];
-  rows.forEach((row, i) => {
-    const yy = y + 5.5 + i * 5.5;
-    stroke(doc, row.color, !!row.dashed, 0.55);
-    doc.line(x, yy, x + 9, yy);
-    ink(doc);
-    doc.setFontSize(7.5);
-    doc.setFont('helvetica', 'normal');
-    doc.text(row.label, x + 12, yy + 1);
-  });
-}
-
-function centeredLabel(
-  doc: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  angle: 0 | 90 | 180 | 270,
-) {
-  const w = doc.getTextWidth(text);
-  let ax = x;
-  let ay = y;
-  if (angle === 0) ax = x - w / 2;
-  else if (angle === 180) ax = x + w / 2;
-  else if (angle === 90) ay = y + w / 2;
-  else ay = y - w / 2;
-
-  doc.text(text, ax, ay, {
-    baseline: 'middle',
-    ...(angle === 0 ? {} : { angle }),
-  });
 }
 
 /** 折线：在板面矩形内按模式均分 */
@@ -162,41 +111,6 @@ function foldLines(
   return lines;
 }
 
-function drawEdgeLabels(
-  doc: jsPDF,
-  bx: number,
-  by: number,
-  bw: number,
-  bh: number,
-  withWrap: boolean,
-) {
-  ink(doc);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  const mx = bx + bw / 2;
-  const my = by + bh / 2;
-  const wrapText = `Wrap Around ${WRAP} mm`;
-  const bleedText = `Bleed ${BLEED}mm`;
-
-  if (withWrap) {
-    // Wrap 在板边与 wrap 外沿之间；Bleed 在 wrap 与 bleed 外沿之间
-    centeredLabel(doc, wrapText, mx, by - WRAP / 2, 0);
-    centeredLabel(doc, bleedText, mx, by - WRAP - BLEED / 2, 0);
-    centeredLabel(doc, wrapText, mx, by + bh + WRAP / 2, 180);
-    centeredLabel(doc, bleedText, mx, by + bh + WRAP + BLEED / 2, 180);
-    centeredLabel(doc, wrapText, bx + bw + WRAP / 2, my, 90);
-    centeredLabel(doc, bleedText, bx + bw + WRAP + BLEED / 2, my, 90);
-    centeredLabel(doc, wrapText, bx - WRAP / 2, my, 270);
-    centeredLabel(doc, bleedText, bx - WRAP - BLEED / 2, my, 270);
-  } else {
-    // 背面无 wrap：Bleed 紧贴板外沿外侧 3mm 带
-    centeredLabel(doc, bleedText, mx, by - BLEED / 2, 0);
-    centeredLabel(doc, bleedText, mx, by + bh + BLEED / 2, 180);
-    centeredLabel(doc, bleedText, bx + bw + BLEED / 2, my, 90);
-    centeredLabel(doc, bleedText, bx - BLEED / 2, my, 270);
-  }
-}
-
 function drawFront(
   doc: jsPDF,
   opts: {
@@ -206,6 +120,7 @@ function drawFront(
     doubleSided: boolean;
     pageW: number;
     pageH: number;
+    logoDataUrl: string;
   },
 ) {
   const { x: bw, y: bh, fold, doubleSided, pageW, pageH } = opts;
@@ -213,41 +128,31 @@ function drawFront(
 
   const netW = bw + 2 * WRAP;
   const bx = (pageW - netW) / 2 + WRAP;
-  const by = 20 + BLEED + WRAP;
+  const by = 32 + BLEED + WRAP;
 
-  ink(doc);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text(
-    doubleSided ? 'Game Board template - front' : 'Game Board template',
-    pageW / 2,
-    9,
-    { align: 'center' },
-  );
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.text(`${bw}mm x ${bh}mm`, pageW / 2, 14.5, { align: 'center' });
-  legend(doc, pageW - 28, 7);
+  drawHeader(doc, {
+    pageW,
+    logoDataUrl: opts.logoDataUrl,
+    title: doubleSided ? 'Game Board Template - Front' : 'Game Board Template',
+    subtitle: `${bw}mm x ${bh}mm`,
+  });
+  drawLegend(doc, pageW - 52, 9);
 
-  // Cut：板面 + wrap 外沿
-  stroke(doc, C.cut, false, 0.3);
+  stroke(doc, C.dieline, false, 0.3);
   doc.rect(bx, by, bw, bh);
   doc.rect(bx - WRAP, by - WRAP, bw + 2 * WRAP, bh + 2 * WRAP);
 
-  // Fold
-  stroke(doc, C.fold, false, 0.28);
+  stroke(doc, C.dieline, false, 0.28);
   foldLines(bx, by, bw, bh, fold).forEach((ln) => {
     doc.line(ln.x1, ln.y1, ln.x2, ln.y2);
   });
 
-  // Margin
   stroke(doc, C.margin, true, 0.28);
   if (bw > SAFE * 2 && bh > SAFE * 2) {
     doc.rect(bx + SAFE, by + SAFE, bw - SAFE * 2, bh - SAFE * 2);
   }
 
-  // Bleed
-  stroke(doc, C.bleed, false, 0.3);
+  stroke(doc, C.bleed, true, 0.3);
   doc.rect(
     bx - WRAP - BLEED,
     by - WRAP - BLEED,
@@ -264,8 +169,6 @@ function drawFront(
       baseline: 'middle',
     });
   }
-
-  drawEdgeLabels(doc, bx, by, bw, bh, true);
 }
 
 function drawBack(
@@ -276,34 +179,32 @@ function drawBack(
     fold: BoardFoldId;
     pageW: number;
     pageH: number;
+    logoDataUrl: string;
   },
 ) {
   const { x: bw, y: bh, fold, pageW, pageH } = opts;
   doc.addPage([pageW, pageH], pageW >= pageH ? 'l' : 'p');
 
-  // 与正面板面对齐
   const netW = bw + 2 * WRAP;
   const bx = (pageW - netW) / 2 + WRAP;
-  const by = 20 + BLEED + WRAP;
-  // 背面 Cut = 板面内缩 3mm；Bleed = 板面外沿
+  const by = 32 + BLEED + WRAP;
   const cx = bx + SAFE;
   const cy = by + SAFE;
   const cw = bw - SAFE * 2;
   const ch = bh - SAFE * 2;
 
-  ink(doc);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Game Board template - back', pageW / 2, 9, { align: 'center' });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
-  doc.text(`${bw}mm x ${bh}mm`, pageW / 2, 14.5, { align: 'center' });
-  legend(doc, pageW - 28, 7);
+  drawHeader(doc, {
+    pageW,
+    logoDataUrl: opts.logoDataUrl,
+    title: 'Game Board Template - Back',
+    subtitle: `${bw}mm x ${bh}mm`,
+  });
+  drawLegend(doc, pageW - 52, 9);
 
-  stroke(doc, C.cut, false, 0.3);
+  stroke(doc, C.dieline, false, 0.3);
   if (cw > 0 && ch > 0) doc.rect(cx, cy, cw, ch);
 
-  stroke(doc, C.fold, false, 0.28);
+  stroke(doc, C.dieline, false, 0.28);
   if (cw > 0 && ch > 0) {
     foldLines(cx, cy, cw, ch, fold).forEach((ln) => {
       doc.line(ln.x1, ln.y1, ln.x2, ln.y2);
@@ -315,7 +216,7 @@ function drawBack(
     doc.rect(cx + SAFE, cy + SAFE, cw - SAFE * 2, ch - SAFE * 2);
   }
 
-  stroke(doc, C.bleed, false, 0.3);
+  stroke(doc, C.bleed, true, 0.3);
   doc.rect(bx, by, bw, bh);
 
   ink(doc);
@@ -325,40 +226,31 @@ function drawBack(
     align: 'center',
     baseline: 'middle',
   });
-
-  // Bleed 标注落在板外沿与内缩 Cut 之间的 3mm 带
-  ink(doc);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  const bleedText = `Bleed ${BLEED}mm`;
-  const mx = bx + bw / 2;
-  const my = by + bh / 2;
-  centeredLabel(doc, bleedText, mx, by + SAFE / 2, 0);
-  centeredLabel(doc, bleedText, mx, by + bh - SAFE / 2, 180);
-  centeredLabel(doc, bleedText, bx + bw - SAFE / 2, my, 90);
-  centeredLabel(doc, bleedText, bx + SAFE / 2, my, 270);
 }
 
 export function boardPdfFileName(x: number, y: number) {
   return `GameBoard${x}x${y}mm.pdf`;
 }
 
-export function generateGameBoardPdf(input: {
-  x: number;
-  y: number;
-  fold: BoardFoldId;
-  doubleSided: boolean;
-}) {
+export function generateGameBoardPdf(
+  input: {
+    x: number;
+    y: number;
+    fold: BoardFoldId;
+    doubleSided: boolean;
+  },
+  logoDataUrl: string,
+) {
   const { x, y, fold, doubleSided } = input;
   const doc = new jsPDF({ unit: 'mm', format: [10, 10], orientation: 'p' });
   doc.deletePage(1);
 
   const pageW = x + 2 * WRAP + 2 * BLEED + 2 * PAD;
-  const pageH = 20 + y + 2 * WRAP + 2 * BLEED + PAD;
+  const pageH = 32 + y + 2 * WRAP + 2 * BLEED + PAD;
 
-  drawFront(doc, { x, y, fold, doubleSided, pageW, pageH });
+  drawFront(doc, { x, y, fold, doubleSided, pageW, pageH, logoDataUrl });
   if (doubleSided) {
-    drawBack(doc, { x, y, fold, pageW, pageH });
+    drawBack(doc, { x, y, fold, pageW, pageH, logoDataUrl });
   }
 
   return doc;
@@ -370,7 +262,7 @@ export async function downloadGameBoardPdf(input: {
   fold: BoardFoldId;
   doubleSided: boolean;
 }) {
-  const doc = generateGameBoardPdf(input);
-  await stampLogoOnPages(doc);
+  const logoDataUrl = await loadLogoDataUrl();
+  const doc = generateGameBoardPdf(input, logoDataUrl);
   doc.save(boardPdfFileName(input.x, input.y));
 }
