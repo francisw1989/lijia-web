@@ -5,7 +5,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, drawRoundedGuides } from './style';
 
 const CORNER = 3.5;
 
@@ -82,36 +82,6 @@ function cornerRadius(w: number, h: number) {
   return Math.min(CORNER, w / 4, h / 4);
 }
 
-function drawRoundedGuides(
-  doc: jsPDF,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-) {
-  const r = cornerRadius(w, h);
-
-  strokeGuide(doc, 'bleed');
-  doc.roundedRect(
-    x - BLEED,
-    y - BLEED,
-    w + 2 * BLEED,
-    h + 2 * BLEED,
-    r + BLEED,
-    r + BLEED,
-    'S',
-  );
-
-  strokeGuide(doc, 'dieline');
-  doc.roundedRect(x, y, w, h, r, r, 'S');
-
-  if (w > SAFE * 2 && h > SAFE * 2) {
-    const ir = Math.max(0.5, r - SAFE);
-    strokeGuide(doc, 'margin');
-    doc.roundedRect(x + SAFE, y + SAFE, w - 2 * SAFE, h - 2 * SAFE, ir, ir, 'S');
-  }
-}
-
 export function cardsPdfFileName(w: number, h: number) {
   return `Cards${w}x${h}mm.pdf`;
 }
@@ -148,7 +118,7 @@ export function generateCardsPdf(
   });
   drawLegend(doc, pageW - LEGEND_W, 9);
 
-  drawRoundedGuides(doc, bx, by, w, h);
+  drawRoundedGuides(doc, bx, by, w, h, cornerRadius(w, h));
 
   return doc;
 }

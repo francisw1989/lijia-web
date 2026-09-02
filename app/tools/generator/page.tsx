@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { RevealInit } from '@/components/reveal-init';
+import { getDiceTemplates } from '@/lib/dice-templates';
 import { getTemplateGeneratorPageData } from '@/lib/tools';
 import { TemplateGeneratorApp } from './generator-app';
 
@@ -16,7 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TemplateGeneratorPage() {
-  const { meta } = await getTemplateGeneratorPageData();
+  const [{ meta }, dice] = await Promise.all([
+    getTemplateGeneratorPageData(),
+    getDiceTemplates(),
+  ]);
 
   return (
     <main className="bg-white min-h-page">
@@ -32,7 +36,7 @@ export default async function TemplateGeneratorPage() {
           Create a custom print-ready template. Enter millimetre dimensions,
           then download a PDF with cut, bleed and margin lines.
         </p>
-        <TemplateGeneratorApp />
+        <TemplateGeneratorApp diceItems={dice.items} diceAll={dice.all} />
       </section>
     </main>
   );

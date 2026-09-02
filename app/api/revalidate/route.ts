@@ -13,6 +13,8 @@ const ALL_TAGS = [
   'product-categories',
   'albums',
   'homepage',
+  'files',
+  'dice-templates',
 ] as const;
 
 function revalidateAll() {
@@ -110,6 +112,10 @@ export async function POST(request: NextRequest) {
     revalidatePath('/about');
     revalidatePath('/capabilities/quality');
     revalidatePath('/capabilities');
+  } else if (type === 'file' || type === 'files') {
+    revalidateTag('files', { expire: 0 });
+    revalidateTag('dice-templates', { expire: 0 });
+    revalidatePath('/tools/generator');
   } else {
     revalidatePath('/');
   }

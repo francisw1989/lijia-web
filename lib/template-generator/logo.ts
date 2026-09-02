@@ -43,13 +43,19 @@ export function ink(doc: jsPDF) {
   doc.setLineDashPattern([], 0);
 }
 
+function extraLines(extra?: string | string[]) {
+  if (!extra) return [];
+  const lines = Array.isArray(extra) ? extra : [extra];
+  return lines.map((line) => line.trim()).filter(Boolean);
+}
+
 function headerTextWidth(
   doc: jsPDF,
   title: string,
   subtitle: string,
-  extra?: string,
+  extra?: string | string[],
 ) {
-  const extras = extra?.trim() ? [extra.trim()] : [];
+  const extras = extraLines(extra);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   let textW = doc.getTextWidth(title);
@@ -68,7 +74,7 @@ export function headerBlockWidth(
   doc: jsPDF,
   title: string,
   subtitle: string,
-  extra?: string,
+  extra?: string | string[],
 ) {
   return LOGO_W + 6 + headerTextWidth(doc, title, subtitle, extra);
 }
@@ -78,7 +84,7 @@ export function headerMinPageWidth(
   doc: jsPDF,
   title: string,
   subtitle: string,
-  extra?: string,
+  extra?: string | string[],
 ) {
   return (
     HEADER_INSET +
@@ -97,11 +103,11 @@ export function drawHeader(
     logoDataUrl: string;
     title: string;
     subtitle: string;
-    extra?: string;
+    extra?: string | string[];
     align?: 'center' | 'left';
   },
 ) {
-  const extras = opts.extra?.trim() ? [opts.extra.trim()] : [];
+  const extras = extraLines(opts.extra);
   const textW = headerTextWidth(doc, opts.title, opts.subtitle, opts.extra);
   const gap = 6;
   const blockW = LOGO_W + gap + textW;

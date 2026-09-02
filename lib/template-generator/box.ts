@@ -13,7 +13,7 @@ export type BoxMaterialMm = (typeof BOX_MATERIALS)[number]['mm'];
 
 const TAB = WRAP * 2;
 const CHAMFER = 10;
-const FIT = 3; // 盒底相对盒盖的配合间隙
+const FIT = 3; // 盒底相对盒盖：actual = top - 3 - material×2
 const INNER_CLEARANCE = 2.5; // 盖墙+底墙之外的装配间隙（对齐截图内径）
 
 type Pt = [number, number];
@@ -253,7 +253,7 @@ function drawPart(
     wall: number;
     title: string;
     subtitle: string;
-    actualSize?: string;
+    actualSize?: string | string[];
     pageW: number;
     pageH: number;
     logoDataUrl: string;
@@ -328,9 +328,12 @@ export function generateTwoPieceBoxPdf(
   const doc = new jsPDF({ unit: 'mm', format: [10, 10], orientation: 'p' });
   doc.deletePage(1);
 
-  const size = `${x}mm x ${y}mm x ${z}mm / thickness - ${t}mm`;
+  const size = `${x}mm x ${y}mm x ${z}mm - ${t}mm material`;
   const inner = innerSize(x, y, z, t);
   const innerLine = `Inner size: ${formatMm(inner.x)}mm x ${formatMm(inner.y)}mm x ${formatMm(inner.z)}mm`;
+  const bottomX = Math.max(10, x - FIT - 2 * t);
+  const bottomY = Math.max(10, y - FIT - 2 * t);
+  const actualLine = `(${formatMm(bottomX)}mm x ${formatMm(bottomY)}mm x ${formatMm(z)}mm actual size)`;
   const { pageW, pageH } = pageSizeFor(x, y, z);
 
   drawPart(doc, {
@@ -345,15 +348,13 @@ export function generateTwoPieceBoxPdf(
     logoDataUrl,
   });
 
-  const bottomX = Math.max(10, x - 2 * t - FIT);
-  const bottomY = Math.max(10, y - 2 * t - FIT);
   drawPart(doc, {
     cw: bottomX,
     ch: bottomY,
     wall: z,
-    title: 'Set Up Box Template - Bottom Part',
+    title: 'Two Piece Box template - box bottom for',
     subtitle: size,
-    actualSize: innerLine,
+    actualSize: [innerLine, actualLine],
     pageW,
     pageH,
     logoDataUrl,

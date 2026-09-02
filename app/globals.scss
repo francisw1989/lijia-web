@@ -1844,6 +1844,36 @@ a.contact-info-line:hover {
   stroke-width: 1.6;
   stroke-linejoin: round;
 }
+.tg-foil-face {
+  fill: #8eb4d4;
+}
+.tg-foil-side {
+  fill: #7f9bb5;
+}
+.tg-foil-side-right {
+  fill: #6a879f;
+}
+.tg-foil-top {
+  fill: #d9e8f4;
+}
+.tg-foil-highlight {
+  fill: #a8c8e4;
+}
+.tg-foil-band {
+  fill: #f4f8fb;
+}
+.tg-foil-rule {
+  stroke: #3d5f82;
+  stroke-width: 0.8;
+}
+.tg-foil-notch {
+  fill: #2f4f6f;
+}
+.tg-foil-edges {
+  stroke: var(--navy);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
 .tg-diagram-arrow {
   stroke: var(--navy);
   stroke-width: 1.2;
@@ -1940,6 +1970,13 @@ a.contact-info-line:hover {
   stroke: #9aa8b8;
   stroke-width: 1.2;
 }
+.tg-mat-face {
+  fill: #eef3f8;
+}
+.tg-mat-radius {
+  stroke: var(--navy);
+  stroke-width: 1.6;
+}
 .tg-sheet-face {
   fill: #fff;
 }
@@ -2008,6 +2045,77 @@ a.contact-info-line:hover {
 }
 .tg-download {
   min-width: 200px;
+}
+.tg-download-all {
+  min-width: min(100%, 320px);
+  letter-spacing: 0.04em;
+}
+.tg-dice-panel {
+  display: grid;
+  gap: 22px;
+  justify-items: center;
+  padding: 28px 20px 12px;
+  border-radius: var(--radius);
+  background: #eef2f7;
+  text-align: center;
+}
+.tg-dice-lead {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg);
+}
+.tg-dice-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 28px;
+}
+.tg-dice-item {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+.tg-dice-item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.tg-dice-item:not(:disabled):hover .tg-dice-icon {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(7, 42, 87, 0.16);
+}
+.tg-dice-icon {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--navy);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.tg-dice-icon img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+}
+.tg-dice-label {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+}
+.tg-hint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5a6b80;
 }
 .tg-error {
   margin: 12px 0 0;

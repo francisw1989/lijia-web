@@ -70,3 +70,43 @@ export function drawFoldGuides(
   strokeGuide(doc, 'dieline');
   lines.forEach((ln) => doc.line(ln.x1, ln.y1, ln.x2, ln.y2));
 }
+
+export function clampCornerRadius(w: number, h: number, radius: number) {
+  if (!Number.isFinite(radius) || radius <= 0) return 0;
+  return Math.min(radius, w / 2, h / 2);
+}
+
+/** 圆角成品：外出血 / 裁切 / 安全边 */
+export function drawRoundedGuides(
+  doc: jsPDF,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number,
+  safe = SAFE,
+) {
+  const r = clampCornerRadius(w, h, radius);
+  const inset = Number.isFinite(safe) && safe > 0 ? safe : SAFE;
+  const bleedR = r > 0 ? r + BLEED : 0;
+
+  strokeGuide(doc, 'bleed');
+  doc.roundedRect(
+    x - BLEED,
+    y - BLEED,
+    w + 2 * BLEED,
+    h + 2 * BLEED,
+    bleedR,
+    bleedR,
+    'S',
+  );
+
+  strokeGuide(doc, 'dieline');
+  doc.roundedRect(x, y, w, h, r, r, 'S');
+
+  if (w > inset * 2 && h > inset * 2) {
+    const ir = Math.max(0, r - inset);
+    strokeGuide(doc, 'margin');
+    doc.roundedRect(x + inset, y + inset, w - 2 * inset, h - 2 * inset, ir, ir, 'S');
+  }
+}
