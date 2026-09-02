@@ -10,14 +10,6 @@ export const MAGNETIC_THICKNESSES = [
 
 export type MagneticThicknessMm = (typeof MAGNETIC_THICKNESSES)[number]['mm'];
 
-/**
- * Part 1 外包边翻边 / 斜角边长（对照 BODA「提前拐弯」）：
- * 斜角约占外包络高度 ~20%，且明显长于侧板。
- */
-function magWrap(b: number, c: number) {
-  return Math.max(Math.round(c * 2.5), Math.round(b * 0.45));
-}
-
 type Pt = [number, number];
 
 function poly(doc: jsPDF, pts: Pt[], close = true) {
@@ -52,14 +44,25 @@ function lineIntersect(a1: Pt, a2: Pt, b1: Pt, b2: Pt): Pt {
   return [a1[0] + t * dax, a1[1] + t * day];
 }
 
-function offsetPolygonOutward(pts: Pt[], dist: number): Pt[] {
-  const n = pts.length;
-  if (n < 3) return pts;
-  const s = shoelace(pts) > 0 ? -1 : 1;
+function dedupePts(pts: Pt[]): Pt[] {
+  const out: Pt[] = [];
+  pts.forEach((p) => {
+    const last = out[out.length - 1];
+    if (!last || Math.hypot(p[0] - last[0], p[1] - last[1]) > 1e-6) out.push(p);
+  });
+  return out;
+}
+
+/** 多边形外扩；斜接过 long 时在凹角处改为斜切，避免 bleed 自交 */
+function offsetPolygonOutward(pts: Pt[], dist: number, miterLimit = 2.5): Pt[] {
+  const cleaned = dedupePts(pts);
+  const n = cleaned.length;
+  if (n < 3) return cleaned;
+  const s = shoelace(cleaned) > 0 ? -1 : 1;
   const shifted: { a: Pt; b: Pt }[] = [];
   for (let i = 0; i < n; i += 1) {
-    const a = pts[i];
-    const b = pts[(i + 1) % n];
+    const a = cleaned[i];
+    const b = cleaned[(i + 1) % n];
     const dx = b[0] - a[0];
     const dy = b[1] - a[1];
     const len = Math.hypot(dx, dy) || 1;
@@ -71,12 +74,20 @@ function offsetPolygonOutward(pts: Pt[], dist: number): Pt[] {
     });
   }
   const out: Pt[] = [];
+  const maxMiter = Math.abs(dist) * miterLimit;
   for (let i = 0; i < n; i += 1) {
     const prev = shifted[(i - 1 + n) % n];
     const cur = shifted[i];
-    out.push(lineIntersect(prev.a, prev.b, cur.a, cur.b));
+    const vertex = cleaned[i];
+    const hit = lineIntersect(prev.a, prev.b, cur.a, cur.b);
+    const miterLen = Math.hypot(hit[0] - vertex[0], hit[1] - vertex[1]);
+    if (miterLen > maxMiter + 1e-6) {
+      out.push([(prev.b[0] + cur.a[0]) / 2, (prev.b[1] + cur.a[1]) / 2]);
+    } else {
+      out.push(hit);
+    }
   }
-  return out;
+  return dedupePts(out);
 }
 
 function formatMm(n: number) {
@@ -107,7 +118,12 @@ export function magneticBoxPdfFileName(a: number, b: number, c: number, t: numbe
   return `MagneticBox-${materialToken(t)}_${a}x${b}x${c}mm.pdf`;
 }
 
+function shrinkFold(n: number, t: number, layers = 1) {
+  return Math.max(1, n - 2 * t * layers);
+}
+
 function miterWrapOutline(netW: number, netH: number, wrap: number): Pt[] {
+  wrap = wrap + 20
   return [
     [wrap, 0],
     [netW - wrap, 0],
@@ -120,42 +136,108 @@ function miterWrapOutline(netW: number, netH: number, wrap: number): Pt[] {
   ];
 }
 
-function trayOutline(w: number, h: number, d: number, wrap: number): Pt[] {
-  const side = 2 * d + wrap;
-  const lip = Math.max(6, Math.min(8, d * 0.55));
-  const end = d + lip;
+/** 顶/底耳朵外缘短竖边长度 */
+function trayEarStraight(wing: number, d: number) {
+  return Math.min(Math.max(4, d * 0.35), wing * 0.45);
+}
+
+/**
+ * Bleed 源：耳朵外侧用直角（竖 + 横）桥接，不跟斜边，避免外扩出斜线
+ */
+function trayBleedSource(w: number, h: number, d: number, wrap: number): Pt[] {
+  const { left, right, top, bottom } = trayExtents(w, h, d, wrap);
   const wing = Math.max(8, d * 0.8);
-  const c = Math.min(5, wing * 0.3);
-  const lc = Math.min(4, lip * 0.5);
   return [
-    [lc, -end],
-    [w - lc, -end],
-    [w, -end + lc],
+    [0, -top],
+    [w, -top],
     [w, -d],
-    [w + wing - c, -d],
-    [w + wing, -d + c],
-    [w, 0],
-    [w + side, 0],
-    [w + side, h],
-    [w, h],
-    [w + wing, h + d - c],
-    [w + wing - c, h + d],
+    [w + wing, -d],
+    [w + wing, 0],
+    [w + right, 0],
+    [w + right, h],
+    [w + wing, h],
+    [w + wing, h + d],
     [w, h + d],
-    [w, h + end - lc],
-    [w - lc, h + end],
-    [lc, h + end],
-    [0, h + end - lc],
+    [w, h + bottom],
+    [0, h + bottom],
     [0, h + d],
-    [-wing + c, h + d],
-    [-wing, h + d - c],
-    [0, h],
-    [-side, h],
-    [-side, 0],
-    [0, 0],
-    [-wing, -d + c],
-    [-wing + c, -d],
+    [-wing, h + d],
+    [-wing, h],
+    [-left, h],
+    [-left, 0],
+    [-wing, 0],
+    [-wing, -d],
     [0, -d],
-    [0, -end + lc],
+  ];
+}
+
+/** 顶/底耳朵：水平外伸 → 外缘短竖边 → 斜切回折线（对照 BODA） */
+function trayEarPts(
+  foldX: number,
+  foldY0: number,
+  foldY1: number,
+  wing: number,
+  d: number,
+  dir: 1 | -1,
+  fromFoldEnd: boolean,
+): Pt[] {
+  const earStraight = trayEarStraight(wing, d);
+  const outerX = foldX + dir * wing;
+  const down = foldY1 > foldY0;
+  const outerY = down ? foldY0 + earStraight : foldY0 - earStraight;
+  if (fromFoldEnd) {
+    return [
+      [outerX, outerY],
+      [outerX, foldY0],
+      [foldX, foldY0],
+    ];
+  }
+  return [
+    [outerX, foldY0],
+    [outerX, outerY],
+    [foldX, foldY1],
+  ];
+}
+
+function trayExtents(w: number, h: number, d: number, wrap: number) {
+  const lip = Math.max(6, Math.min(8, d * 0.55));
+  // 左/右：d|d|外条（左 lip，右 wrap）；上/下同结构，最外段均为 lip（与左对称）
+  const left = 2 * d + lip;
+  const right = 2 * d + wrap;
+  const top = 2 * d + lip;
+  const bottom = 2 * d + lip;
+  return { left, right, top, bottom, lip };
+}
+
+function trayOutline(w: number, h: number, d: number, wrap: number): Pt[] {
+  const { left: leftSide, right: rightSide, top: topEnd, bottom: bottomEnd } = trayExtents(
+    w,
+    h,
+    d,
+    wrap,
+  );
+  const wing = Math.max(8, d * 0.8);
+  return [
+    [0, -topEnd],
+    [w, -topEnd],
+    [w, -d],
+    ...trayEarPts(w, -d, 0, wing, d, 1, false),
+    [w + rightSide, 0],
+    [w + rightSide, h],
+    [w, h],
+    ...trayEarPts(w, h + d, h, wing, d, 1, true),
+    [w, h + d],
+    [w, h + bottomEnd],
+    [0, h + bottomEnd],
+    [0, h + d],
+    ...trayEarPts(0, h + d, h, wing, d, -1, false),
+    [0, h],
+    [-leftSide, h],
+    [-leftSide, 0],
+    [0, 0],
+    ...trayEarPts(0, -d, 0, wing, d, -1, true),
+    [0, -d],
+    [0, -topEnd],
   ];
 }
 
@@ -199,9 +281,8 @@ function drawPart1(
 ) {
   const panels = [a, c, a, c];
   const innerW = panels.reduce((sum, n) => sum + n, 0);
-  const wrap = magWrap(b, c);
-  const netW = innerW + 2 * wrap;
-  const netH = b + 2 * wrap;
+  const netW = innerW + 2 * WRAP + 10;
+  const netH = b + 2 * WRAP + 10;
   const { ox, oy } = beginPage(doc, {
     netW,
     netH,
@@ -211,13 +292,13 @@ function drawPart1(
     logoDataUrl,
   });
   const shift = (pts: Pt[]): Pt[] => pts.map(([x, y]) => [x + ox, y + oy]);
-  const cut = shift(miterWrapOutline(netW, netH, wrap));
+  const cut = shift(miterWrapOutline(netW, netH, WRAP));
 
   strokeGuide(doc, 'dieline');
   poly(doc, cut);
 
-  const y0 = oy + wrap;
-  let x = ox + wrap;
+  const y0 = oy + WRAP + 5;
+  let x = ox + WRAP + 5;
   strokeGuide(doc, 'dieline');
   doc.line(x, y0, x + innerW, y0);
   doc.line(x, y0 + b, x + innerW, y0 + b);
@@ -238,13 +319,17 @@ function drawPart2(
   a: number,
   b: number,
   c: number,
+  t: number,
   subtitle: string,
   extra: string,
   logoDataUrl: string,
 ) {
-  const flap = WRAP;
-  const netW = c + a + flap;
-  const netH = b;
+  // 宽度与 Part 1 折线区相同（c | a | c+WRAP），仅高度矮 2×厚度
+  const leftW = c;
+  const midW = a;
+  const flap = c + WRAP;
+  const netW = leftW + midW + flap;
+  const netH = shrinkFold(b, t);
   const { ox, oy } = beginPage(doc, {
     netW,
     netH,
@@ -256,11 +341,11 @@ function drawPart2(
 
   strokeGuide(doc, 'dieline');
   doc.rect(ox, oy, netW, netH);
-  doc.line(ox + c, oy, ox + c, oy + b);
-  doc.line(ox + c + a, oy, ox + c + a, oy + b);
+  doc.line(ox + leftW, oy, ox + leftW, oy + netH);
+  doc.line(ox + leftW + midW, oy, ox + leftW + midW, oy + netH);
 
-  marginRect(doc, ox, oy, c, b);
-  marginRect(doc, ox + c, oy, a, b);
+  marginRect(doc, ox, oy, leftW, netH);
+  marginRect(doc, ox + leftW, oy, midW, netH);
 
   strokeGuide(doc, 'bleed');
   doc.rect(ox - BLEED, oy - BLEED, netW + 2 * BLEED, netH + 2 * BLEED);
@@ -270,13 +355,17 @@ function drawPart3(
   doc: jsPDF,
   a: number,
   b: number,
+  t: number,
   subtitle: string,
   extra: string,
   logoDataUrl: string,
 ) {
+  // 相对 Part 2 中面板（宽 a、高 b-2t）再各缩 2×厚度
+  const netW = shrinkFold(a, t);
+  const netH = shrinkFold(b, t, 2);
   const { ox, oy } = beginPage(doc, {
-    netW: a,
-    netH: b,
+    netW,
+    netH,
     title: 'Magnetic Box Template - Part 3/4',
     subtitle,
     extra,
@@ -284,10 +373,10 @@ function drawPart3(
   });
 
   strokeGuide(doc, 'dieline');
-  doc.rect(ox, oy, a, b);
-  marginRect(doc, ox, oy, a, b);
+  doc.rect(ox, oy, netW, netH);
+  marginRect(doc, ox, oy, netW, netH);
   strokeGuide(doc, 'bleed');
-  doc.rect(ox - BLEED, oy - BLEED, a + 2 * BLEED, b + 2 * BLEED);
+  doc.rect(ox - BLEED, oy - BLEED, netW + 2 * BLEED, netH + 2 * BLEED);
 }
 
 function drawPart4(
@@ -332,25 +421,26 @@ function drawPart4(
   const y0 = oy;
   strokeGuide(doc, 'dieline');
   doc.rect(x0, y0, w, h);
+  // 左：d | d | lip
   doc.line(x0 - d, y0, x0 - d, y0 + h);
   doc.line(x0 - 2 * d, y0, x0 - 2 * d, y0 + h);
+  // 右：d | d | wrap
   doc.line(x0 + w + d, y0, x0 + w + d, y0 + h);
   doc.line(x0 + w + 2 * d, y0, x0 + w + 2 * d, y0 + h);
+  // 上/下：d | d | lip（最外段与左侧一致）
   doc.line(x0, y0 - d, x0 + w, y0 - d);
+  doc.line(x0, y0 - 2 * d, x0 + w, y0 - 2 * d);
   doc.line(x0, y0 + h + d, x0 + w, y0 + h + d);
+  doc.line(x0, y0 + h + 2 * d, x0 + w, y0 + h + 2 * d);
+  // 顶底与侧板交接折线
   doc.line(x0, y0 - d, x0, y0);
   doc.line(x0 + w, y0 - d, x0 + w, y0);
   doc.line(x0, y0 + h, x0, y0 + h + d);
   doc.line(x0 + w, y0 + h, x0 + w, y0 + h + d);
 
-  marginRect(doc, x0, y0, w, h);
-  marginRect(doc, x0, y0 - d, w, d);
-  marginRect(doc, x0, y0 + h, w, d);
-  marginRect(doc, x0 - d, y0, d, h);
-  marginRect(doc, x0 + w, y0, d, h);
-
+  // Bleed：耳朵外廓 + 四角桥接后外扩，避免凹角自交
   strokeGuide(doc, 'bleed');
-  poly(doc, offsetPolygonOutward(cut, BLEED));
+  poly(doc, offsetPolygonOutward(shift(trayBleedSource(w, h, d, WRAP)), BLEED, 1.5));
 }
 
 export function generateMagneticBoxPdf(
@@ -366,8 +456,8 @@ export function generateMagneticBoxPdf(
   const extra = `Inner size: ${formatMm(inner.a)}mm x ${formatMm(inner.b)}mm x ${formatMm(inner.c)}mm`;
 
   drawPart1(doc, a, b, c, subtitle, extra, logoDataUrl);
-  drawPart2(doc, a, b, c, subtitle, extra, logoDataUrl);
-  drawPart3(doc, a, b, subtitle, extra, logoDataUrl);
+  drawPart2(doc, a, b, c, t, subtitle, extra, logoDataUrl);
+  drawPart3(doc, a, b, t, subtitle, extra, logoDataUrl);
   drawPart4(doc, inner.a, inner.b, inner.c, subtitle, extra, logoDataUrl);
 
   return doc;
