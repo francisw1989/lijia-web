@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, headerMinPageWidth, loadLogoDataUrl } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
 
 export function bookletInsets(outside: number, spine: number) {
   const out = Number.isFinite(outside) && outside > 0 ? outside : 0;
@@ -96,7 +96,5 @@ export async function downloadRulesBookletPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateRulesBookletPdf(input, logoDataUrl);
-  doc.save(
-    rulesBookletPdfFileName(input.x, input.y, input.outside, input.spine),
-  );
+  openPdfDoc(doc);
 }

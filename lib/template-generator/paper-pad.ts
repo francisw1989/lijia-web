@@ -6,6 +6,7 @@ import {
   HEADER,
   LEGEND_W,
   PAD,
+  openPdfDoc,
 } from './style';
 
 export function paperPadPdfFileName(x: number, y: number) {
@@ -48,5 +49,5 @@ export function generatePaperPadPdf(
 export async function downloadPaperPadPdf(input: { x: number; y: number }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePaperPadPdf(input, logoDataUrl);
-  doc.save(paperPadPdfFileName(input.x, input.y));
+  openPdfDoc(doc);
 }

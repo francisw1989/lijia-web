@@ -6,6 +6,7 @@ import {
   HEADER,
   LEGEND_W,
   PAD,
+  openPdfDoc,
 } from './style';
 
 export function playerMatPdfFileName(x: number, y: number, r: number) {
@@ -52,5 +53,5 @@ export async function downloadPlayerMatPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePlayerMatPdf(input, logoDataUrl);
-  doc.save(playerMatPdfFileName(input.x, input.y, input.radius));
+  openPdfDoc(doc);
 }

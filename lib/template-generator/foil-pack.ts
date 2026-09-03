@@ -5,7 +5,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
 
 /**
  * Foil Pack 展开刀线（对齐 BODA 规律）：
@@ -111,5 +111,5 @@ export async function downloadFoilPackPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateFoilPackPdf(input, logoDataUrl);
-  doc.save(foilPackPdfFileName(input));
+  openPdfDoc(doc);
 }

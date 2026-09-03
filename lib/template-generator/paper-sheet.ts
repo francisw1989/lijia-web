@@ -7,6 +7,7 @@ import {
   HEADER,
   LEGEND_W,
   PAD,
+  openPdfDoc,
 } from './style';
 import type { SheetFoldId } from './folds';
 
@@ -57,5 +58,5 @@ export async function downloadPaperSheetPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePaperSheetPdf(input, logoDataUrl);
-  doc.save(paperSheetPdfFileName(input.x, input.y));
+  openPdfDoc(doc);
 }

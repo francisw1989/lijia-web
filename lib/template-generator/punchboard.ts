@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, loadLogoDataUrl } from './logo';
-import { BLEED, drawRectGuides, HEADER, LEGEND_W, PAD, SAFE, strokeGuide } from './style';
+import { BLEED, drawRectGuides, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
 
 const SAMPLE = 20;
 const SAMPLE_GAP = 8;
@@ -70,5 +70,5 @@ export function generatePunchboardPdf(
 export async function downloadPunchboardPdf(input: { x: number; y: number }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePunchboardPdf(input, logoDataUrl);
-  doc.save(punchboardPdfFileName(input.x, input.y));
+  openPdfDoc(doc);
 }

@@ -16,7 +16,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
 
 /** 卡牌纸张选项：用张数推算盒深时使用 */
 export const CARD_STOCKS = [
@@ -475,18 +475,6 @@ export async function downloadTuckboxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateTuckboxPdf(input, logoDataUrl);
-  doc.save(tuckboxPdfFileName(input));
+  openPdfDoc(doc);
 }
 
-/** 生成并在新标签页打开 PDF（开发预览 tuckbox 时用） */
-export async function openTuckboxPdf(input: {
-  x: number;
-  y: number;
-  z: number;
-  cards?: number;
-}) {
-  const logoDataUrl = await loadLogoDataUrl();
-  const doc = generateTuckboxPdf(input, logoDataUrl);
-  const url = String(doc.output('bloburl'));
-  window.open(url, '_blank', 'noopener,noreferrer');
-}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -9,7 +9,6 @@ import {
 import {
   MAGNETIC_THICKNESSES,
   downloadMagneticBoxPdf,
-  openMagneticBoxPdf,
   type MagneticThicknessMm,
 } from '@/lib/template-generator/magnetic-box';
 import { downloadTinBoxPdf } from '@/lib/template-generator/tin-box';
@@ -73,21 +72,6 @@ const TEMPLATES = [
 ] as const;
 
 type TemplateId = (typeof TEMPLATES)[number]['id'];
-
-/** 开发时进入 generator 自动预览 magnetic box；生产可用 ?autoMagneticBox=1 触发 */
-const DEV_AUTO_MAGNETIC = process.env.NODE_ENV === 'development';
-const AUTO_MAGNETIC_DEFAULTS = {
-  a: 100,
-  b: 100,
-  c: 20,
-  thickness: 1.5 as MagneticThicknessMm,
-};
-
-function shouldAutoOpenMagneticBox() {
-  if (DEV_AUTO_MAGNETIC) return true;
-  if (typeof window === 'undefined') return false;
-  return new URLSearchParams(window.location.search).has('autoMagneticBox');
-}
 
 function parseDim(value: string) {
   const n = Number(value);
@@ -1112,19 +1096,13 @@ function DiceFaceIcon({ kind }: { kind: DiceTemplateFile['id'] }) {
   );
 }
 
-async function downloadFixedPdf(file: DiceTemplateFile) {
+async function previewFixedPdf(file: DiceTemplateFile) {
   const href = toolsDownloadHref(file.fileUrl, file.fileName);
   const res = await fetch(href);
-  if (!res.ok) throw new Error(`download ${res.status}`);
+  if (!res.ok) throw new Error(`preview ${res.status}`);
   const blob = await res.blob();
   const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = objectUrl;
-  a.download = file.fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(objectUrl);
+  window.open(objectUrl, '_blank', 'noopener,noreferrer');
 }
 
 function TemplateIcon({ id }: { id: TemplateId }) {
@@ -1425,16 +1403,12 @@ export function TemplateGeneratorApp({
   diceItems?: DiceTemplateFile[];
   diceAll?: DiceTemplateFile | null;
 }) {
-  const [template, setTemplate] = useState<TemplateId>(
-    DEV_AUTO_MAGNETIC ? 'magnetic-box' : 'two-piece-box',
-  );
-  const [x, setX] = useState(DEV_AUTO_MAGNETIC ? String(AUTO_MAGNETIC_DEFAULTS.a) : '');
-  const [y, setY] = useState(DEV_AUTO_MAGNETIC ? String(AUTO_MAGNETIC_DEFAULTS.b) : '');
-  const [z, setZ] = useState(DEV_AUTO_MAGNETIC ? String(AUTO_MAGNETIC_DEFAULTS.c) : '');
+  const [template, setTemplate] = useState<TemplateId>('two-piece-box');
+  const [x, setX] = useState('');
+  const [y, setY] = useState('');
+  const [z, setZ] = useState('');
   const [material, setMaterial] = useState<BoxMaterialMm | ''>('');
-  const [magThickness, setMagThickness] = useState<MagneticThicknessMm | ''>(
-    DEV_AUTO_MAGNETIC ? AUTO_MAGNETIC_DEFAULTS.thickness : '',
-  );
+  const [magThickness, setMagThickness] = useState<MagneticThicknessMm | ''>('');
   const [fold, setFold] = useState<BoardFoldId>('half-h');
   const [doubleSided, setDoubleSided] = useState(false);
   const [cardMode, setCardMode] = useState<'standard' | 'custom'>('standard');
@@ -1450,13 +1424,6 @@ export function TemplateGeneratorApp({
   const [customCardMm, setCustomCardMm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (!shouldAutoOpenMagneticBox()) return;
-    void openMagneticBoxPdf(AUTO_MAGNETIC_DEFAULTS).catch((err) => {
-      console.error(err);
-    });
-  }, []);
 
   const isBox = template === 'two-piece-box';
   const isMagnetic = template === 'magnetic-box';
@@ -1560,10 +1527,10 @@ export function TemplateGeneratorApp({
     setError('');
     setBusy(true);
     try {
-      await downloadFixedPdf(file);
+      await previewFixedPdf(file);
     } catch (err) {
       console.error(err);
-      setError('Could not download the PDF. Please try again.');
+      setError('Could not open the PDF. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -1688,7 +1655,7 @@ export function TemplateGeneratorApp({
       }
     } catch (err) {
       console.error(err);
-      setError('Could not generate the PDF. Please try again.');
+      setError('Could not open the PDF. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -1733,7 +1700,7 @@ export function TemplateGeneratorApp({
           {isDice ? (
             <div className="tg-dice-panel">
               <p className="tg-dice-lead">
-                Click the dice template(s) you want to download
+                Click the dice template(s) you want to preview
               </p>
               <div className="tg-dice-row">
                 {diceItems.map((item) => (
@@ -2197,7 +2164,7 @@ export function TemplateGeneratorApp({
         <li className="tg-step">
           <h2>
             <span>3</span>{' '}
-            {isDice ? 'Download all templates' : 'Download your template'}
+            {isDice ? 'Preview all templates' : 'Preview your template'}
           </h2>
           <button
             type="button"
@@ -2206,10 +2173,10 @@ export function TemplateGeneratorApp({
             onClick={onDownload}
           >
             {busy
-              ? 'Downloading…'
+              ? 'Opening…'
               : isDice
-                ? 'DOWNLOAD ALL'
-                : 'Download PDF'}
+                ? 'PREVIEW ALL'
+                : 'Preview PDF'}
           </button>
           {error ? <p className="tg-error">{error}</p> : null}
         </li>

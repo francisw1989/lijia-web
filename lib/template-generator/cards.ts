@@ -5,7 +5,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, drawRoundedGuides } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, drawRoundedGuides, openPdfDoc } from './style';
 
 const CORNER = 3.5;
 
@@ -130,5 +130,5 @@ export async function downloadCardsPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateCardsPdf(input, logoDataUrl);
-  doc.save(cardsPdfFileName(input.w, input.h));
+  openPdfDoc(doc);
 }

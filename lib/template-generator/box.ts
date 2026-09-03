@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, loadLogoDataUrl } from './logo';
-import { BLEED, LEGEND_W, PAD, SAFE, WRAP, strokeGuide } from './style';
+import { BLEED, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc } from './style';
 
 export const BOX_MATERIALS = [
   { mm: 1, label: '1mm high density mounted cardboard' },
@@ -371,5 +371,5 @@ export async function downloadTwoPieceBoxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateTwoPieceBoxPdf(input, logoDataUrl);
-  doc.save(boxPdfFileName(input.x, input.y, input.z, input.thickness));
+  openPdfDoc(doc);
 }

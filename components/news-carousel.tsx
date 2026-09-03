@@ -158,6 +158,19 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
           />
         ))}
       </div>
+
+      <div className="flex-row-center mt36">
+        <Link href="/about/news" className="btn btn-primary btn-pill">
+          View More
+          <Image
+            src="/images/6.png"
+            alt=""
+            width={16}
+            height={16}
+            aria-hidden="true"
+          />
+        </Link>
+      </div>
     </div>
   );
 }

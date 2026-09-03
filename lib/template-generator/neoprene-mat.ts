@@ -6,6 +6,7 @@ import {
   HEADER,
   LEGEND_W,
   PAD,
+  openPdfDoc,
 } from './style';
 
 /** 缝边会吃进成品边，安全区比普通 3mm 更大 */
@@ -80,7 +81,5 @@ export async function downloadNeopreneMatPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateNeopreneMatPdf(input, logoDataUrl);
-  doc.save(
-    neopreneMatPdfFileName(input.x, input.y, input.radius, input.stitched),
-  );
+  openPdfDoc(doc);
 }

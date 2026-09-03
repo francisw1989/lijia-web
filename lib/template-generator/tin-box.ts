@@ -8,6 +8,7 @@ import {
   PAD,
   SAFE,
   strokeGuide,
+  openPdfDoc,
 } from './style';
 
 function formatMm(n: number) {
@@ -149,5 +150,5 @@ export async function downloadTinBoxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateTinBoxPdf(input, logoDataUrl);
-  doc.save(tinBoxPdfFileName(input.a, input.b, input.c, input.radius));
+  openPdfDoc(doc);
 }

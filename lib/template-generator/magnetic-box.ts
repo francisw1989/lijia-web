@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, headerMinPageWidth, loadLogoDataUrl } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc } from './style';
 
 export const MAGNETIC_THICKNESSES = [
   { mm: 1.2, label: '1.2 mm' },
@@ -471,18 +471,6 @@ export async function downloadMagneticBoxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateMagneticBoxPdf(input, logoDataUrl);
-  doc.save(magneticBoxPdfFileName(input.a, input.b, input.c, input.thickness));
+  openPdfDoc(doc);
 }
 
-/** 生成并在新标签页打开 PDF（开发预览 magnetic box 时用） */
-export async function openMagneticBoxPdf(input: {
-  a: number;
-  b: number;
-  c: number;
-  thickness: number;
-}) {
-  const logoDataUrl = await loadLogoDataUrl();
-  const doc = generateMagneticBoxPdf(input, logoDataUrl);
-  const url = String(doc.output('bloburl'));
-  window.open(url, '_blank', 'noopener,noreferrer');
-}

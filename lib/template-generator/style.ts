@@ -110,3 +110,9 @@ export function drawRoundedGuides(
     doc.roundedRect(x + inset, y + inset, w - 2 * inset, h - 2 * inset, ir, ir, 'S');
   }
 }
+
+/** 在新标签页打开 PDF 预览（不触发本地下载） */
+export function openPdfDoc(doc: jsPDF) {
+  const url = String(doc.output('bloburl'));
+  window.open(url, '_blank', 'noopener,noreferrer');
+}

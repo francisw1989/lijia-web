@@ -5,7 +5,7 @@ import {
   ink,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc } from './style';
 import {
   FOLD_PRESETS,
   foldLines,
@@ -170,5 +170,5 @@ export async function downloadGameBoardPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateGameBoardPdf(input, logoDataUrl);
-  doc.save(boardPdfFileName(input.x, input.y));
+  openPdfDoc(doc);
 }
