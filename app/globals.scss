@@ -4410,6 +4410,12 @@ a.gallery-tile-link:hover {
   .mj-card--span-4 {
     grid-column: span 2;
   }
+  .about-hero.facilities-hero {
+    padding: 40px 36px;
+  }
+  .facilities-hero-stats {
+    gap: 20px 24px;
+  }
 }
 
 @media (max-width: 800px) {
@@ -4686,15 +4692,19 @@ a.gallery-tile-link:hover {
     line-height: 1.55;
   }
   .about-hero.facilities-hero {
+    height: auto;
     min-height: 0;
+    padding: 28px 16px;
   }
   .facilities-hero-inner {
     min-height: 0;
     max-width: none;
-    padding: 28px 20px 32px;
+    padding: 0;
+    width: 100%;
   }
   .facilities-hero-title {
     font-size: clamp(22px, 6vw, 28px);
+    line-height: 1.25;
   }
   .facilities-hero-lead {
     margin-top: 12px;
@@ -4703,23 +4713,22 @@ a.gallery-tile-link:hover {
   }
   .facilities-hero-stats {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 14px;
     margin-top: 20px;
   }
   .facilities-hero-stat {
     grid-template-columns: 40px minmax(0, 1fr);
-    column-gap: 10px;
+    column-gap: 12px;
   }
-
   .facilities-hero-stat-icon img {
-    width: 22px;
-    height: 22px;
+    width: 40px;
+    height: 40px;
   }
   .facilities-hero-stat-value {
-    font-size: 16px;
+    font-size: 18px;
   }
   .facilities-hero-stat-label {
-    font-size: 12px;
+    font-size: 13px;
   }
   .facilities-hero-cta {
     margin-top: 20px;
