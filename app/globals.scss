@@ -3281,6 +3281,7 @@ a.contact-info-line:hover {
   max-width: 100%;
   height: auto;
   border-radius: var(--radius);
+  margin: 0 auto
 }
 .cap-tag-page-body .ql-align-center img {
   margin-left: auto;
@@ -4115,7 +4116,7 @@ a.gallery-tile-link:hover {
   min-width: 0;
 }
 .about-news-detail-title {
-  margin: 0 0 32px 0;
+  margin: 32px 0 32px 0;
   font-size: clamp(24px, 3vw, 48px);
   font-weight: 700;
   line-height: 1.2;

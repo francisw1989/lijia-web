@@ -95,7 +95,7 @@ export function headerMinPageWidth(
   );
 }
 
-/** 页眉：兔子 logo + 标题。默认居中；窄页用 left，避免和图例重叠 */
+/** 页眉：兔子 logo + 标题。默认居中；会和图例重叠时自动改左对齐 */
 export function drawHeader(
   doc: jsPDF,
   opts: {
@@ -111,10 +111,16 @@ export function drawHeader(
   const textW = headerTextWidth(doc, opts.title, opts.subtitle, opts.extra);
   const gap = 6;
   const blockW = LOGO_W + gap + textW;
-  const x0 =
-    opts.align === 'left'
-      ? HEADER_INSET
-      : (opts.pageW - blockW) / 2;
+  const legendLeft = opts.pageW - LEGEND_W;
+  let align = opts.align ?? 'center';
+  // 居中时标题右缘会压到右侧图例：改左对齐（与 headerMinPageWidth 一致）
+  if (align === 'center') {
+    const centeredEnd = (opts.pageW + blockW) / 2;
+    if (centeredEnd + HEADER_LEGEND_GAP > legendLeft) {
+      align = 'left';
+    }
+  }
+  const x0 = align === 'left' ? HEADER_INSET : (opts.pageW - blockW) / 2;
   const y0 = 5;
 
   doc.addImage(opts.logoDataUrl, 'PNG', x0, y0, LOGO_W, LOGO_H);
