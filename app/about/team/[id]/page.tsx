@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!member) return pageMetadata({ title: 'Team member not found' });
   return pageMetadata({
     title: member.name,
-    description: member.description || member.role || undefined,
+    description: member.description || undefined,
     keywords: member.keywords || undefined,
   });
 }
