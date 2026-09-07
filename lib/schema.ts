@@ -8,15 +8,22 @@ import {
 import { CONTACT_LOCATIONS } from '@/lib/contact';
 import type { FaqItem } from '@/lib/faq';
 
-export function organizationSchema() {
+type SiteCopy = {
+  name?: string;
+  description?: string;
+};
+
+export function organizationSchema(copy: SiteCopy = {}) {
   const ningbo = CONTACT_LOCATIONS[0];
+  const name = copy.name?.trim() || SITE_NAME;
+  const description = copy.description?.trim() || SITE_DESCRIPTION;
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: SITE_NAME,
+    name,
     legalName: SITE_LEGAL_NAME,
     url: getSiteUrl(),
-    description: SITE_DESCRIPTION,
+    description,
     email: ningbo?.emails[0] || 'info@lijiagames.com',
     telephone: ningbo?.phones[0],
     address: {
@@ -41,16 +48,18 @@ export function organizationSchema() {
   };
 }
 
-export function websiteSchema() {
+export function websiteSchema(copy: SiteCopy = {}) {
+  const name = copy.name?.trim() || SITE_NAME;
+  const description = copy.description?.trim() || SITE_DESCRIPTION;
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: SITE_NAME,
+    name,
     url: getSiteUrl(),
-    description: SITE_DESCRIPTION,
+    description,
     publisher: {
       '@type': 'Organization',
-      name: SITE_NAME,
+      name,
       url: getSiteUrl(),
     },
   };

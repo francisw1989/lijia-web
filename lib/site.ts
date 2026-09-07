@@ -1,8 +1,11 @@
 /** 前台正式域名；部署时用 NEXT_PUBLIC_SITE_URL 覆盖 */
 export const SITE_NAME = 'LIJIA GAME';
 export const SITE_LEGAL_NAME = 'Lijia Game Production Co., Ltd.';
+/** CMS 首页 SEO 未配置时的回退文案 */
 export const SITE_DESCRIPTION =
   'Lijia Game Production Co., Ltd. is a professional game manufacturer from China. Lijia Games occupies a 15,840 square metre modern facilities. The company has continually invested in automation and equipment to ensure it stays at the leading edge of technology and manufacturing of toy and game industry.';
+export const SITE_KEYWORDS =
+  'Lijia Games, board game manufacturer, OEM game factory, China, card games, mahjong, dice, game components';
 
 export function getSiteUrl() {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim();

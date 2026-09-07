@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
   } else if (type === 'homepage') {
     revalidateTag('homepage', { expire: 0 });
     revalidatePath('/');
+    revalidatePath('/', 'layout');
   } else if (type === 'faq') {
     revalidateTag('faqs', { expire: 0 });
     revalidatePath('/tools');

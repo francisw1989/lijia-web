@@ -1,5 +1,12 @@
 import { cache } from 'react';
 import { cmsFetch } from '@/lib/cms';
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME } from '@/lib/site';
+
+export type HomepageSeo = {
+  title: string;
+  keywords: string;
+  description: string;
+};
 
 export type HomepageBanner = {
   mediaType?: 'video' | 'image';
@@ -16,11 +23,17 @@ export type HomepagePresence = {
 };
 
 export type HomepageSettings = {
+  seo: HomepageSeo;
   banner: HomepageBanner;
   presence: HomepagePresence;
 };
 
 const FALLBACK: HomepageSettings = {
+  seo: {
+    title: SITE_NAME,
+    keywords: SITE_KEYWORDS,
+    description: SITE_DESCRIPTION,
+  },
   banner: {
     mediaType: 'video',
     videoUrl: 'https://images.wangsanshui.com/files/1786359788618-81ayf4.mp4',
@@ -35,6 +48,14 @@ const FALLBACK: HomepageSettings = {
     subtitle: 'The world knows Lijia Manufacturing',
   },
 };
+
+function normalizeSeo(raw: Partial<HomepageSeo> | null | undefined): HomepageSeo {
+  return {
+    title: String(raw?.title || '').trim() || FALLBACK.seo.title,
+    keywords: String(raw?.keywords || '').trim() || FALLBACK.seo.keywords,
+    description: String(raw?.description || '').trim() || FALLBACK.seo.description,
+  };
+}
 
 function normalizeBanner(raw: Partial<HomepageBanner> | null | undefined): HomepageBanner {
   const title = String(raw?.title || '').trim();
@@ -67,6 +88,7 @@ export const getHomepageSettings = cache(async (): Promise<HomepageSettings> => 
       'homepage',
     ]);
     return {
+      seo: normalizeSeo(data?.seo),
       banner: normalizeBanner(data?.banner),
       presence: normalizePresence(data?.presence),
     };
