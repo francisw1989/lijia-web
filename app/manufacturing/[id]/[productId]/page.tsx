@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
+import { siteTitle } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
 import { ManufacturingBreadcrumb, ManufacturingNav } from '@/components/manufacturing-nav';
 import {
@@ -22,10 +23,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params;
-  if (!/^\d+$/.test(productId)) return { title: 'Not found' };
+  if (!/^\d+$/.test(productId)) return { title: await siteTitle('Not found') };
 
   const data = await getManufacturingProductDetail(Number(productId));
-  if (!data) return { title: 'Not found' };
+  if (!data) return { title: await siteTitle('Not found') };
 
   const description =
     (isMeaningfulDescription(data.product.title, data.product.description)
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : plainTextFromHtml(data.product.content)) || undefined;
 
   return {
-    title: data.product.title,
+    title: await siteTitle(data.product.title),
     description,
     keywords: data.product.keywords || undefined,
   };

@@ -2,11 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { RevealInit } from '@/components/reveal-init';
 import { SITE_MAP_SECTIONS } from '@/lib/site-map';
+import { siteTitle } from '@/lib/site-title';
 
-export const metadata: Metadata = {
-  title: 'Site Map',
-  description: 'Browse all main pages and list pages on the Lijia website.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await siteTitle('Site Map'),
+    description: 'Browse all main pages and list pages on the Lijia website.',
+  };
+}
 
 export default function SiteMapPage() {
   return (

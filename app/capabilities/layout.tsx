@@ -1,10 +1,5 @@
-import type { Metadata } from 'next';
 import { ConnectCta } from '@/components/connect-cta';
 import { RevealInit } from '@/components/reveal-init';
-
-export const metadata: Metadata = {
-  title: 'Capabilities',
-};
 
 export default function CapabilitiesLayout({
   children,

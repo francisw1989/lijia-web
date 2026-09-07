@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { siteTitle } from '@/lib/site-title';
 import { notFound } from 'next/navigation';
 import { MahjongBreadcrumb } from '@/components/mahjong-nav';
 import { MahjongGallery } from '@/components/mahjong-gallery';
@@ -21,9 +22,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tab } = await params;
   const data = await getMahjongTabPageData(tab, { all: true });
-  if (!data) return { title: 'Mahjong' };
+  if (!data) return { title: await siteTitle('Mahjong') };
   return {
-    title: `${data.meta.title} ALL`,
+    title: await siteTitle(`${data.meta.title} ALL`),
     description: data.meta.description,
     keywords: data.meta.keywords,
   };

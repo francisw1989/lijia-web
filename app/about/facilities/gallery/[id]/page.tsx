@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { siteTitle } from '@/lib/site-title';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FacilitiesHero } from '@/components/facilities-hero';
@@ -21,9 +22,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const album = await getFacilityAlbum(id);
-  if (!album) return { title: 'Gallery not found' };
+  if (!album) return { title: await siteTitle('Gallery not found') };
   return {
-    title: `${album.label} | Our Facilities`,
+    title: await siteTitle(`${album.label} | Our Facilities`),
     description: `Browse all ${album.label} photos from Lijia Our Facilities.`,
   };
 }

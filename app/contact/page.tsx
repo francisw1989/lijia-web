@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { siteTitle } from '@/lib/site-title';
 import { RevealInit } from '@/components/reveal-init';
 import { getContactPageData } from '@/lib/contact';
 import { ContactContent } from './content';
@@ -7,11 +8,9 @@ export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getContactPageData();
-  return {
-    title: meta.title,
+  return { title: await siteTitle(meta.title),
     description: meta.description,
-    keywords: meta.keywords,
-  };
+    keywords: meta.keywords };
 }
 
 export default async function ContactPage() {

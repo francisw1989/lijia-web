@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { siteTitle } from '@/lib/site-title';
 import { CapabilitiesNav } from '@/components/capabilities-nav';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
@@ -9,11 +10,9 @@ export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getQualityPageData();
-  return {
-    title: meta.title,
+  return { title: await siteTitle(meta.title),
     description: meta.description,
-    keywords: meta.keywords,
-  };
+    keywords: meta.keywords };
 }
 
 export default async function QualityPage() {
