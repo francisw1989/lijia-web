@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -40,29 +40,35 @@ export async function generateMetadata({
   if (isToolsArticleSlug(slug)) {
     const article = await getToolsArticlePageData(slug);
     if (article) {
-      return { title: await siteTitle(article.meta.title),
+      return pageMetadata({
+        title: article.meta.title,
         description: article.meta.description,
-        keywords: article.meta.keywords };
+        keywords: article.meta.keywords,
+      });
     }
     // terms 无正文时回退文档列表 metadata
     if (slug === 'terms' && isToolsResourceSlug(slug)) {
       const data = await getToolsDocPageData(slug);
       if (data) {
-        return { title: await siteTitle(data.meta.title),
+        return pageMetadata({
+          title: data.meta.title,
           description: data.meta.description,
-          keywords: data.meta.keywords };
+          keywords: data.meta.keywords,
+        });
       }
     }
-    return { title: await siteTitle('Tools & Resources') };
+    return pageMetadata({ title: 'Tools & Resources' });
   }
 
-  if (!isToolsResourceSlug(slug)) return { title: await siteTitle('Tools & Resources') };
+  if (!isToolsResourceSlug(slug)) return pageMetadata({ title: 'Tools & Resources' });
 
   const data = await getToolsDocPageData(slug);
-  if (!data) return { title: await siteTitle('Tools & Resources') };
-  return { title: await siteTitle(data.meta.title),
+  if (!data) return pageMetadata({ title: 'Tools & Resources' });
+  return pageMetadata({
+    title: data.meta.title,
     description: data.meta.description,
-    keywords: data.meta.keywords };
+    keywords: data.meta.keywords,
+  });
 }
 
 function formatDate(value: string) {

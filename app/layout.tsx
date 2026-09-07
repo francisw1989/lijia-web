@@ -22,8 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(getSiteUrl()),
     title: {
       default: seo.title,
-      // 兜底：未显式设置 absolute 的页面仍套上首页标题
-      template: `${seo.title} · %s`,
+      // 兜底：未显式设置 absolute 的页面仍套上首页标题（页面名在前）
+      template: `%s · ${seo.title}`,
     },
     description: seo.description,
     keywords: seo.keywords || undefined,

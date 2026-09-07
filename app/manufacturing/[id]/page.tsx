@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import { GalleryLink } from '@/components/gallery-img-hover';
 import { ManufacturingBreadcrumb, ManufacturingNav } from '@/components/manufacturing-nav';
 import { PagePager } from '@/components/page-pager';
@@ -27,13 +27,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id: slug } = await params;
   const data = await getManufacturingCategoryPage(slug);
-  if (!data) return { title: await siteTitle('Not found') };
+  if (!data) return pageMetadata({ title: 'Not found' });
 
-  return {
-    title: await siteTitle(data.category.name),
+  return pageMetadata({
+    title: data.category.name,
     description: data.category.description?.trim() || undefined,
     keywords: data.category.keywords?.trim() || undefined,
-  };
+  });
 }
 
 export default async function ManufacturingCategoryPage({

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -29,10 +29,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const member = await getTeamMember(Number(id));
-  if (!member) return { title: await siteTitle('Team member not found') };
-  return { title: await siteTitle(member.name),
+  if (!member) return pageMetadata({ title: 'Team member not found' });
+  return pageMetadata({
+    title: member.name,
     description: member.description || member.role || undefined,
-    keywords: member.keywords || undefined };
+    keywords: member.keywords || undefined,
+  });
 }
 
 export default async function TeamMemberDetailPage({ params }: Props) {

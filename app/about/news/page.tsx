@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AboutBanner } from '@/components/about-banner';
@@ -9,9 +9,11 @@ import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getAboutSection('news');
-  return { title: await siteTitle(meta.title),
+  return pageMetadata({
+    title: meta.title,
     description: meta.description,
-    keywords: meta.keywords };
+    keywords: meta.keywords,
+  });
 }
 
 function formatDate(value: string) {

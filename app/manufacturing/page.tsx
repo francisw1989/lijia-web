@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
 import { HeroMedia } from '@/components/hero-media';
 import { getManufacturingPageData, type MfgComponent } from '@/lib/manufacturing';
@@ -8,9 +8,11 @@ export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getManufacturingPageData();
-  return { title: await siteTitle(meta.title),
+  return pageMetadata({
+    title: meta.title,
     description: meta.description,
-    keywords: meta.keywords };
+    keywords: meta.keywords,
+  });
 }
 
 function MfgCard({ item }: { item: MfgComponent }) {

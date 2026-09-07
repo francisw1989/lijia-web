@@ -6,16 +6,15 @@ import { FaqList } from '@/components/faq-list';
 import { JsonLd } from '@/components/json-ld';
 import { getFaqs } from '@/lib/cms';
 import { faqPageSchema } from '@/lib/schema';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 
 export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: await siteTitle('FAQ'),
-    description:
-      'Frequently asked questions about LIJIA game manufacturing, sampling, MOQ and compliance.',
-  };
+  return pageMetadata({
+    title: 'FAQ',
+    description: 'Frequently asked questions about LIJIA game manufacturing, sampling, MOQ and compliance.',
+  });
 }
 
 const INTRO =

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
 import {
   allScopeProductParams,
@@ -24,17 +24,17 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoryId, productId } = await params;
   const data = await getScopeProductDetail(Number(categoryId), Number(productId));
-  if (!data) return { title: await siteTitle('Capability not found') };
+  if (!data) return pageMetadata({ title: 'Capability not found' });
 
   const description =
     (isMeaningfulDescription(data.product.title, data.product.description)
       ? data.product.description
       : plainTextFromHtml(data.product.content)) || undefined;
 
-  return {
-    title: await siteTitle(data.product.title),
+  return pageMetadata({
+    title: data.product.title,
     description,
-  };
+  });
 }
 
 export default async function CapabilityProductPage({ params }: Props) {

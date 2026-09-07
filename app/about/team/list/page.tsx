@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
 import { AboutBanner } from '@/components/about-banner';
 import { AboutShell } from '@/components/about-shell';
@@ -8,11 +8,11 @@ import { getAboutSection, getTeamMembers } from '@/lib/about';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getAboutSection('team');
-  return {
-    title: await siteTitle(`${meta.title} | All Members`),
+  return pageMetadata({
+    title: `${meta.title} | All Members`,
     description: meta.description,
     keywords: meta.keywords,
-  };
+  });
 }
 
 export default async function TeamListPage() {

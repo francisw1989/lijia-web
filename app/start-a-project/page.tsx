@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import { RevealInit } from '@/components/reveal-init';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
@@ -10,9 +10,11 @@ export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getProjectPageData();
-  return { title: await siteTitle(meta.title),
+  return pageMetadata({
+    title: meta.title,
     description: meta.description,
-    keywords: meta.keywords };
+    keywords: meta.keywords,
+  });
 }
 
 export default async function StartAProjectPage() {

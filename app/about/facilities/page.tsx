@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import {
   getAboutSection,
@@ -10,9 +10,11 @@ import { FacilitiesContent } from './content';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getAboutSection('facilities');
-  return { title: await siteTitle(meta.title),
+  return pageMetadata({
+    title: meta.title,
     description: meta.description,
-    keywords: meta.keywords };
+    keywords: meta.keywords,
+  });
 }
 
 export default async function FacilitiesPage() {

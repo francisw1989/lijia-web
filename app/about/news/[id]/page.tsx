@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
@@ -24,10 +24,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const article = await getProduct(Number(id));
-  if (!article) return { title: await siteTitle('Article not found') };
-  return { title: await siteTitle(article.title),
+  if (!article) return pageMetadata({ title: 'Article not found' });
+  return pageMetadata({
+    title: article.title,
     description: article.description || undefined,
-    keywords: article.keywords || undefined };
+    keywords: article.keywords || undefined,
+  });
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] as const;

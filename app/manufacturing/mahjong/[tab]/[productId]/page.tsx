@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
 import { MahjongBreadcrumb } from '@/components/mahjong-nav';
 import {
@@ -24,18 +24,18 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tab, productId } = await params;
   const data = await getMahjongProductDetail(tab, Number(productId));
-  if (!data) return { title: await siteTitle('Mahjong') };
+  if (!data) return pageMetadata({ title: 'Mahjong' });
 
   const description =
     (isMeaningfulDescription(data.product.title, data.product.description)
       ? data.product.description
       : plainTextFromHtml(data.product.content)) || undefined;
 
-  return {
-    title: await siteTitle(data.product.title),
+  return pageMetadata({
+    title: data.product.title,
     description,
     keywords: data.product.keywords || undefined,
-  };
+  });
 }
 
 export default async function MahjongProductPage({ params }: Props) {

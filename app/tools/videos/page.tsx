@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
 import { RevealInit } from '@/components/reveal-init';
 import { ToolsVideosContent } from '@/components/tools-videos-content';
@@ -9,11 +9,10 @@ export const dynamic = 'force-static';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { heading } = await getToolsVideos();
-  return {
-    title: await siteTitle(heading || TOOLS_VIDEOS_HEADING),
-    description:
-      'Watch manufacturing tips, component highlights and production videos from LIJIA.',
-  };
+  return pageMetadata({
+    title: heading || TOOLS_VIDEOS_HEADING,
+    description: 'Watch manufacturing tips, component highlights and production videos from LIJIA.',
+  });
 }
 
 export default async function ToolsVideosPage() {

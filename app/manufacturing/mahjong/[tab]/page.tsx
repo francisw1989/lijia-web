@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { siteTitle } from '@/lib/site-title';
+import { pageMetadata } from '@/lib/site-title';
 import { notFound } from 'next/navigation';
 import { MahjongBreadcrumb } from '@/components/mahjong-nav';
 import { MahjongGallery, MahjongViewMore } from '@/components/mahjong-gallery';
@@ -23,10 +23,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tab } = await params;
   const data = await getMahjongTabPageData(tab);
-  if (!data) return { title: await siteTitle('Mahjong') };
-  return { title: await siteTitle(data.meta.title),
+  if (!data) return pageMetadata({ title: 'Mahjong' });
+  return pageMetadata({
+    title: data.meta.title,
     description: data.meta.description,
-    keywords: data.meta.keywords };
+    keywords: data.meta.keywords,
+  });
 }
 
 export default async function MahjongTabPage({ params }: Props) {
