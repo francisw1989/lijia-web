@@ -11,6 +11,8 @@ export type HomepageSeo = {
 export type HomepageBanner = {
   mediaType?: 'video' | 'image';
   videoUrl: string;
+  /** Learn More 弹框播放的完整版视频；空则仍跳转 /manufacturing */
+  fullVideoUrl: string;
   imageUrl: string;
   title: string;
   subtitle: string;
@@ -37,6 +39,7 @@ const FALLBACK: HomepageSettings = {
   banner: {
     mediaType: 'video',
     videoUrl: 'https://images.wangsanshui.com/files/1786359788618-81ayf4.mp4',
+    fullVideoUrl: '',
     imageUrl: 'https://images.wangsanshui.com/images/1786360663993-bekn15.jpg',
     title: 'Your Safe, Compliant & Fun Game\nManufacturing Partner',
     subtitle:
@@ -61,11 +64,13 @@ function normalizeBanner(raw: Partial<HomepageBanner> | null | undefined): Homep
   const title = String(raw?.title || '').trim();
   const subtitle = String(raw?.subtitle || '').trim();
   const videoUrl = String(raw?.videoUrl || '').trim();
+  const fullVideoUrl = String(raw?.fullVideoUrl || '').trim();
   const imageUrl = String(raw?.imageUrl || '').trim();
 
   return {
     mediaType: 'video',
     videoUrl: videoUrl || FALLBACK.banner.videoUrl,
+    fullVideoUrl,
     imageUrl: imageUrl || FALLBACK.banner.imageUrl,
     title: title || FALLBACK.banner.title,
     subtitle: subtitle || FALLBACK.banner.subtitle,

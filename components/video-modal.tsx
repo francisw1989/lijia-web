@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 type Props = {
   open: boolean;
@@ -25,9 +26,9 @@ export function VideoModal({ open, title, src, poster, onClose }: Props) {
     };
   }, [open, onClose]);
 
-  if (!open || !src) return null;
+  if (!open || !src || typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <div className="video-modal" role="dialog" aria-modal="true" aria-label={title || 'Video'}>
       <button
         type="button"
@@ -44,7 +45,6 @@ export function VideoModal({ open, title, src, poster, onClose }: Props) {
         >
           ×
         </button>
-        {title ? <h3 className="video-modal-title">{title}</h3> : null}
         <div className="video-modal-frame">
           <video
             key={src}
@@ -57,6 +57,7 @@ export function VideoModal({ open, title, src, poster, onClose }: Props) {
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

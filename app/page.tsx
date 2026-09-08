@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ConnectCta } from '@/components/connect-cta';
 import { CountUp } from '@/components/count-up';
+import { HomeBannerActions } from '@/components/home-banner-actions';
 import { NewsCarousel } from '@/components/news-carousel';
 import { RevealInit } from '@/components/reveal-init';
 import { getNewsCarouselItems } from '@/lib/about';
@@ -95,14 +96,10 @@ export default async function HomePage() {
           {banner.subtitle ? (
             <p className="font-medium font24 mb28 hero-lead">{banner.subtitle}</p>
           ) : null}
-          <div className="flex-row-center flex-wrap gap-24 hero-actions">
-            <Link href="/manufacturing" className="btn btn-light btn-lg btn-light-border">
-              Learn More
-            </Link>
-            <Link href="/contact" className="btn btn-glass btn-lg">
-              Talk to us
-            </Link>
-          </div>
+          <HomeBannerActions
+            fullVideoUrl={banner.fullVideoUrl}
+            poster={banner.imageUrl || undefined}
+          />
         </div>
         <div className="cert-bar" aria-label="Certifications">
           {CERTS.map((item) => (
