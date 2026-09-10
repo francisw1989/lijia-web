@@ -2175,12 +2175,39 @@ a.contact-info-line:hover {
 .tools-faq-a {
   padding: 0 22px 22px 56px;
 }
-.tools-faq-a p {
-  margin: 0;
+.tools-faq-a p,
+.tools-faq-a-body :where(p, ul, ol, h2, h3, blockquote) {
+  margin: 0 0 12px;
   font-size: 15px;
   line-height: 1.7;
   color: #555;
-  white-space: pre-wrap;
+}
+.tools-faq-a p:last-child,
+.tools-faq-a-body :where(p, ul, ol, h2, h3, blockquote):last-child {
+  margin-bottom: 0;
+}
+.tools-faq-a-body :where(ul, ol) {
+  padding-left: 1.25em;
+}
+.tools-faq-a-body a {
+  color: var(--navy);
+  text-decoration: underline;
+}
+.tools-faq-a-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  margin: 8px auto;
+}
+.tools-faq-a-body .ql-align-center {
+  text-align: center;
+}
+.tools-faq-a-body .ql-align-right {
+  text-align: right;
+}
+.tools-faq-a-body .ql-align-justify {
+  text-align: justify;
 }
 .tools-intro {
   padding: 40px 0 28px;
@@ -2422,7 +2449,7 @@ a.contact-info-line:hover {
 }
 .video-modal-close {
   position: absolute;
-  top: -40px;
+  top: -4px;
   right: 0;
   border: 0;
   background: transparent;
@@ -2433,10 +2460,12 @@ a.contact-info-line:hover {
   z-index: 2;
 }
 .video-modal-title {
-  margin: 0 40px 12px 0;
+  margin: 0 48px 14px 0;
   color: #fff;
-  font-size: 18px;
+  font-size: clamp(16px, 1.6vw, 22px);
   font-weight: 700;
+  line-height: 1.35;
+  text-align: left;
 }
 .video-modal-frame {
   position: relative;
@@ -5025,9 +5054,6 @@ a.gallery-tile-link:hover {
   }
   .video-modal {
     padding: 0;
-  }
-  .video-modal-close {
-    top: -36px;
   }
   .tools-sample {
     grid-template-columns: 1fr;

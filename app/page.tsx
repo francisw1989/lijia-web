@@ -99,6 +99,7 @@ export default async function HomePage() {
           <HomeBannerActions
             fullVideoUrl={banner.fullVideoUrl}
             poster={banner.imageUrl || undefined}
+            title={banner.title}
           />
         </div>
         <div className="cert-bar" aria-label="Certifications">

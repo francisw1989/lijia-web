@@ -7,11 +7,17 @@ import { VideoModal } from '@/components/video-modal';
 type Props = {
   fullVideoUrl?: string;
   poster?: string;
+  title?: string;
 };
 
-export function HomeBannerActions({ fullVideoUrl, poster }: Props) {
+export function HomeBannerActions({ fullVideoUrl, poster, title }: Props) {
   const [open, setOpen] = useState(false);
   const src = String(fullVideoUrl || '').trim();
+  const modalTitle = String(title || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <>
@@ -37,7 +43,7 @@ export function HomeBannerActions({ fullVideoUrl, poster }: Props) {
         open={open}
         src={src}
         poster={poster}
-        title="Learn More"
+        title={modalTitle || undefined}
         onClose={() => setOpen(false)}
       />
     </>

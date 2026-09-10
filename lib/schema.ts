@@ -6,6 +6,7 @@ import {
   SITE_NAME,
 } from '@/lib/site';
 import { CONTACT_LOCATIONS } from '@/lib/contact';
+import { plainTextFromHtml } from '@/lib/capabilities';
 import type { FaqItem } from '@/lib/faq';
 
 type SiteCopy = {
@@ -74,7 +75,7 @@ export function faqPageSchema(items: FaqItem[]) {
       name: item.question,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: item.answer,
+        text: plainTextFromHtml(item.answer) || item.answer,
       },
     })),
     url: absoluteUrl('/tools/faq'),

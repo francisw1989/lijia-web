@@ -1,7 +1,34 @@
 'use client';
 
 import { useState } from 'react';
+import { hasRichContent } from '@/lib/capabilities';
 import type { FaqItem } from '@/lib/faq';
+
+function looksLikeHtml(value: string) {
+  return /<[a-z][\s\S]*>/i.test(value);
+}
+
+function FaqAnswer({ answer }: { answer: string }) {
+  const value = answer.trim();
+  if (!value) return null;
+
+  if (looksLikeHtml(value)) {
+    if (!hasRichContent(value)) return null;
+    return (
+      <div
+        className="tools-faq-a-body"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: value }}
+      />
+    );
+  }
+
+  return value
+    .split(/\n+/)
+    .map((para) => para.trim())
+    .filter(Boolean)
+    .map((para, paraIndex) => <p key={paraIndex}>{para}</p>);
+}
 
 export function FaqList({ items }: { items: FaqItem[] }) {
   const [openId, setOpenId] = useState<number | null>(items[0]?.id ?? null);
@@ -28,13 +55,7 @@ export function FaqList({ items }: { items: FaqItem[] }) {
               <span className="tools-faq-toggle" aria-hidden="true" />
             </button>
             <div className="tools-faq-a" hidden={!open}>
-              {item.answer
-                .split(/\n+/)
-                .map((para) => para.trim())
-                .filter(Boolean)
-                .map((para, paraIndex) => (
-                  <p key={`${item.id}-${paraIndex}`}>{para}</p>
-                ))}
+              <FaqAnswer answer={item.answer} />
             </div>
           </article>
         );

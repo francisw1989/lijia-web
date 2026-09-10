@@ -45,6 +45,7 @@ export function VideoModal({ open, title, src, poster, onClose }: Props) {
         >
           ×
         </button>
+        {title ? <h3 className="video-modal-title">{title}</h3> : null}
         <div className="video-modal-frame">
           <video
             key={src}
