@@ -417,22 +417,51 @@ export type QualityGalleryImage = {
   alt: string;
 };
 
-/** Quality Control 图集 → 跑马灯画廊 */
-export const getQualityGallery = cache(async (): Promise<QualityGalleryImage[]> => {
+export type QualityAlbum = {
+  id: string;
+  label: string;
+  images: QualityGalleryImage[];
+};
+
+/** Quality Control：CMS 图集（含 id，供 View More 全览页） */
+export const getQualityAlbum = cache(async (): Promise<QualityAlbum | null> => {
   try {
     const albums = await getAlbums([QUALITY_ROOT_NAME]);
     const album =
       albums.find(
         (item) => item.name.trim().toLowerCase() === QUALITY_ROOT_NAME.toLowerCase(),
       ) ?? albums[0];
-    if (!album?.images?.length) return QC_GALLERY;
+    if (!album?.images?.length) return null;
 
-    return album.images.map((img) => ({
-      src: img.url,
-      alt: img.alt || album.name,
-    }));
+    return {
+      id: String(album.id),
+      label: album.name,
+      images: album.images.map((img) => ({
+        src: img.url,
+        alt: img.alt || album.name,
+      })),
+    };
   } catch (error) {
-    console.error('[getQualityGallery]', error);
-    return QC_GALLERY;
+    console.error('[getQualityAlbum]', error);
+    return null;
   }
 });
+
+/** Quality Control 图集 → 跑马灯画廊 */
+export const getQualityGallery = cache(async (): Promise<QualityGalleryImage[]> => {
+  const album = await getQualityAlbum();
+  return album?.images?.length ? album.images : QC_GALLERY;
+});
+
+export async function getQualityAlbumById(
+  id: string,
+): Promise<QualityAlbum | null> {
+  const album = await getQualityAlbum();
+  if (!album || album.id !== String(id)) return null;
+  return album;
+}
+
+export async function getQualityAlbumParams(): Promise<{ id: string }[]> {
+  const album = await getQualityAlbum();
+  return album ? [{ id: album.id }] : [];
+}

@@ -3,7 +3,7 @@ import { pageMetadata } from '@/lib/site-title';
 import { CapabilitiesNav } from '@/components/capabilities-nav';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
-import { getQualityGallery, getQualityPageData } from '@/lib/capabilities';
+import { getQualityAlbum, getQualityGallery, getQualityPageData } from '@/lib/capabilities';
 import { QualityContent } from './content';
 
 export const dynamic = 'force-static';
@@ -18,8 +18,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function QualityPage() {
-  const [{ meta, hero }, gallery] = await Promise.all([
+  const [{ meta, hero }, album, gallery] = await Promise.all([
     getQualityPageData(),
+    getQualityAlbum(),
     getQualityGallery(),
   ]);
 
@@ -42,7 +43,7 @@ export default async function QualityPage() {
         <CapabilitiesNav />
       </div>
 
-      <QualityContent gallery={gallery} />
+      <QualityContent gallery={gallery} albumId={album?.id} />
     </>
   );
 }

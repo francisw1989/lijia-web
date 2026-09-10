@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
@@ -9,8 +10,10 @@ import { QC_PHASES, type QualityGalleryImage } from '@/lib/capabilities';
 
 export function QualityContent({
   gallery,
+  albumId,
 }: {
   gallery: QualityGalleryImage[];
+  albumId?: string;
 }) {
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const items = gallery;
@@ -80,6 +83,24 @@ export function QualityContent({
             ))}
           </MarqueeTrack>
         </section>
+      ) : null}
+
+      {items.length && albumId ? (
+        <div className="container flex-row-center facilities-view-more">
+          <Link
+            href={`/capabilities/quality/gallery/${albumId}`}
+            className="btn btn-primary btn-pill"
+          >
+            View More
+            <Image
+              src="/images/6.png"
+              alt=""
+              width={16}
+              height={16}
+              aria-hidden="true"
+            />
+          </Link>
+        </div>
       ) : null}
 
       {preview ? (
