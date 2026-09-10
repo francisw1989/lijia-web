@@ -150,6 +150,7 @@ export function AboutStorySwiper({ nodes }: { nodes: StoryNode[] }) {
             <img
               src={previewNode.image}
               alt={previewNode.keywords || previewNode.title || previewNode.year}
+              title={previewNode.title || previewNode.keywords || previewNode.year || undefined}
               className="img-lightbox-img"
             />
             <p className="img-lightbox-caption">

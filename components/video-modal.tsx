@@ -52,6 +52,7 @@ export function VideoModal({ open, title, src, poster, onClose }: Props) {
             className="video-modal-player"
             src={src}
             poster={poster || undefined}
+            title={title || undefined}
             controls
             autoPlay
             playsInline

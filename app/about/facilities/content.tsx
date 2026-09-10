@@ -197,7 +197,12 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
             <Image src="/images/9.png" alt="" width={40} height={40} />
           </button>
           <div className="img-lightbox-stage" onClick={(e) => e.stopPropagation()}>
-            <img src={preview.src} alt={preview.alt} className="img-lightbox-img" />
+            <img
+              src={preview.src}
+              alt={preview.alt}
+              title={imageTitle(preview.alt) || undefined}
+              className="img-lightbox-img"
+            />
             <p className="img-lightbox-caption">{imageTitle(preview.alt)}</p>
           </div>
           <button

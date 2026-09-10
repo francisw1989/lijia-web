@@ -40,7 +40,7 @@ export function GalleryLink({
       <span className="gallery-tile-media">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt={alt} loading="lazy" decoding="async" />
+          <img src={src} alt={alt} title={label || undefined} loading="lazy" decoding="async" />
         ) : (
           <span className="gallery-tile-fallback" />
         )}
@@ -76,7 +76,13 @@ export function GalleryTile({
     >
       <span className="gallery-tile-media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} loading={loading} decoding="async" />
+        <img
+          src={src}
+          alt={alt}
+          title={label || undefined}
+          loading={loading}
+          decoding="async"
+        />
         <GalleryImgHover />
       </span>
       {label ? <span className="gallery-tile-caption">{label}</span> : null}

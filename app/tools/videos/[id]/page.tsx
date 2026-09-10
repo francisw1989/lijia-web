@@ -55,6 +55,7 @@ export default async function ToolsVideoDetailPage({ params }: Props) {
               className="cap-tag-page-video"
               src={video.src}
               poster={video.poster || undefined}
+              title={video.title}
               controls
               playsInline
               preload="metadata"

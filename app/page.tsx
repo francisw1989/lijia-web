@@ -75,6 +75,7 @@ export default async function HomePage() {
           className="absoluteCover object-cover"
           src={banner.videoUrl}
           poster={banner.imageUrl || undefined}
+          title={bannerTitle.join(' ') || undefined}
           autoPlay
           muted
           loop

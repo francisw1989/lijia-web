@@ -30,6 +30,7 @@ export function HeroMedia({
           className={className}
           src={src}
           poster={poster || undefined}
+          title={alt || undefined}
           autoPlay
           muted
           loop
