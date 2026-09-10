@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
       revalidatePath(`/about/news/${id}`);
       revalidatePath(`/about/facilities/${id}`);
       revalidatePath(`/about/team/${id}`);
+      revalidatePath(`/tools/videos/${id}`);
     }
     if (type === 'product-category') {
       revalidatePath('/manufacturing', 'layout');

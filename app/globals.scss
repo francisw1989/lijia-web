@@ -2400,10 +2400,15 @@ a.contact-info-line:hover {
   line-height: 1.35;
   text-align: center;
   color: var(--fg);
+  text-decoration: none;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.tools-video-caption:hover {
+  color: var(--navy);
+  text-decoration: none;
 }
 .tools-video-list-grid {
   display: grid;

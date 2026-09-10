@@ -400,6 +400,71 @@ export const getToolsVideos = cache(async (): Promise<{
   }
 });
 
+export type ToolsVideoDetail = {
+  id: number;
+  title: string;
+  description: string;
+  keywords: string;
+  src: string;
+  poster: string;
+  content: string;
+  tagName: string;
+};
+
+async function findDiscoverTipsCategoryId(): Promise<number | null> {
+  const categories = await getProductCategories();
+  const root = findToolsCategory(categories);
+  if (!root) return null;
+  const child = categories.find(
+    (c) =>
+      c.parent_id === root.id &&
+      /^discover\s*tips/i.test(c.name.trim()),
+  );
+  return child?.id ?? null;
+}
+
+/** Tools 视频详情页 */
+export const getToolsVideoDetail = cache(
+  async (id: number): Promise<ToolsVideoDetail | null> => {
+    if (!Number.isFinite(id) || id <= 0) return null;
+    try {
+      const [product, tipsCategoryId] = await Promise.all([
+        getProduct(id),
+        findDiscoverTipsCategoryId(),
+      ]);
+      if (!product || !tipsCategoryId) return null;
+      if (product.category_id !== tipsCategoryId) return null;
+
+      const src = product.cover?.trim() || '';
+      if (!src) return null;
+      if (product.cover_type && product.cover_type !== 'video') return null;
+
+      return {
+        id: product.id,
+        title: product.title,
+        description: product.description?.trim() || '',
+        keywords: product.keywords?.trim() || '',
+        src,
+        poster: product.video_cover?.trim() || '',
+        content: product.content || '',
+        tagName: product.content_tag_name?.trim() || '',
+      };
+    } catch (error) {
+      console.error('[getToolsVideoDetail]', error);
+      return null;
+    }
+  },
+);
+
+export async function getToolsVideoParams(): Promise<{ id: string }[]> {
+  try {
+    const { videos } = await getToolsVideos();
+    return videos.map((item) => ({ id: String(item.id) }));
+  } catch {
+    return [];
+  }
+}
+
 /** Tools 文档列表页 */
 export const getToolsDocPageData = cache(async (
   slug: string,
