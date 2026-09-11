@@ -97,11 +97,7 @@ export default async function HomePage() {
           {banner.subtitle ? (
             <p className="font-medium font24 mb28 hero-lead">{banner.subtitle}</p>
           ) : null}
-          <HomeBannerActions
-            fullVideoUrl={banner.fullVideoUrl}
-            poster={banner.imageUrl || undefined}
-            title={banner.title}
-          />
+          <HomeBannerActions />
         </div>
         <div className="cert-bar" aria-label="Certifications">
           {CERTS.map((item) => (

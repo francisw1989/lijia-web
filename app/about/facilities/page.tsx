@@ -3,7 +3,7 @@ import { pageMetadata } from '@/lib/site-title';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import {
   getAboutSection,
-  getFacilitiesIntroArticleId,
+  getFacilitiesIntro,
   getFacilityAlbums,
 } from '@/lib/about';
 import { FacilitiesContent } from './content';
@@ -18,10 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function FacilitiesPage() {
-  const [{ banner }, albums, introId] = await Promise.all([
+  const [{ banner }, albums, intro] = await Promise.all([
     getAboutSection('facilities'),
     getFacilityAlbums(),
-    getFacilitiesIntroArticleId(),
+    getFacilitiesIntro(),
   ]);
 
   return (
@@ -32,9 +32,8 @@ export default async function FacilitiesPage() {
         alt={banner.alt}
         title={banner.title}
         subtitle={banner.subtitle}
-        learnMoreHref={introId ? `/about/facilities/${introId}` : undefined}
       />
-      <FacilitiesContent albums={albums} />
+      <FacilitiesContent albums={albums} intro={intro} />
     </>
   );
 }

@@ -6,9 +6,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
 import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
-import type { FacilityAlbumTab } from '@/lib/about';
+import { hasRichContent } from '@/lib/capabilities';
+import { isVideoMediaUrl } from '@/lib/media';
+import type { FacilitiesArticle, FacilityAlbumTab } from '@/lib/about';
 
-export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
+export function FacilitiesContent({
+  albums,
+  intro,
+}: {
+  albums: FacilityAlbumTab[];
+  intro?: FacilitiesArticle | null;
+}) {
   /** 无图片的分类不展示 */
   const visibleAlbums = useMemo(
     () => albums.filter((item) => item.images?.length > 0),
@@ -54,6 +62,12 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
     };
   }, [previewIndex, images.length]);
 
+  const videoSrc =
+    intro && isVideoMediaUrl(intro.cover, intro.coverType)
+      ? intro.cover.trim()
+      : '';
+  const body = intro?.content?.trim() || '';
+
   return (
     <>
       <AboutShell>
@@ -85,6 +99,32 @@ export function FacilitiesContent({ albums }: { albums: FacilityAlbumTab[] }) {
             </p>
           </div>
         </div>
+
+        {intro ? (
+          <article className="facilities-intro cap-tag-page">
+            <h2 className="cap-tag-page-title">{intro.title}</h2>
+            {videoSrc ? (
+              <div className="cap-tag-page-media">
+                <video
+                  className="cap-tag-page-video"
+                  src={videoSrc}
+                  poster={intro.videoCover || undefined}
+                  title={intro.title}
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+              </div>
+            ) : null}
+            {hasRichContent(body) ? (
+              <div
+                className="cap-tag-page-body"
+                suppressHydrationWarning
+                dangerouslySetInnerHTML={{ __html: body }}
+              />
+            ) : null}
+          </article>
+        ) : null}
       </AboutShell>
 
       {visibleAlbums.length ? (

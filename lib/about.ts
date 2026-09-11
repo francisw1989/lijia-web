@@ -185,7 +185,21 @@ export type FacilitiesArticle = {
   keywords: string;
   content: string;
   cover: string;
+  coverType: 'image' | 'video' | 'document' | string;
+  videoCover: string;
 };
+
+/** Our Facilities 介绍文（标题匹配 Our Facilities） */
+export async function getFacilitiesIntro(): Promise<FacilitiesArticle | null> {
+  try {
+    const id = await getFacilitiesIntroArticleId();
+    if (!id) return null;
+    return getFacilitiesArticle(id);
+  } catch (error) {
+    console.error('[getFacilitiesIntro]', error);
+    return null;
+  }
+}
 
 /** Our Facilities 栏目下标题为 Our Facilities 的介绍文 id（列表页 Learn More） */
 export async function getFacilitiesIntroArticleId(): Promise<number | null> {
@@ -234,6 +248,8 @@ export async function getFacilitiesArticle(
       keywords: product.keywords || '',
       content: product.content || '',
       cover: product.cover || '',
+      coverType: product.cover_type || 'image',
+      videoCover: product.video_cover?.trim() || '',
     };
   } catch (error) {
     console.error('[getFacilitiesArticle]', error);

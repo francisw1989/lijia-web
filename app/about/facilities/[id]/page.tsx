@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import { AboutShell } from '@/components/about-shell';
 import { ArticleDetail } from '@/components/article-detail';
+import { isVideoMediaUrl } from '@/lib/media';
 import {
   getAboutSection,
   getFacilitiesArticle,
@@ -39,6 +40,10 @@ export default async function FacilitiesArticlePage({ params }: Props) {
 
   if (!article) notFound();
 
+  const videoSrc = isVideoMediaUrl(article.cover, article.coverType)
+    ? article.cover.trim()
+    : '';
+
   return (
     <>
       <FacilitiesHero
@@ -49,7 +54,25 @@ export default async function FacilitiesArticlePage({ params }: Props) {
         subtitle={banner.subtitle}
       />
       <AboutShell>
-        <ArticleDetail title={article.title} html={article.content}>
+        <ArticleDetail
+          title={article.title}
+          html={article.content}
+          media={
+            videoSrc ? (
+              <div className="cap-tag-page-media">
+                <video
+                  className="cap-tag-page-video"
+                  src={videoSrc}
+                  poster={article.videoCover || undefined}
+                  title={article.title}
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+              </div>
+            ) : null
+          }
+        >
           <Link href="/about/facilities" className="about-news-more">
             &lt; back to Our Facilities
           </Link>
