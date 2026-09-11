@@ -2200,6 +2200,17 @@ a.contact-info-line:hover {
   border-radius: var(--radius);
   margin: 8px auto;
 }
+.tools-faq-a-body video,
+.tools-faq-a-body .ql-html-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 60vh;
+  margin: 12px auto;
+  border-radius: var(--radius);
+  background: #000;
+}
 .tools-faq-a-body .ql-align-center {
   text-align: center;
 }
@@ -3278,7 +3289,7 @@ a.contact-info-line:hover {
 }
 .cap-tag-page-title {
   margin: 0;
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: clamp(36px, 5vw, 46px);
   line-height: 1.15;
   font-weight: 800;
   color: var(--fg);
@@ -3338,7 +3349,19 @@ a.contact-info-line:hover {
   border-radius: var(--radius);
   margin: 0 auto
 }
-.cap-tag-page-body .ql-align-center img {
+.cap-tag-page-body video,
+.cap-tag-page-body .ql-html-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 70vh;
+  margin: 16px auto;
+  border-radius: var(--radius);
+  background: #000;
+}
+.cap-tag-page-body .ql-align-center img,
+.cap-tag-page-body .ql-align-center video {
   margin-left: auto;
   margin-right: auto;
 }
@@ -4248,6 +4271,17 @@ a.gallery-tile-link:hover {
 .article-body img {
   max-width: 100%;
   height: auto;
+}
+.article-body video,
+.article-body .ql-html-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 70vh;
+  margin: 16px auto;
+  border-radius: var(--radius);
+  background: #000;
 }
 
 /* 页脚 */
