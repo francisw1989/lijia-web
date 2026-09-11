@@ -80,7 +80,7 @@ export default async function TeamMemberDetailPage({ params }: Props) {
                 className="team-detail-body"
                 suppressHydrationWarning
                 dangerouslySetInnerHTML={{
-                  __html: member.content || '<p>No introduction yet.</p>',
+                  __html: member.content || '',
                 }}
               />
             </div>
