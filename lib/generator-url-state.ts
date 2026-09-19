@@ -4,9 +4,8 @@ import type { BoardFoldId } from '@/lib/template-generator/board';
 import { DEFAULT_NEOPRENE_RADIUS } from '@/lib/template-generator/neoprene-mat';
 import type { CardStockId } from '@/lib/template-generator/tuckbox';
 import { DEFAULT_CARD_SIZE_ID } from '@/lib/template-generator/cards';
-import { openInSystemBrowser } from '@/lib/pdf-client';
 
-/** URL 查询参数 ↔ 生成器表单（微信跳转时带上参数回填） */
+/** URL 查询参数 ↔ 生成器表单（微信内同步到地址栏，便于在浏览器打开后回填） */
 export type GeneratorUrlState = {
   template: string;
   x: string;
@@ -125,19 +124,22 @@ export function buildGeneratorSearch(state: GeneratorUrlState): string {
 }
 
 /**
- * 微信内：打开「当前页 + 参数」的真实 https 链接（唤起系统浏览器）。
- * 禁止走 blob / doc.save，否则系统浏览器地址栏会变成空白 blob: 页。
- * @returns need-manual 时（多为 iOS）需提示用户手动「在浏览器打开」
+ * 把当前表单参数写入地址栏（不跳转、不打开 blob）。
+ * 微信内点 Download 后提示用户「在浏览器打开」时，系统浏览器会带上这些参数。
  */
-export function openGeneratorParamWindow(
+export function syncGeneratorParamsToUrl(
   state: GeneratorUrlState,
   opts?: { diceId?: string },
-): 'launched' | 'need-manual' {
-  if (typeof window === 'undefined') return 'need-manual';
+) {
+  if (typeof window === 'undefined') return;
   const search = buildGeneratorSearch({
     ...state,
     dice: opts?.diceId || state.dice,
   });
-  const url = `${window.location.origin}${window.location.pathname}${search}`;
-  return openInSystemBrowser(url);
+  window.history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${search}`,
+  );
 }
+

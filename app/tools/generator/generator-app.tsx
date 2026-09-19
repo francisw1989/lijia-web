@@ -5,7 +5,7 @@ import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
 import {
   parseGeneratorSearch,
-  openGeneratorParamWindow,
+  syncGeneratorParamsToUrl,
   type GeneratorUrlState,
 } from '@/lib/generator-url-state';
 import {
@@ -1484,12 +1484,12 @@ export function TemplateGeneratorApp({
     dice: pendingDiceId,
   });
 
-  /** 微信：唤起系统浏览器打开带参数的真实页面；绝不触发 blob */
-  const openParamPageInWeChat = (diceId = '') => {
-    const result = openGeneratorParamWindow(snapshotUrlState(), {
+  /** WeChat: sync params into the URL and show Open-in-Browser tip (no blob) */
+  const promptWeChatOpenInBrowser = (diceId = '') => {
+    syncGeneratorParamsToUrl(snapshotUrlState(), {
       diceId: diceId || pendingDiceId,
     });
-    setWechatOpenTip(result === 'need-manual');
+    setWechatOpenTip(true);
     setError('');
   };
 
@@ -1594,7 +1594,7 @@ export function TemplateGeneratorApp({
   const onDiceDownload = async (file: DiceTemplateFile) => {
     if (isWeChatBrowser()) {
       setPendingDiceId(file.id);
-      openParamPageInWeChat(file.id);
+      promptWeChatOpenInBrowser(file.id);
       return;
     }
     setError('');
@@ -1745,7 +1745,7 @@ export function TemplateGeneratorApp({
     }
     // 微信内禁止 doc.save / blob，否则会把系统浏览器带到空白 blob: 页
     if (isWeChatBrowser()) {
-      openParamPageInWeChat();
+      promptWeChatOpenInBrowser();
       return;
     }
     await performDownload();
@@ -2266,7 +2266,8 @@ export function TemplateGeneratorApp({
           </h2>
           {wechatOpenTip ? (
             <p className="tg-wechat-tip is-active">
-              请点击右上角 ··· →「在浏览器打开」，然后在系统浏览器中点击 Download。
+              Downloads are not supported in WeChat. Tap ··· in the top-right
+              corner → Open in Browser, then tap Download PDF again.
             </p>
           ) : null}
           <button
