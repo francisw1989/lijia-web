@@ -49,5 +49,5 @@ export function generatePaperPadPdf(
 export async function downloadPaperPadPdf(input: { x: number; y: number }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePaperPadPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, paperPadPdfFileName(input.x, input.y));
 }

@@ -96,5 +96,5 @@ export async function downloadRulesBookletPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateRulesBookletPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, rulesBookletPdfFileName(input.x, input.y, input.outside, input.spine));
 }

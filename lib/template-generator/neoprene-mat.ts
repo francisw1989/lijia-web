@@ -81,5 +81,5 @@ export async function downloadNeopreneMatPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateNeopreneMatPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, neopreneMatPdfFileName(input.x, input.y, input.radius, input.stitched));
 }

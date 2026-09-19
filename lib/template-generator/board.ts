@@ -170,5 +170,5 @@ export async function downloadGameBoardPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateGameBoardPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, boardPdfFileName(input.x, input.y));
 }

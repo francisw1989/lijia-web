@@ -150,5 +150,5 @@ export async function downloadTinBoxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateTinBoxPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, tinBoxPdfFileName(input.a, input.b, input.c, input.radius));
 }

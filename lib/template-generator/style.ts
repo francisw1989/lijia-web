@@ -111,8 +111,49 @@ export function drawRoundedGuides(
   }
 }
 
-/** 在新标签页打开 PDF 预览（不触发本地下载） */
-export function openPdfDoc(doc: jsPDF) {
+/** 手机端 PDF 用下载，桌面端新标签预览 */
+export function isMobilePdfClient() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
+  // iPadOS 13+ 常伪装成 Mac
+  if (navigator.maxTouchPoints > 1 && /Mac|iPad/i.test(ua)) return true;
+  return false;
+}
+
+function triggerBlobDownload(blob: Blob, fileName: string) {
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = objectUrl;
+  a.download = fileName || 'template.pdf';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
+}
+
+/** 桌面：新标签预览；手机：直接下载 */
+export function openPdfDoc(doc: jsPDF, fileName = 'template.pdf') {
+  if (isMobilePdfClient()) {
+    doc.save(fileName);
+    return;
+  }
   const url = String(doc.output('bloburl'));
   window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+/** 远程 PDF：桌面预览，手机下载 */
+export async function openOrDownloadRemotePdf(
+  fileUrl: string,
+  fileName: string,
+) {
+  const res = await fetch(fileUrl);
+  if (!res.ok) throw new Error(`pdf ${res.status}`);
+  const blob = await res.blob();
+  if (isMobilePdfClient()) {
+    triggerBlobDownload(blob, fileName);
+    return;
+  }
+  const objectUrl = URL.createObjectURL(blob);
+  window.open(objectUrl, '_blank', 'noopener,noreferrer');
 }

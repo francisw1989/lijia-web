@@ -1,6 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  isMobilePdfClient,
+  openOrDownloadRemotePdf,
+} from '@/lib/template-generator/style';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -1098,11 +1102,7 @@ function DiceFaceIcon({ kind }: { kind: DiceTemplateFile['id'] }) {
 
 async function previewFixedPdf(file: DiceTemplateFile) {
   const href = toolsDownloadHref(file.fileUrl, file.fileName);
-  const res = await fetch(href);
-  if (!res.ok) throw new Error(`preview ${res.status}`);
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  window.open(objectUrl, '_blank', 'noopener,noreferrer');
+  await openOrDownloadRemotePdf(href, file.fileName);
 }
 
 function TemplateIcon({ id }: { id: TemplateId }) {
@@ -1404,6 +1404,7 @@ export function TemplateGeneratorApp({
   diceAll?: DiceTemplateFile | null;
 }) {
   const [template, setTemplate] = useState<TemplateId>('two-piece-box');
+  const [mobilePdf, setMobilePdf] = useState(false);
   const [x, setX] = useState('');
   const [y, setY] = useState('');
   const [z, setZ] = useState('');
@@ -1424,6 +1425,10 @@ export function TemplateGeneratorApp({
   const [customCardMm, setCustomCardMm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    setMobilePdf(isMobilePdfClient());
+  }, []);
 
   const isBox = template === 'two-piece-box';
   const isMagnetic = template === 'magnetic-box';
@@ -1530,7 +1535,11 @@ export function TemplateGeneratorApp({
       await previewFixedPdf(file);
     } catch (err) {
       console.error(err);
-      setError('Could not open the PDF. Please try again.');
+      setError(
+        mobilePdf
+          ? 'Could not download the PDF. Please try again.'
+          : 'Could not open the PDF. Please try again.',
+      );
     } finally {
       setBusy(false);
     }
@@ -1655,7 +1664,11 @@ export function TemplateGeneratorApp({
       }
     } catch (err) {
       console.error(err);
-      setError('Could not open the PDF. Please try again.');
+      setError(
+        mobilePdf
+          ? 'Could not download the PDF. Please try again.'
+          : 'Could not open the PDF. Please try again.',
+      );
     } finally {
       setBusy(false);
     }
@@ -1700,7 +1713,9 @@ export function TemplateGeneratorApp({
           {isDice ? (
             <div className="tg-dice-panel">
               <p className="tg-dice-lead">
-                Click the dice template(s) you want to preview
+                {mobilePdf
+                  ? 'Click the dice template(s) you want to download'
+                  : 'Click the dice template(s) you want to preview'}
               </p>
               <div className="tg-dice-row">
                 {diceItems.map((item) => (
@@ -2164,7 +2179,13 @@ export function TemplateGeneratorApp({
         <li className="tg-step">
           <h2>
             <span>3</span>{' '}
-            {isDice ? 'Preview all templates' : 'Preview your template'}
+            {isDice
+              ? mobilePdf
+                ? 'Download all templates'
+                : 'Preview all templates'
+              : mobilePdf
+                ? 'Download your template'
+                : 'Preview your template'}
           </h2>
           <button
             type="button"
@@ -2173,10 +2194,16 @@ export function TemplateGeneratorApp({
             onClick={onDownload}
           >
             {busy
-              ? 'Opening…'
+              ? mobilePdf
+                ? 'Downloading…'
+                : 'Opening…'
               : isDice
-                ? 'PREVIEW ALL'
-                : 'Preview PDF'}
+                ? mobilePdf
+                  ? 'DOWNLOAD ALL'
+                  : 'PREVIEW ALL'
+                : mobilePdf
+                  ? 'Download PDF'
+                  : 'Preview PDF'}
           </button>
           {error ? <p className="tg-error">{error}</p> : null}
         </li>

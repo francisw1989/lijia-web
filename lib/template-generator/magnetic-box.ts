@@ -471,6 +471,6 @@ export async function downloadMagneticBoxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateMagneticBoxPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, magneticBoxPdfFileName(input.a, input.b, input.c, input.thickness));
 }
 

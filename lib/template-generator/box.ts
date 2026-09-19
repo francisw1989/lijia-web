@@ -371,5 +371,5 @@ export async function downloadTwoPieceBoxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateTwoPieceBoxPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, boxPdfFileName(input.x, input.y, input.z, input.thickness));
 }

@@ -70,5 +70,5 @@ export function generatePunchboardPdf(
 export async function downloadPunchboardPdf(input: { x: number; y: number }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePunchboardPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, punchboardPdfFileName(input.x, input.y));
 }

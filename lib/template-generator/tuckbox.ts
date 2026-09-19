@@ -475,6 +475,6 @@ export async function downloadTuckboxPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateTuckboxPdf(input, logoDataUrl);
-  openPdfDoc(doc);
+  openPdfDoc(doc, tuckboxPdfFileName(input));
 }
 
