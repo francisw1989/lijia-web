@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
-import { parseGeneratorSearch, openGeneratorParamWindow, type GeneratorUrlState } from '@/lib/generator-url-state';
+import {
+  parseGeneratorSearch,
+  openGeneratorParamWindow,
+  type GeneratorUrlState,
+} from '@/lib/generator-url-state';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -1429,6 +1433,7 @@ export function TemplateGeneratorApp({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [pendingDiceId, setPendingDiceId] = useState('');
+  const [wechatOpenTip, setWechatOpenTip] = useState(false);
 
   useEffect(() => {
     setMobilePdf(isMobilePdfClient() || isWeChatBrowser());
@@ -1479,11 +1484,12 @@ export function TemplateGeneratorApp({
     dice: pendingDiceId,
   });
 
-  /** 微信：只跳转真实页面链接（带参数），绝不触发 blob 下载 */
+  /** 微信：唤起系统浏览器打开带参数的真实页面；绝不触发 blob */
   const openParamPageInWeChat = (diceId = '') => {
-    openGeneratorParamWindow(snapshotUrlState(), {
+    const result = openGeneratorParamWindow(snapshotUrlState(), {
       diceId: diceId || pendingDiceId,
     });
+    setWechatOpenTip(result === 'need-manual');
     setError('');
   };
 
@@ -2258,6 +2264,11 @@ export function TemplateGeneratorApp({
                 ? 'Download your template'
                 : 'Preview your template'}
           </h2>
+          {wechatOpenTip ? (
+            <p className="tg-wechat-tip is-active">
+              请点击右上角 ··· →「在浏览器打开」，然后在系统浏览器中点击 Download。
+            </p>
+          ) : null}
           <button
             type="button"
             className={`btn btn-primary tg-download${isDice ? ' tg-download-all' : ''}`}

@@ -2047,6 +2047,16 @@ a.contact-info-line:hover {
 .tg-download {
   min-width: 200px;
 }
+.tg-wechat-tip {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #5c5c5c;
+}
+.tg-wechat-tip.is-active {
+  color: #1a1a1a;
+  font-weight: 600;
+}
 .tg-download-all {
   min-width: min(100%, 320px);
   letter-spacing: 0.04em;

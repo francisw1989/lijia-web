@@ -4,6 +4,7 @@ import type { BoardFoldId } from '@/lib/template-generator/board';
 import { DEFAULT_NEOPRENE_RADIUS } from '@/lib/template-generator/neoprene-mat';
 import type { CardStockId } from '@/lib/template-generator/tuckbox';
 import { DEFAULT_CARD_SIZE_ID } from '@/lib/template-generator/cards';
+import { openInSystemBrowser } from '@/lib/pdf-client';
 
 /** URL 查询参数 ↔ 生成器表单（微信跳转时带上参数回填） */
 export type GeneratorUrlState = {
@@ -124,25 +125,19 @@ export function buildGeneratorSearch(state: GeneratorUrlState): string {
 }
 
 /**
- * 微信内：打开「当前页 + 参数」的真实 https 链接。
+ * 微信内：打开「当前页 + 参数」的真实 https 链接（唤起系统浏览器）。
  * 禁止走 blob / doc.save，否则系统浏览器地址栏会变成空白 blob: 页。
+ * @returns need-manual 时（多为 iOS）需提示用户手动「在浏览器打开」
  */
 export function openGeneratorParamWindow(
   state: GeneratorUrlState,
   opts?: { diceId?: string },
-) {
-  if (typeof window === 'undefined') return;
+): 'launched' | 'need-manual' {
+  if (typeof window === 'undefined') return 'need-manual';
   const search = buildGeneratorSearch({
     ...state,
     dice: opts?.diceId || state.dice,
   });
   const url = `${window.location.origin}${window.location.pathname}${search}`;
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  return openInSystemBrowser(url);
 }
