@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
-import { parseGeneratorSearch } from '@/lib/generator-url-state';
+import { parseGeneratorSearch, openGeneratorParamWindow, type GeneratorUrlState } from '@/lib/generator-url-state';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -1456,6 +1456,37 @@ export function TemplateGeneratorApp({
     setPendingDiceId(parsed.dice);
   }, []);
 
+  const snapshotUrlState = (): GeneratorUrlState => ({
+    template,
+    x,
+    y,
+    z,
+    material,
+    magThickness,
+    fold,
+    doubleSided,
+    cardMode,
+    cardSizeId,
+    radius,
+    neoRadius,
+    stitched,
+    outside,
+    spine,
+    depthMode,
+    cardQty,
+    cardStock,
+    customCardMm,
+    dice: pendingDiceId,
+  });
+
+  /** 微信：只跳转真实页面链接（带参数），绝不触发 blob 下载 */
+  const openParamPageInWeChat = (diceId = '') => {
+    openGeneratorParamWindow(snapshotUrlState(), {
+      diceId: diceId || pendingDiceId,
+    });
+    setError('');
+  };
+
   const isBox = template === 'two-piece-box';
   const isMagnetic = template === 'magnetic-box';
   const isPunchboard = template === 'punchboard';
@@ -1555,6 +1586,11 @@ export function TemplateGeneratorApp({
   ]);
 
   const onDiceDownload = async (file: DiceTemplateFile) => {
+    if (isWeChatBrowser()) {
+      setPendingDiceId(file.id);
+      openParamPageInWeChat(file.id);
+      return;
+    }
     setError('');
     setBusy(true);
     try {
@@ -1699,6 +1735,11 @@ export function TemplateGeneratorApp({
             ? 'Enter X / Y or choose a standard size.'
             : 'Enter X / Y.',
       );
+      return;
+    }
+    // 微信内禁止 doc.save / blob，否则会把系统浏览器带到空白 blob: 页
+    if (isWeChatBrowser()) {
+      openParamPageInWeChat();
       return;
     }
     await performDownload();

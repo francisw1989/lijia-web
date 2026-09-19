@@ -5,7 +5,7 @@ import { DEFAULT_NEOPRENE_RADIUS } from '@/lib/template-generator/neoprene-mat';
 import type { CardStockId } from '@/lib/template-generator/tuckbox';
 import { DEFAULT_CARD_SIZE_ID } from '@/lib/template-generator/cards';
 
-/** URL 查询参数 ↔ 生成器表单（供微信「在浏览器打开」后自动下载） */
+/** URL 查询参数 ↔ 生成器表单（微信跳转时带上参数回填） */
 export type GeneratorUrlState = {
   template: string;
   x: string;
@@ -28,8 +28,6 @@ export type GeneratorUrlState = {
   customCardMm: string;
   /** dice 文件 id，或 all */
   dice: string;
-  /** 系统浏览器打开后自动下载 */
-  autoDownload: boolean;
 };
 
 export const DEFAULT_GENERATOR_URL_STATE: GeneratorUrlState = {
@@ -53,7 +51,6 @@ export const DEFAULT_GENERATOR_URL_STATE: GeneratorUrlState = {
   cardStock: '',
   customCardMm: '',
   dice: '',
-  autoDownload: false,
 };
 
 export function parseGeneratorSearch(search: string): GeneratorUrlState {
@@ -93,14 +90,10 @@ export function parseGeneratorSearch(search: string): GeneratorUrlState {
     cardStock: cardStockRaw as CardStockId | 'custom' | '',
     customCardMm: q.get('cmm') || '',
     dice: q.get('dice') || '',
-    autoDownload: q.get('dl') === '1',
   };
 }
 
-export function buildGeneratorSearch(
-  state: GeneratorUrlState,
-  opts?: { autoDownload?: boolean },
-): string {
+export function buildGeneratorSearch(state: GeneratorUrlState): string {
   const q = new URLSearchParams();
   q.set('t', state.template);
   if (state.x) q.set('x', state.x);
@@ -126,13 +119,30 @@ export function buildGeneratorSearch(
   if (state.cardStock) q.set('cstock', state.cardStock);
   if (state.customCardMm) q.set('cmm', state.customCardMm);
   if (state.dice) q.set('dice', state.dice);
-  if (opts?.autoDownload ?? state.autoDownload) q.set('dl', '1');
   const s = q.toString();
   return s ? `?${s}` : '';
 }
 
-export function replaceGeneratorUrl(search: string) {
+/**
+ * 微信内：打开「当前页 + 参数」的真实 https 链接。
+ * 禁止走 blob / doc.save，否则系统浏览器地址栏会变成空白 blob: 页。
+ */
+export function openGeneratorParamWindow(
+  state: GeneratorUrlState,
+  opts?: { diceId?: string },
+) {
   if (typeof window === 'undefined') return;
-  const path = window.location.pathname;
-  window.history.replaceState(null, '', `${path}${search}`);
+  const search = buildGeneratorSearch({
+    ...state,
+    dice: opts?.diceId || state.dice,
+  });
+  const url = `${window.location.origin}${window.location.pathname}${search}`;
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }

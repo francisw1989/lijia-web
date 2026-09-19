@@ -1,6 +1,6 @@
 import type { jsPDF } from 'jspdf';
 import { foldLines, type FoldId } from './folds';
-import { isMobilePdfClient } from '@/lib/pdf-client';
+import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 
 export { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 
@@ -127,6 +127,10 @@ function triggerBlobDownload(blob: Blob, fileName: string) {
 
 /** 桌面：新标签预览；手机：直接下载（须由用户点击触发） */
 export async function openPdfDoc(doc: jsPDF, fileName = 'template.pdf') {
+  // 微信里禁止 blob，否则系统浏览器会落到空白 blob: 页
+  if (isWeChatBrowser()) {
+    return;
+  }
   if (isMobilePdfClient()) {
     doc.save(fileName);
     return;
@@ -140,6 +144,11 @@ export async function openOrDownloadRemotePdf(
   fileUrl: string,
   fileName: string,
 ) {
+  if (isWeChatBrowser()) {
+    // 微信：直接跳真实下载/文件 URL，不用 blob
+    window.location.assign(fileUrl);
+    return;
+  }
   const res = await fetch(fileUrl);
   if (!res.ok) throw new Error(`pdf ${res.status}`);
   const blob = await res.blob();
