@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
-
-function sanitizeFileName(name: string) {
-  const safe = name.replace(/[\r\n"/\\]/g, '_').trim() || 'download';
-  return safe;
-}
-
-function contentDisposition(filename: string) {
-  const safe = sanitizeFileName(filename);
-  const ascii = safe.replace(/[^\x20-\x7E]/g, '_') || 'download';
-  return `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(safe)}`;
-}
+import { contentDisposition } from '@/lib/content-disposition';
 
 /** 同源代理下载：用真实文件名触发浏览器另存为 */
 export async function GET(request: NextRequest) {

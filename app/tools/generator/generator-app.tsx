@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-  isMobilePdfClient,
-  openOrDownloadRemotePdf,
-} from '@/lib/template-generator/style';
+import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
+import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -1405,6 +1403,7 @@ export function TemplateGeneratorApp({
 }) {
   const [template, setTemplate] = useState<TemplateId>('two-piece-box');
   const [mobilePdf, setMobilePdf] = useState(false);
+  const [wechat, setWechat] = useState(false);
   const [x, setX] = useState('');
   const [y, setY] = useState('');
   const [z, setZ] = useState('');
@@ -1427,7 +1426,8 @@ export function TemplateGeneratorApp({
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setMobilePdf(isMobilePdfClient());
+    setMobilePdf(isMobilePdfClient() || isWeChatBrowser());
+    setWechat(isWeChatBrowser());
   }, []);
 
   const isBox = template === 'two-piece-box';
@@ -2187,6 +2187,11 @@ export function TemplateGeneratorApp({
                 ? 'Download your template'
                 : 'Preview your template'}
           </h2>
+          {wechat ? (
+            <p className="tg-wechat-tip">
+              微信内可直接下载。若未弹出，请点右上角 ··· →「在浏览器打开」后再试。
+            </p>
+          ) : null}
           <button
             type="button"
             className={`btn btn-primary tg-download${isDice ? ' tg-download-all' : ''}`}

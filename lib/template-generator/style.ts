@@ -1,5 +1,8 @@
 import type { jsPDF } from 'jspdf';
 import { foldLines, type FoldId } from './folds';
+import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
+
+export { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 
 /** 工艺尺寸（mm），各模板共用 */
 export const BLEED = 3;
@@ -111,16 +114,6 @@ export function drawRoundedGuides(
   }
 }
 
-/** 手机端 PDF 用下载，桌面端新标签预览 */
-export function isMobilePdfClient() {
-  if (typeof navigator === 'undefined') return false;
-  const ua = navigator.userAgent || '';
-  if (/Android|iPhone|iPod|Mobile/i.test(ua)) return true;
-  // iPadOS 13+ 常伪装成 Mac
-  if (navigator.maxTouchPoints > 1 && /Mac|iPad/i.test(ua)) return true;
-  return false;
-}
-
 function triggerBlobDownload(blob: Blob, fileName: string) {
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -132,8 +125,60 @@ function triggerBlobDownload(blob: Blob, fileName: string) {
   window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
 }
 
-/** 桌面：新标签预览；手机：直接下载 */
+/**
+ * 微信内：整页表单 POST 到同源接口，靠 Content-Disposition 触发下载/打开。
+ * blob + a.download 在微信里基本无效。
+ */
+function downloadPdfViaWeChatForm(doc: jsPDF, fileName: string) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = '/api/pdf-download';
+  form.enctype = 'multipart/form-data';
+  form.style.display = 'none';
+
+  const nameInput = document.createElement('input');
+  nameInput.type = 'hidden';
+  nameInput.name = 'name';
+  nameInput.value = fileName || 'template.pdf';
+  form.appendChild(nameInput);
+
+  let attached = false;
+  try {
+    const blob = doc.output('blob');
+    const file = new File([blob], fileName || 'template.pdf', {
+      type: 'application/pdf',
+    });
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.name = 'file';
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+    form.appendChild(fileInput);
+    attached = fileInput.files.length > 0;
+  } catch {
+    attached = false;
+  }
+
+  if (!attached) {
+    const dataInput = document.createElement('input');
+    dataInput.type = 'hidden';
+    dataInput.name = 'data';
+    const uri = doc.output('datauristring');
+    dataInput.value = uri.includes(',') ? uri.split(',')[1]! : uri;
+    form.appendChild(dataInput);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+}
+
+/** 桌面：新标签预览；手机：直接下载；微信：表单 POST */
 export function openPdfDoc(doc: jsPDF, fileName = 'template.pdf') {
+  if (isWeChatBrowser()) {
+    downloadPdfViaWeChatForm(doc, fileName);
+    return;
+  }
   if (isMobilePdfClient()) {
     doc.save(fileName);
     return;
@@ -142,11 +187,17 @@ export function openPdfDoc(doc: jsPDF, fileName = 'template.pdf') {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-/** 远程 PDF：桌面预览，手机下载 */
+/** 远程 PDF：桌面预览，手机下载，微信直接跳转下载链接 */
 export async function openOrDownloadRemotePdf(
   fileUrl: string,
   fileName: string,
 ) {
+  // 微信必须走真实 HTTP 导航；blob URL / download 属性无效
+  if (isWeChatBrowser()) {
+    window.location.assign(fileUrl);
+    return;
+  }
+
   const res = await fetch(fileUrl);
   if (!res.ok) throw new Error(`pdf ${res.status}`);
   const blob = await res.blob();
