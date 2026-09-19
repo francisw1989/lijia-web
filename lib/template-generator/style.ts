@@ -114,53 +114,39 @@ export function drawRoundedGuides(
   }
 }
 
-/**
- * 手机端：先暂存再跳转真实 GET 下载。
- * 直接用 blob / doc.save() 在 iOS Safari 等会导航到空白 blob: 页。
- */
-async function downloadPdfViaHttp(doc: jsPDF, fileName: string) {
-  const blob = doc.output('blob');
-  const form = new FormData();
-  form.append('name', fileName || 'template.pdf');
-  form.append('file', blob, fileName || 'template.pdf');
-
-  const res = await fetch('/api/pdf-download', {
-    method: 'POST',
-    body: form,
-  });
-  if (!res.ok) {
-    throw new Error(`pdf-download ${res.status}`);
-  }
-  const data = (await res.json()) as { url?: string };
-  if (!data.url) {
-    throw new Error('pdf-download missing url');
-  }
-  window.location.assign(data.url);
+function triggerBlobDownload(blob: Blob, fileName: string) {
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = objectUrl;
+  a.download = fileName || 'template.pdf';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
 }
 
-/** 桌面：新标签预览；手机：同源 HTTP 下载（避免空白 blob 页） */
+/** 桌面：新标签预览；手机：直接下载（须由用户点击触发） */
 export async function openPdfDoc(doc: jsPDF, fileName = 'template.pdf') {
   if (isMobilePdfClient()) {
-    await downloadPdfViaHttp(doc, fileName);
+    doc.save(fileName);
     return;
   }
   const url = String(doc.output('bloburl'));
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-/** 远程 PDF：桌面预览；手机直接跳转下载链接（勿用 blob） */
+/** 远程 PDF：桌面预览；手机下载（须由用户点击触发） */
 export async function openOrDownloadRemotePdf(
   fileUrl: string,
   fileName: string,
 ) {
-  if (isMobilePdfClient()) {
-    window.location.assign(fileUrl);
-    return;
-  }
-
   const res = await fetch(fileUrl);
   if (!res.ok) throw new Error(`pdf ${res.status}`);
   const blob = await res.blob();
+  if (isMobilePdfClient()) {
+    triggerBlobDownload(blob, fileName);
+    return;
+  }
   const objectUrl = URL.createObjectURL(blob);
   window.open(objectUrl, '_blank', 'noopener,noreferrer');
 }

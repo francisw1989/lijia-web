@@ -1,12 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
-import {
-  parseGeneratorSearch,
-  replaceGeneratorUrl,
-} from '@/lib/generator-url-state';
+import { parseGeneratorSearch } from '@/lib/generator-url-state';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -1431,10 +1428,7 @@ export function TemplateGeneratorApp({
   const [customCardMm, setCustomCardMm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [hydrated, setHydrated] = useState(false);
-  const [pendingAutoDl, setPendingAutoDl] = useState(false);
   const [pendingDiceId, setPendingDiceId] = useState('');
-  const autoDlRan = useRef(false);
 
   useEffect(() => {
     setMobilePdf(isMobilePdfClient() || isWeChatBrowser());
@@ -1460,11 +1454,6 @@ export function TemplateGeneratorApp({
     setCardStock(parsed.cardStock);
     setCustomCardMm(parsed.customCardMm);
     setPendingDiceId(parsed.dice);
-    // URL 带 dl=1：回填后自动触发下载（新窗口打开时）
-    if (parsed.autoDownload) {
-      setPendingAutoDl(true);
-    }
-    setHydrated(true);
   }, []);
 
   const isBox = template === 'two-piece-box';
@@ -1714,72 +1703,6 @@ export function TemplateGeneratorApp({
     }
     await performDownload();
   };
-
-  useEffect(() => {
-    if (!hydrated || !pendingAutoDl || autoDlRan.current) return;
-
-    const stripDlFlag = () => {
-      const q = new URLSearchParams(window.location.search);
-      q.delete('dl');
-      const s = q.toString();
-      replaceGeneratorUrl(s ? `?${s}` : '');
-    };
-
-    if (template === 'dice') {
-      const id = pendingDiceId || 'all';
-      const file =
-        id === 'all'
-          ? diceAll
-          : diceItems.find((item) => item.id === id) || null;
-      if (!file?.fileUrl) {
-        setPendingAutoDl(false);
-        setError('Dice templates are not available yet.');
-        return;
-      }
-      autoDlRan.current = true;
-      setPendingAutoDl(false);
-      stripDlFlag();
-      const timer = window.setTimeout(() => {
-        void (async () => {
-          setBusy(true);
-          try {
-            await previewFixedPdf(file);
-          } catch (err) {
-            console.error(err);
-            setError('Could not download the PDF. Please try again.');
-          } finally {
-            setBusy(false);
-          }
-        })();
-      }, 1500);
-      return () => window.clearTimeout(timer);
-    }
-
-    if (!valid) {
-      setPendingAutoDl(false);
-      setError('Missing or invalid dimensions in the link.');
-      return;
-    }
-
-    autoDlRan.current = true;
-    setPendingAutoDl(false);
-    stripDlFlag();
-    const timer = window.setTimeout(() => {
-      void performDownload();
-    }, 1500);
-    return () => window.clearTimeout(timer);
-    // performDownload closes over latest dims; only run once via autoDlRan
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    hydrated,
-    pendingAutoDl,
-    template,
-    valid,
-    pendingDiceId,
-    diceAll,
-    diceItems,
-  ]);
-
 
   return (
     <div className="tg-page">
