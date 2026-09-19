@@ -58,5 +58,5 @@ export async function downloadPaperSheetPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePaperSheetPdf(input, logoDataUrl);
-  openPdfDoc(doc, paperSheetPdfFileName(input.x, input.y));
+  await openPdfDoc(doc, paperSheetPdfFileName(input.x, input.y));
 }

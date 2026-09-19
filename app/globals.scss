@@ -2053,6 +2053,10 @@ a.contact-info-line:hover {
   line-height: 1.45;
   color: #5c5c5c;
 }
+.tg-wechat-tip.is-active {
+  color: #1a1a1a;
+  font-weight: 600;
+}
 .tg-download-all {
   min-width: min(100%, 320px);
   letter-spacing: 0.04em;

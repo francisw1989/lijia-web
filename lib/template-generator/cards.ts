@@ -130,5 +130,5 @@ export async function downloadCardsPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateCardsPdf(input, logoDataUrl);
-  openPdfDoc(doc, cardsPdfFileName(input.w, input.h));
+  await openPdfDoc(doc, cardsPdfFileName(input.w, input.h));
 }

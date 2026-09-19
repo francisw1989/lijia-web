@@ -1,8 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
+import {
+  buildGeneratorSearch,
+  parseGeneratorSearch,
+  replaceGeneratorUrl,
+  type GeneratorUrlState,
+} from '@/lib/generator-url-state';
 import {
   BOX_MATERIALS,
   downloadTwoPieceBoxPdf,
@@ -74,6 +80,10 @@ const TEMPLATES = [
 ] as const;
 
 type TemplateId = (typeof TEMPLATES)[number]['id'];
+
+function isTemplateId(value: string): value is TemplateId {
+  return TEMPLATES.some((item) => item.id === value);
+}
 
 function parseDim(value: string) {
   const n = Number(value);
@@ -1404,6 +1414,7 @@ export function TemplateGeneratorApp({
   const [template, setTemplate] = useState<TemplateId>('two-piece-box');
   const [mobilePdf, setMobilePdf] = useState(false);
   const [wechat, setWechat] = useState(false);
+  const [wechatGuide, setWechatGuide] = useState(false);
   const [x, setX] = useState('');
   const [y, setY] = useState('');
   const [z, setZ] = useState('');
@@ -1424,11 +1435,78 @@ export function TemplateGeneratorApp({
   const [customCardMm, setCustomCardMm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [hydrated, setHydrated] = useState(false);
+  const [pendingAutoDl, setPendingAutoDl] = useState(false);
+  const [pendingDiceId, setPendingDiceId] = useState('');
+  const autoDlRan = useRef(false);
 
   useEffect(() => {
     setMobilePdf(isMobilePdfClient() || isWeChatBrowser());
     setWechat(isWeChatBrowser());
+
+    const parsed = parseGeneratorSearch(window.location.search);
+    if (isTemplateId(parsed.template)) setTemplate(parsed.template);
+    setX(parsed.x);
+    setY(parsed.y);
+    setZ(parsed.z);
+    setMaterial(parsed.material);
+    setMagThickness(parsed.magThickness);
+    setFold(parsed.fold);
+    setDoubleSided(parsed.doubleSided);
+    setCardMode(parsed.cardMode);
+    setCardSizeId(parsed.cardSizeId);
+    setRadius(parsed.radius);
+    setNeoRadius(parsed.neoRadius);
+    setStitched(parsed.stitched);
+    setOutside(parsed.outside);
+    setSpine(parsed.spine);
+    setDepthMode(parsed.depthMode);
+    setCardQty(parsed.cardQty);
+    setCardStock(parsed.cardStock);
+    setCustomCardMm(parsed.customCardMm);
+    setPendingDiceId(parsed.dice);
+    if (parsed.autoDownload && !isWeChatBrowser()) {
+      setPendingAutoDl(true);
+    }
+    if (parsed.autoDownload && isWeChatBrowser()) {
+      setWechatGuide(true);
+    }
+    setHydrated(true);
   }, []);
+
+  const snapshotUrlState = (): GeneratorUrlState => ({
+    template,
+    x,
+    y,
+    z,
+    material,
+    magThickness,
+    fold,
+    doubleSided,
+    cardMode,
+    cardSizeId,
+    radius,
+    neoRadius,
+    stitched,
+    outside,
+    spine,
+    depthMode,
+    cardQty,
+    cardStock,
+    customCardMm,
+    dice: pendingDiceId,
+    autoDownload: false,
+  });
+
+  const handOffToSystemBrowser = (diceId = '') => {
+    const search = buildGeneratorSearch(
+      { ...snapshotUrlState(), dice: diceId || pendingDiceId },
+      { autoDownload: true },
+    );
+    replaceGeneratorUrl(search);
+    setWechatGuide(true);
+    setError('');
+  };
 
   const isBox = template === 'two-piece-box';
   const isMagnetic = template === 'magnetic-box';
@@ -1529,6 +1607,11 @@ export function TemplateGeneratorApp({
   ]);
 
   const onDiceDownload = async (file: DiceTemplateFile) => {
+    if (isWeChatBrowser()) {
+      setPendingDiceId(file.id);
+      handOffToSystemBrowser(file.id);
+      return;
+    }
     setError('');
     setBusy(true);
     try {
@@ -1545,36 +1628,7 @@ export function TemplateGeneratorApp({
     }
   };
 
-  const onDownload = async () => {
-    setError('');
-    if (isDice) {
-      if (!diceAll) {
-        setError('Dice templates are not available yet.');
-        return;
-      }
-      await onDiceDownload(diceAll);
-      return;
-    }
-    if (!valid) {
-      setError(
-        isBox
-          ? 'Enter X / Y / Z and choose a material.'
-          : isMagnetic
-            ? 'Enter A / B / C and choose a thickness.'
-            : isTinBox
-              ? 'Enter A / B / C and a corner radius (0 to half of the shorter side).'
-            : isTuckbox || isFoilPack
-              ? 'Enter width / height and a depth (custom or cards qty).'
-            : isPlayerMat
-            ? 'Enter X / Y and a corner radius (0 to half of the shorter side).'
-            : isBooklet
-              ? 'Enter page width / height. Margins must fit inside the page (use 0 if unsure).'
-              : isCards
-            ? 'Enter X / Y or choose a standard size.'
-            : 'Enter X / Y.',
-      );
-      return;
-    }
+  const performDownload = async () => {
     setBusy(true);
     try {
       if (isBox) {
@@ -1673,6 +1727,109 @@ export function TemplateGeneratorApp({
       setBusy(false);
     }
   };
+
+  const onDownload = async () => {
+    setError('');
+    if (isDice) {
+      if (!diceAll) {
+        setError('Dice templates are not available yet.');
+        return;
+      }
+      await onDiceDownload(diceAll);
+      return;
+    }
+    if (!valid) {
+      setError(
+        isBox
+          ? 'Enter X / Y / Z and choose a material.'
+          : isMagnetic
+            ? 'Enter A / B / C and choose a thickness.'
+            : isTinBox
+              ? 'Enter A / B / C and a corner radius (0 to half of the shorter side).'
+            : isTuckbox || isFoilPack
+              ? 'Enter width / height and a depth (custom or cards qty).'
+            : isPlayerMat
+            ? 'Enter X / Y and a corner radius (0 to half of the shorter side).'
+            : isBooklet
+              ? 'Enter page width / height. Margins must fit inside the page (use 0 if unsure).'
+              : isCards
+            ? 'Enter X / Y or choose a standard size.'
+            : 'Enter X / Y.',
+      );
+      return;
+    }
+    // 微信内无法可靠下载：只把参数写入 URL，引导用系统浏览器打开后自动下载
+    if (isWeChatBrowser()) {
+      handOffToSystemBrowser();
+      return;
+    }
+    await performDownload();
+  };
+
+  useEffect(() => {
+    if (!hydrated || !pendingAutoDl || autoDlRan.current) return;
+    if (isWeChatBrowser()) {
+      setPendingAutoDl(false);
+      return;
+    }
+
+    const stripDlFlag = () => {
+      const q = new URLSearchParams(window.location.search);
+      q.delete('dl');
+      const s = q.toString();
+      replaceGeneratorUrl(s ? `?${s}` : '');
+    };
+
+    if (template === 'dice') {
+      const id = pendingDiceId || 'all';
+      const file =
+        id === 'all'
+          ? diceAll
+          : diceItems.find((item) => item.id === id) || null;
+      if (!file?.fileUrl) {
+        setPendingAutoDl(false);
+        setError('Dice templates are not available yet.');
+        return;
+      }
+      autoDlRan.current = true;
+      setPendingAutoDl(false);
+      stripDlFlag();
+      void (async () => {
+        setBusy(true);
+        try {
+          await previewFixedPdf(file);
+        } catch (err) {
+          console.error(err);
+          setError('Could not download the PDF. Please try again.');
+        } finally {
+          setBusy(false);
+        }
+      })();
+      return;
+    }
+
+    if (!valid) {
+      setPendingAutoDl(false);
+      setError('Missing or invalid dimensions in the link.');
+      return;
+    }
+
+    autoDlRan.current = true;
+    setPendingAutoDl(false);
+    stripDlFlag();
+    void performDownload();
+    // performDownload closes over latest dims; only run once via autoDlRan
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    hydrated,
+    pendingAutoDl,
+    template,
+    valid,
+    pendingDiceId,
+    diceAll,
+    diceItems,
+  ]);
+
 
   return (
     <div className="tg-page">
@@ -2187,9 +2344,11 @@ export function TemplateGeneratorApp({
                 ? 'Download your template'
                 : 'Preview your template'}
           </h2>
-          {wechat ? (
-            <p className="tg-wechat-tip">
-              微信内可直接下载。若未弹出，请点右上角 ··· →「在浏览器打开」后再试。
+          {wechat || wechatGuide ? (
+            <p className={`tg-wechat-tip${wechatGuide ? ' is-active' : ''}`}>
+              {wechatGuide
+                ? '参数已就绪。请点右上角 ··· →「在浏览器打开」，系统浏览器将自动下载 PDF。'
+                : '微信内请点下载后，再通过右上角 ··· →「在浏览器打开」完成下载。'}
             </p>
           ) : null}
           <button

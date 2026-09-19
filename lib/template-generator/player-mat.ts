@@ -53,5 +53,5 @@ export async function downloadPlayerMatPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generatePlayerMatPdf(input, logoDataUrl);
-  openPdfDoc(doc, playerMatPdfFileName(input.x, input.y, input.radius));
+  await openPdfDoc(doc, playerMatPdfFileName(input.x, input.y, input.radius));
 }

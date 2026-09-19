@@ -111,5 +111,5 @@ export async function downloadFoilPackPdf(input: {
 }) {
   const logoDataUrl = await loadLogoDataUrl();
   const doc = generateFoilPackPdf(input, logoDataUrl);
-  openPdfDoc(doc, foilPackPdfFileName(input));
+  await openPdfDoc(doc, foilPackPdfFileName(input));
 }
