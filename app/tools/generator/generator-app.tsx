@@ -1784,18 +1784,20 @@ export function TemplateGeneratorApp({
       autoDlRan.current = true;
       setPendingAutoDl(false);
       stripDlFlag();
-      void (async () => {
-        setBusy(true);
-        try {
-          await previewFixedPdf(file);
-        } catch (err) {
-          console.error(err);
-          setError('Could not download the PDF. Please try again.');
-        } finally {
-          setBusy(false);
-        }
-      })();
-      return;
+      const timer = window.setTimeout(() => {
+        void (async () => {
+          setBusy(true);
+          try {
+            await previewFixedPdf(file);
+          } catch (err) {
+            console.error(err);
+            setError('Could not download the PDF. Please try again.');
+          } finally {
+            setBusy(false);
+          }
+        })();
+      }, 1500);
+      return () => window.clearTimeout(timer);
     }
 
     if (!valid) {
@@ -1807,7 +1809,10 @@ export function TemplateGeneratorApp({
     autoDlRan.current = true;
     setPendingAutoDl(false);
     stripDlFlag();
-    void performDownload();
+    const timer = window.setTimeout(() => {
+      void performDownload();
+    }, 1500);
+    return () => window.clearTimeout(timer);
     // performDownload closes over latest dims; only run once via autoDlRan
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
