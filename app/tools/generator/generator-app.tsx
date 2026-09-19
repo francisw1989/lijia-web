@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { isMobilePdfClient, isWeChatBrowser } from '@/lib/pdf-client';
 import { openOrDownloadRemotePdf } from '@/lib/template-generator/style';
 import {
-  buildGeneratorSearch,
+  openGeneratorParamWindow,
   parseGeneratorSearch,
   replaceGeneratorUrl,
   type GeneratorUrlState,
@@ -1413,8 +1413,6 @@ export function TemplateGeneratorApp({
 }) {
   const [template, setTemplate] = useState<TemplateId>('two-piece-box');
   const [mobilePdf, setMobilePdf] = useState(false);
-  const [wechat, setWechat] = useState(false);
-  const [wechatGuide, setWechatGuide] = useState(false);
   const [x, setX] = useState('');
   const [y, setY] = useState('');
   const [z, setZ] = useState('');
@@ -1442,7 +1440,6 @@ export function TemplateGeneratorApp({
 
   useEffect(() => {
     setMobilePdf(isMobilePdfClient() || isWeChatBrowser());
-    setWechat(isWeChatBrowser());
 
     const parsed = parseGeneratorSearch(window.location.search);
     if (isTemplateId(parsed.template)) setTemplate(parsed.template);
@@ -1465,11 +1462,9 @@ export function TemplateGeneratorApp({
     setCardStock(parsed.cardStock);
     setCustomCardMm(parsed.customCardMm);
     setPendingDiceId(parsed.dice);
-    if (parsed.autoDownload && !isWeChatBrowser()) {
+    // URL 带 dl=1：回填后自动触发下载（新窗口打开时）
+    if (parsed.autoDownload) {
       setPendingAutoDl(true);
-    }
-    if (parsed.autoDownload && isWeChatBrowser()) {
-      setWechatGuide(true);
     }
     setHydrated(true);
   }, []);
@@ -1498,13 +1493,12 @@ export function TemplateGeneratorApp({
     autoDownload: false,
   });
 
-  const handOffToSystemBrowser = (diceId = '') => {
-    const search = buildGeneratorSearch(
-      { ...snapshotUrlState(), dice: diceId || pendingDiceId },
-      { autoDownload: true },
-    );
-    replaceGeneratorUrl(search);
-    setWechatGuide(true);
+  /** 微信：新窗口打开当前页 + 参数，目标页回填并自动下载 */
+  const openParamWindowForDownload = (diceId = '') => {
+    openGeneratorParamWindow(snapshotUrlState(), {
+      autoDownload: true,
+      diceId: diceId || pendingDiceId,
+    });
     setError('');
   };
 
@@ -1609,7 +1603,7 @@ export function TemplateGeneratorApp({
   const onDiceDownload = async (file: DiceTemplateFile) => {
     if (isWeChatBrowser()) {
       setPendingDiceId(file.id);
-      handOffToSystemBrowser(file.id);
+      openParamWindowForDownload(file.id);
       return;
     }
     setError('');
@@ -1758,9 +1752,9 @@ export function TemplateGeneratorApp({
       );
       return;
     }
-    // 微信内无法可靠下载：只把参数写入 URL，引导用系统浏览器打开后自动下载
+    // 微信：新窗口打开带参数的当前页；目标页回填后直接下载（不再二次跳转）
     if (isWeChatBrowser()) {
-      handOffToSystemBrowser();
+      openParamWindowForDownload();
       return;
     }
     await performDownload();
@@ -1768,10 +1762,6 @@ export function TemplateGeneratorApp({
 
   useEffect(() => {
     if (!hydrated || !pendingAutoDl || autoDlRan.current) return;
-    if (isWeChatBrowser()) {
-      setPendingAutoDl(false);
-      return;
-    }
 
     const stripDlFlag = () => {
       const q = new URLSearchParams(window.location.search);
@@ -2344,13 +2334,6 @@ export function TemplateGeneratorApp({
                 ? 'Download your template'
                 : 'Preview your template'}
           </h2>
-          {wechat || wechatGuide ? (
-            <p className={`tg-wechat-tip${wechatGuide ? ' is-active' : ''}`}>
-              {wechatGuide
-                ? '参数已就绪。请点右上角 ··· →「在浏览器打开」，系统浏览器将自动下载 PDF。'
-                : '微信内请点下载后，再通过右上角 ··· →「在浏览器打开」完成下载。'}
-            </p>
-          ) : null}
           <button
             type="button"
             className={`btn btn-primary tg-download${isDice ? ' tg-download-all' : ''}`}

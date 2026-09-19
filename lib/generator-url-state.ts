@@ -136,3 +136,20 @@ export function replaceGeneratorUrl(search: string) {
   const path = window.location.pathname;
   window.history.replaceState(null, '', `${path}${search}`);
 }
+
+/** 当前页 pathname + 参数，新窗口打开（微信 Download 用） */
+export function openGeneratorParamWindow(
+  state: GeneratorUrlState,
+  opts?: { autoDownload?: boolean; diceId?: string },
+) {
+  if (typeof window === 'undefined') return;
+  const search = buildGeneratorSearch(
+    { ...state, dice: opts?.diceId || state.dice },
+    { autoDownload: opts?.autoDownload ?? true },
+  );
+  const url = `${window.location.origin}${window.location.pathname}${search}`;
+  const win = window.open(url, '_blank');
+  if (!win) {
+    window.location.assign(url);
+  }
+}
