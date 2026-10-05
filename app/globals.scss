@@ -1308,14 +1308,56 @@ input {
   text-align: justify;
 }
 .certificates-logos {
-  margin-bottom: 48px;
+  margin-bottom: 64px;
 }
-.certificates-logos-img {
-  display: block;
-  width: 100%;
-  max-width: 906px;
-  height: auto;
+.certificates-gallery {
+  list-style: none;
   margin: 0 auto;
+  padding: 0;
+  max-width: 960px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 24px;
+  align-items: center;
+}
+.certificates-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: 8px;
+  transition: transform 0.2s ease;
+}
+.certificates-logo-img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 112px;
+  object-fit: contain;
+}
+.certificates-gallery .certificates-logo:hover {
+  transform: scale(1.04);
+}
+.certificates-detail-media {
+  aspect-ratio: 16 / 9;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.certificates-detail-media img {
+  object-fit: contain;
+}
+@media (max-width: 800px) {
+  .certificates-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 16px;
+  }
+  .certificates-logo {
+    min-height: 96px;
+  }
+  .certificates-logo-img {
+    max-height: 88px;
+  }
 }
 .about-layout {
   display: grid;

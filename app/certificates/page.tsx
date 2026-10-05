@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { pageMetadata } from '@/lib/site-title';
 import { RevealInit } from '@/components/reveal-init';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { getCertificatesPageData } from '@/lib/certificates';
+import { isCmsAssetUrl } from '@/lib/cms-asset';
 import Image from 'next/image';
 
 export const dynamic = 'force-static';
@@ -18,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function CertificatesPage() {
-  const { meta, banner } = await getCertificatesPageData();
+  const { meta, banner, items } = await getCertificatesPageData();
 
   return (
     <main className="bg-white min-h-page">
@@ -40,16 +42,27 @@ export default async function CertificatesPage() {
           </p>
         </div>
       </section>
-      <section className="container mt48 certificates-logos">
-        <Image
-          src="/images/13.png"
-          alt={meta.title}
-          width={906}
-          height={835}
-          className="certificates-logos-img"
-          sizes="(max-width: 1400px) 100vw, 906px"
-        />
-      </section>
+      {items.length ? (
+        <section className="container mt48 certificates-logos" aria-label="Certificates and partners">
+          <ul className="certificates-gallery">
+            {items.map((item) => (
+              <li key={item.id}>
+                <Link href={item.href} className="certificates-logo" title={item.title}>
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={280}
+                    height={180}
+                    unoptimized={isCmsAssetUrl(item.image)}
+                    className="certificates-logo-img"
+                    sizes="(max-width: 800px) 45vw, 220px"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </main>
   );
 }
