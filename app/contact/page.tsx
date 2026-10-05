@@ -23,6 +23,8 @@ export default async function ContactPage() {
       <RevealInit />
       <ContactContent
         banner={{
+          image: banner.image,
+          poster: banner.poster,
           alt: banner.alt || meta.title,
           title: banner.title,
           subtitle: banner.subtitle,

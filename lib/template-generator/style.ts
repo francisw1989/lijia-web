@@ -88,17 +88,19 @@ export function drawRoundedGuides(
   h: number,
   radius: number,
   safe = SAFE,
+  bleed = BLEED,
 ) {
   const r = clampCornerRadius(w, h, radius);
   const inset = Number.isFinite(safe) && safe > 0 ? safe : SAFE;
-  const bleedR = r > 0 ? r + BLEED : 0;
+  const outer = Number.isFinite(bleed) && bleed > 0 ? bleed : BLEED;
+  const bleedR = r > 0 ? r + outer : 0;
 
   strokeGuide(doc, 'bleed');
   doc.roundedRect(
-    x - BLEED,
-    y - BLEED,
-    w + 2 * BLEED,
-    h + 2 * BLEED,
+    x - outer,
+    y - outer,
+    w + 2 * outer,
+    h + 2 * outer,
     bleedR,
     bleedR,
     'S',

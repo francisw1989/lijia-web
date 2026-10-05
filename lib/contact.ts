@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import { getProductCategories, type ProductCategory } from '@/lib/cms';
-import { categoryBannerCopy } from '@/lib/media';
+import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
 
 export type ContactLocation = {
   id: string;
@@ -9,7 +9,6 @@ export type ContactLocation = {
   emails: string[];
   apps: { label: string; value: string }[];
   address: string[];
-  banner: string;
 };
 
 export const CONTACT_LOCATIONS: ContactLocation[] = [
@@ -27,7 +26,6 @@ export const CONTACT_LOCATIONS: ContactLocation[] = [
       'Yinzhou District, 315100,',
       'Ningbo, Zhejiang, China',
     ],
-    banner: 'https://images.wangsanshui.com/images/1787540747987-c8wpex.png',
   },
   {
     id: 'jiangsu',
@@ -44,7 +42,6 @@ export const CONTACT_LOCATIONS: ContactLocation[] = [
       'Taixing, Jiangsu,',
       'China 225400',
     ],
-    banner: 'https://images.wangsanshui.com/images/1787298822505-cv3wb5.png',
   },
 ];
 
@@ -53,14 +50,19 @@ export const CONTACT_JIANGSU =
 
 const CONTACT_NAME = 'Contact us';
 
+export const CONTACT_HERO =
+  'https://images.wangsanshui.com/images/1787298822505-cv3wb5.png';
+
 export type ContactPageData = {
   meta: {
     title: string;
     description?: string;
     keywords?: string;
   };
-  /** CMS 叠字；图片由 CONTACT_LOCATIONS.banner 提供 */
+  /** CMS 栏目 banner（图/视频 + 叠字） */
   banner: {
+    image: string;
+    poster?: string;
     alt: string;
     title?: string;
     subtitle?: string;
@@ -90,6 +92,7 @@ function displayTitle(name?: string | null) {
 
 function fromCategory(category: ProductCategory | null): ContactPageData {
   const title = displayTitle(category?.name);
+  const media = categoryBannerMedia(category);
   return {
     meta: {
       title,
@@ -97,13 +100,15 @@ function fromCategory(category: ProductCategory | null): ContactPageData {
       keywords: category?.keywords?.trim() || undefined,
     },
     banner: {
+      image: media.image || CONTACT_HERO,
+      poster: media.poster,
       ...categoryBannerCopy(category),
       alt: category?.subtitle?.trim() || title,
     },
   };
 }
 
-/** Contact us：一级栏目 → metadata / banner 叠字；图片见 CONTACT_LOCATIONS */
+/** Contact us：一级栏目 → metadata / banner */
 export const getContactPageData = cache(async (): Promise<ContactPageData> => {
   try {
     const categories = await getProductCategories();
@@ -113,4 +118,4 @@ export const getContactPageData = cache(async (): Promise<ContactPageData> => {
     return fromCategory(null);
   }
 });
-export const CONTACT_HERO = CONTACT_JIANGSU.banner;
+

@@ -16,6 +16,8 @@ const INFO_ICONS = {
 } as const;
 
 type BannerCopy = {
+  image: string;
+  poster?: string;
   alt: string;
   title?: string;
   subtitle?: string;
@@ -55,7 +57,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
   return (
     <>
       <section className="reveal about-hero container">
-        <HeroMedia src={location.banner} alt={banner.alt} priority />
+        <HeroMedia src={banner.image} poster={banner.poster} alt={banner.alt} priority />
         <HeroBannerCopy title={banner.title} subtitle={banner.subtitle} />
       </section>
 
