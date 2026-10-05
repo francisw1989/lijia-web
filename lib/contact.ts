@@ -48,6 +48,9 @@ export const CONTACT_LOCATIONS: ContactLocation[] = [
   },
 ];
 
+export const CONTACT_JIANGSU =
+  CONTACT_LOCATIONS.find((item) => item.id === 'jiangsu') ?? CONTACT_LOCATIONS[0];
+
 const CONTACT_NAME = 'Contact us';
 
 export type ContactPageData = {
@@ -110,4 +113,4 @@ export const getContactPageData = cache(async (): Promise<ContactPageData> => {
     return fromCategory(null);
   }
 });
-export const CONTACT_HERO = CONTACT_LOCATIONS[0].banner;
+export const CONTACT_HERO = CONTACT_JIANGSU.banner;

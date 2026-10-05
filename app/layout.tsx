@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { League_Spartan } from 'next/font/google';
 import { JsonLd } from '@/components/json-ld';
 import { CookieConsent } from '@/components/cookie-consent';
+import { BackToTop } from '@/components/back-to-top';
 import { ScrollToTop } from '@/components/scroll-to-top';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -56,6 +57,7 @@ export default async function RootLayout({
         <SiteHeader />
         {children}
         <SiteFooter />
+        <BackToTop />
         <CookieConsent />
       </body>
     </html>

@@ -569,22 +569,6 @@ function pageFromCategory(
   };
 }
 
-export type ManufacturingNavItem = {
-  id: string;
-  label: string;
-  href: string;
-};
-
-/** 二级栏目左侧导航：与一级页卡片同一批栏目 */
-export const getManufacturingNavItems = cache(async (): Promise<ManufacturingNavItem[]> => {
-  const { items } = await getManufacturingPageData();
-  return items.map((item) => ({
-    id: item.id,
-    label: item.title,
-    href: item.href,
-  }));
-});
-
 /** Manufacturing：一级栏目 metadata / banner + 二级栏目列表 */
 export const getManufacturingPageData = cache(async (): Promise<ManufacturingPageData> => {
   try {

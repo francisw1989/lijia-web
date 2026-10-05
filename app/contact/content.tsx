@@ -5,7 +5,7 @@ import { FormEvent, useState } from 'react';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { SuccessDialog } from '@/components/success-dialog';
-import { CONTACT_LOCATIONS } from '@/lib/contact';
+import { CONTACT_JIANGSU } from '@/lib/contact';
 import { submitContactMessage } from '@/lib/submit-message';
 
 const INFO_ICONS = {
@@ -22,12 +22,10 @@ type BannerCopy = {
 };
 
 export function ContactContent({ banner }: { banner: BannerCopy }) {
-  const [locId, setLocId] = useState(CONTACT_LOCATIONS[0].id);
+  const location = CONTACT_JIANGSU;
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const location =
-    CONTACT_LOCATIONS.find((l) => l.id === locId) ?? CONTACT_LOCATIONS[0];
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,21 +61,6 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
 
       <section className="section-pad">
         <div className="container">
-          <div className="page-tabs contact-tabs" role="tablist" aria-label="Office locations">
-            {CONTACT_LOCATIONS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                aria-selected={locId === item.id}
-                className={`about-tab${locId === item.id ? ' is-active' : ''}`}
-                onClick={() => setLocId(item.id)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           <h2 className="contact-heading">CONTACT INFORMATION FIND US</h2>
 
           <div className="contact-layout">

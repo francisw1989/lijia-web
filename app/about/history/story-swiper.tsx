@@ -1,17 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import type { Swiper as SwiperType } from 'swiper';
-import { Navigation } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { useEffect, useState } from 'react';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import type { StoryNode } from '@/lib/history';
-import 'swiper/css';
 
 export function AboutStorySwiper({ nodes }: { nodes: StoryNode[] }) {
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
-  const swiperRef = useRef<SwiperType | null>(null);
 
   useEffect(() => {
     if (previewIndex === null) return;
@@ -39,82 +34,49 @@ export function AboutStorySwiper({ nodes }: { nodes: StoryNode[] }) {
 
   return (
     <>
-      <div className="about-story">
-        <Swiper
-          modules={[Navigation]}
-          className="about-timeline"
-          slidesPerView={1}
-          spaceBetween={0}
-          grabCursor
-          simulateTouch
-          watchSlidesProgress
-          loop={nodes.length > 3}
-          breakpoints={{
-            801: { slidesPerView: 2, spaceBetween: 0 },
-            981: { slidesPerView: 3, spaceBetween: 0 },
-          }}
-          onSwiper={(swiper) => {
-            swiperRef.current = swiper;
-          }}
-        >
-          {nodes.map((node, index) => (
-            <SwiperSlide key={node.year}>
-              <article
-                className="about-node"
-                style={{ animationDelay: `${Math.min(index, 4) * 0.08}s` }}
+      <div className="history-timeline">
+        <p className="history-future">Future</p>
+        <div className="history-line" aria-hidden="true" />
+        <ol className="history-list">
+          {nodes.map((node, index) => {
+            const side = index % 2 === 0 ? 'left' : 'right';
+            return (
+              <li
+                key={`${node.year}-${index}`}
+                className={`history-item history-item--${side}`}
               >
-                <div className="about-node-top">
-                  <h2 className="about-year">{node.year}</h2>
-                  <p className="about-node-text">
-                    <strong>{node.title}</strong>
-                    <br />
-                  </p>
-                  <p className="about-node-text">
-                    {node.body ? <> {node.body}</> : null}
-                  </p>
-                </div>
-                <div className="about-node-media relative">
-                  <button
-                    type="button"
-                    className="about-node-media-btn"
-                    aria-label={`Preview ${node.year}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPreviewIndex(index);
-                    }}
-                  >
-                    <Image
-                      src={node.image}
-                      alt={node.keywords || node.title || node.year}
-                      fill
-                      unoptimized={isCmsAssetUrl(node.image)}
-                      className="object-cover"
-                      sizes="(max-width: 800px) 90vw, 33vw"
-                    />
-                  </button>
-                </div>
-              </article>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-        <div className="about-story-nav">
-          <button
-            type="button"
-            className="news-nav-btn"
-            aria-label="Previous milestone"
-            onClick={() => swiperRef.current?.slidePrev()}
-          >
-            <Image src="/images/9.png" alt="" width={36} height={36} />
-          </button>
-          <button
-            type="button"
-            className="news-nav-btn"
-            aria-label="Next milestone"
-            onClick={() => swiperRef.current?.slideNext()}
-          >
-            <Image src="/images/10.png" alt="" width={36} height={36} />
-          </button>
-        </div>
+                <span
+                  className={`history-dot${index === 0 ? ' is-current' : ''}`}
+                  aria-hidden="true"
+                />
+                <article className="history-card">
+                  <h2 className="history-year">{node.year}</h2>
+                  {node.title ? <p className="history-title">{node.title}</p> : null}
+                  {node.body ? <p className="history-body">{node.body}</p> : null}
+                  {node.image ? (
+                    <div className="history-media relative">
+                      <button
+                        type="button"
+                        className="history-media-btn"
+                        aria-label={`Preview ${node.year}`}
+                        onClick={() => setPreviewIndex(index)}
+                      >
+                        <Image
+                          src={node.image}
+                          alt={node.keywords || node.title || node.year}
+                          fill
+                          unoptimized={isCmsAssetUrl(node.image)}
+                          className="object-cover"
+                          sizes="(max-width: 800px) 90vw, 36vw"
+                        />
+                      </button>
+                    </div>
+                  ) : null}
+                </article>
+              </li>
+            );
+          })}
+        </ol>
       </div>
 
       {previewNode ? (
@@ -154,7 +116,8 @@ export function AboutStorySwiper({ nodes }: { nodes: StoryNode[] }) {
               className="img-lightbox-img"
             />
             <p className="img-lightbox-caption">
-              <strong>{previewNode.year}</strong> · {previewNode.title}
+              <strong>{previewNode.year}</strong>
+              {previewNode.title ? <> · {previewNode.title}</> : null}
             </p>
           </div>
           <button

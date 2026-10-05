@@ -2,10 +2,9 @@ import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
-import { ManufacturingBreadcrumb, ManufacturingNav } from '@/components/manufacturing-nav';
+import { ManufacturingBreadcrumb } from '@/components/manufacturing-nav';
 import {
   allManufacturingProductParams,
-  getManufacturingNavItems,
   getManufacturingProductDetail,
   isMeaningfulDescription,
   manufacturingCategoryHref,
@@ -44,10 +43,7 @@ export default async function ManufacturingProductPage({ params }: Props) {
   const { id: slug, productId } = await params;
   if (!/^\d+$/.test(productId)) notFound();
 
-  const [data, navItems] = await Promise.all([
-    getManufacturingProductDetail(Number(productId)),
-    getManufacturingNavItems(),
-  ]);
+  const data = await getManufacturingProductDetail(Number(productId));
   if (!data?.category) notFound();
 
   const { product, category } = data;
@@ -60,8 +56,7 @@ export default async function ManufacturingProductPage({ params }: Props) {
 
   return (
     <section className="section-pad about-shell">
-      <div className="container about-layout">
-        <ManufacturingNav items={navItems} />
+      <div className="container about-layout about-layout--solo">
         <div className="about-panel">
           <ArticleDetail
             title={product.title}
