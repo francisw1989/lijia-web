@@ -632,7 +632,7 @@ input {
 }
 
 .section-pad {
-  padding: 64px 0;
+  padding: 32px 0;
 }
 .hero-content {
   padding: 64px 0 112px;
@@ -2889,6 +2889,128 @@ a.contact-info-line:hover {
   color: rgba(255, 255, 255, 0.88);
 }
 
+/* Manufacturing 二级/三级页顶部栏目图标菜单 */
+.mfg-cat-menu {
+  margin: 0 0 36px;
+}
+.mfg-cat-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mfg-cat-menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 0;
+  aspect-ratio: 1;
+  padding: 10px 6px;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--fg);
+  text-decoration: none;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.mfg-cat-menu-item:hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
+  text-decoration: none;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 89, 165, 0.18);
+}
+.mfg-cat-menu-item.is-active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
+}
+.mfg-cat-menu-item.is-active:hover {
+  color: var(--white);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 89, 165, 0.18);
+}
+.mfg-cat-menu-icon {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 64px;
+  flex: none;
+}
+.mfg-cat-menu-icon img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.mfg-cat-menu-icon-default {
+  opacity: 1;
+}
+.mfg-cat-menu-icon-active {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.mfg-cat-menu-item:hover .mfg-cat-menu-icon-default,
+.mfg-cat-menu-item.is-active .mfg-cat-menu-icon-default {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.mfg-cat-menu-item:hover .mfg-cat-menu-icon-active,
+.mfg-cat-menu-item.is-active .mfg-cat-menu-icon-active {
+  opacity: 1;
+  transform: scale(1);
+}
+.mfg-cat-menu-label {
+  display: block;
+  width: 100%;
+  font-size: clamp(11px, 1.05vw, 14px);
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-word;
+}
+@media (max-width: 1100px) {
+  .mfg-cat-menu-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+@media (max-width: 800px) {
+  .mfg-cat-menu {
+    margin-bottom: 24px;
+  }
+  .mfg-cat-menu-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .mfg-cat-menu-item {
+    padding: 8px 4px;
+  }
+  .mfg-cat-menu-icon {
+    width: 48px;
+    height: 48px;
+  }
+  .mfg-cat-menu-label {
+    font-size: 11px;
+  }
+}
+@media (max-width: 480px) {
+  .mfg-cat-menu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Mahjong — 左侧栏 + 面包屑 + 4 列图集 */
 .mj-layout {
   /* 复用 about-layout；侧栏略宽以容纳较长 Tab 文案 */
@@ -3212,8 +3334,8 @@ a.contact-info-line:hover {
   margin: 0 auto 40px;
 }
 .cap-scope-skeleton-icon {
-  flex: 0 0 160px;
-  aspect-ratio: 1;
+  flex: 0 0 120px;
+  height: 132px;
   border-radius: var(--radius);
   background: #e8edf3;
   box-shadow: 0 8px 24px rgba(7, 42, 87, 0.06);
@@ -3231,9 +3353,10 @@ a.contact-info-line:hover {
   gap: 14px;
   width: 100%;
   max-width: 100%;
-  margin: 0 auto 40px;
+  /* 为 hover/active 阴影留出空间，避免被 overflow-x 裁切 */
+  margin: -16px auto 24px;
+  padding: 16px 12px;
   overflow-x: auto;
-  overflow-y: hidden;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -3243,32 +3366,51 @@ a.contact-info-line:hover {
   }
 }
 .cap-icon {
-  flex: 0 0 180px;
+  flex: 0 0 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 25px 10px 24px;
   border: 0;
   border-radius: var(--radius);
-  background: #F4F5F7;
+  background: #f4f5f7;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .cap-icon:hover {
   transform: translateY(-2px);
-  background: #FFFFFF;
-  box-shadow: 0px 0px 32px 0px rgba(0, 71, 133, 0.15);
+  background: #ffffff;
+  box-shadow: 0 0 32px rgba(0, 71, 133, 0.15);
 }
 .cap-icon.is-active {
-  background: #FFFFFF;
-  box-shadow: 0px 0px 32px 0px rgba(0, 71, 133, 0.15);
+  background: #ffffff;
+  box-shadow: 0 0 32px rgba(0, 71, 133, 0.15);
 }
 .cap-icon-media {
-  display: block;
-  aspect-ratio: 1;
-  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
   overflow: hidden;
 }
 .cap-icon-media img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.cap-icon-label {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--fg);
+  text-align: center;
+  word-break: break-word;
 }
 .cap-detail {
   position: relative;
@@ -4557,7 +4699,7 @@ a.gallery-tile-link:hover {
     grid-template-columns: 1fr 1fr;
   }
   .cap-icon {
-    flex-basis: 140px;
+    flex-basis: 108px;
   }
   .mfg-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5278,16 +5420,21 @@ a.gallery-tile-link:hover {
     min-height: 0;
   }
   .cap-scope-skeleton-icon {
-    flex-basis: 112px;
+    flex-basis: 100px;
+    height: 118px;
   }
   .cap-icons {
     gap: 10px;
     justify-content: flex-start;
-    padding: 2px 2px 8px;
+    margin: -12px auto 20px;
+    padding: 12px 8px;
   }
   .cap-icon {
-    flex: 0 0 112px;
-    padding: 10px;
+    flex: 0 0 100px;
+    padding: 12px 8px 10px;
+  }
+  .cap-icon-label {
+    font-size: 12px;
   }
   .cap-tag-page {
     padding: 40px 0 56px;

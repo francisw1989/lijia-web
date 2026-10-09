@@ -297,7 +297,7 @@ function categoryGalleryImage(category: ProductCategory) {
 
 function mapCategoryToComponent(category: ProductCategory): MfgComponent {
   return {
-    id: String(category.id),
+    id: manufacturingSectionSlug(category),
     title: category.name,
     desc: category.description?.trim() || category.subtitle?.trim() || '',
     icon: category.icon?.trim() || '',
@@ -585,6 +585,26 @@ export const getManufacturingPageData = cache(async (): Promise<ManufacturingPag
     console.error('[getManufacturingPageData]', error);
     return pageFromCategory(null, [], []);
   }
+});
+
+export type ManufacturingMenuItem = {
+  id: string;
+  label: string;
+  href: string;
+  icon: string;
+  iconActive: string;
+};
+
+/** 二级/三级页顶部图标菜单：与一级页卡片同一批二级栏目 */
+export const getManufacturingMenuItems = cache(async (): Promise<ManufacturingMenuItem[]> => {
+  const { items } = await getManufacturingPageData();
+  return items.map((item) => ({
+    id: item.id,
+    label: item.title,
+    href: item.href,
+    icon: item.icon,
+    iconActive: item.iconHover || item.icon,
+  }));
 });
 
 export type ManufacturingCategoryPage = {

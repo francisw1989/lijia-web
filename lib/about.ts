@@ -311,7 +311,7 @@ async function getTeamCategory() {
 
 /** Our Team：栏目下文章 → 成员卡片；recommendedOnly 时仅推荐 */
 export const getTeamMembers = cache(async (
-  options?: { recommendedOnly?: boolean },
+  options?: { recommendedOnly?: boolean; limit?: number },
 ): Promise<TeamMember[]> => {
   try {
     const category = await getTeamCategory();
@@ -320,10 +320,12 @@ export const getTeamMembers = cache(async (
     const { list } = await getProducts(1, 100, category.id, {
       isRecommended: options?.recommendedOnly ? true : undefined,
     });
-    return [...list]
+    const members = [...list]
       .filter((item) => item.cover)
       .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .map(productToTeamMember);
+    const limit = options?.limit;
+    return limit != null && limit > 0 ? members.slice(0, limit) : members;
   } catch (error) {
     console.error('[getTeamMembers]', error);
     return [];

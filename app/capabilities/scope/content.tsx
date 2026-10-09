@@ -70,12 +70,13 @@ export function ScopeContent({ items }: { items: ScopeItem[] }) {
             <span className="cap-icon-media">
               <Image
                 src={item.icon}
-                alt={item.title}
-                width={120}
-                height={120}
+                alt=""
+                width={64}
+                height={64}
                 unoptimized={isCmsAssetUrl(item.icon)}
               />
             </span>
+            <span className="cap-icon-label">{item.title}</span>
           </button>
         ))}
       </div>

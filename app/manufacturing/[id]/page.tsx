@@ -2,11 +2,13 @@ import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { GalleryLink } from '@/components/gallery-img-hover';
+import { ManufacturingCategoryMenu } from '@/components/manufacturing-category-menu';
 import { ManufacturingBreadcrumb } from '@/components/manufacturing-nav';
 import { PagePager } from '@/components/page-pager';
 import {
   allManufacturingCategoryParams,
   getManufacturingCategoryPage,
+  getManufacturingMenuItems,
   isMahjongCategory,
   manufacturingSectionSlug,
   paginateItems,
@@ -47,7 +49,10 @@ export default async function ManufacturingCategoryPage({
     notFound();
   }
 
-  const data = await getManufacturingCategoryPage(slug);
+  const [data, menuItems] = await Promise.all([
+    getManufacturingCategoryPage(slug),
+    getManufacturingMenuItems(),
+  ]);
   if (!data) notFound();
 
   if (isMahjongCategory(data.category)) {
@@ -69,7 +74,8 @@ export default async function ManufacturingCategoryPage({
 
   return (
     <section className="section-pad about-shell">
-      <div className="container about-layout about-layout--solo">
+      <div className="container">
+        <ManufacturingCategoryMenu items={menuItems} activeId={canonical} />
         <div className="about-panel">
           <ManufacturingBreadcrumb
             category={{
