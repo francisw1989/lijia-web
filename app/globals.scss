@@ -3012,13 +3012,6 @@ a.contact-info-line:hover {
 }
 
 /* Mahjong — 左侧栏 + 面包屑 + 4 列图集 */
-.mj-layout {
-  /* 复用 about-layout；侧栏略宽以容纳较长 Tab 文案 */
-  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
-}
-.mj-side-nav .about-tab {
-  white-space: normal;
-}
 .mj-breadcrumb {
   margin: 0 0 20px;
 }
@@ -3055,84 +3048,13 @@ a.contact-info-line:hover {
   color: var(--navy);
   font-weight: 600;
 }
-.mj-gallery {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  /* 同行等高：高度由行决定，不按单卡 aspect-ratio */
-  grid-auto-rows: clamp(260px, 28vw, 300px);
-  gap: 12px;
-  align-items: stretch;
-}
 /* 详情嵌在侧栏/文档布局里，间距与列表页对齐 */
-.mj-panel .cap-tag-page,
 .about-panel .cap-tag-page,
 .tools-doc-page .cap-tag-page {
   width: 100%;
   max-width: none;
   margin: 0;
   padding: 0;
-}
-.mj-card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-  padding: 18px;
-  border-radius: 12px;
-  background: #eef2f7;
-  overflow: hidden;
-}
-.mj-card-link {
-  color: inherit;
-  text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.mj-card-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(7, 42, 87, 0.12);
-}
-.mj-card-link:hover .mj-card-media img {
-  transform: scale(1.04);
-}
-.mj-card--span-1 {
-  grid-column: span 1;
-}
-.mj-card--span-2 {
-  grid-column: span 2;
-}
-.mj-card--span-4 {
-  grid-column: span 4;
-}
-.mj-card-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--fg);
-}
-.mj-card-media {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #dde3ec;
-}
-.mj-card-media img {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.mj-card:hover .mj-card-media img {
-  transform: scale(1.06);
-}
-.mj-card-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: #0b1220;
 }
 
 /* Capabilities */
@@ -4716,17 +4638,6 @@ a.gallery-tile-link:hover {
   .qc-phases {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .mj-gallery {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: clamp(220px, 36vw, 320px);
-  }
-  .mj-card--span-1,
-  .mj-card--span-2 {
-    grid-column: span 1;
-  }
-  .mj-card--span-4 {
-    grid-column: span 2;
-  }
   .about-hero.facilities-hero {
     padding: 40px 36px;
   }
@@ -5402,16 +5313,6 @@ a.gallery-tile-link:hover {
   .mfg-hero-concern,
   .mfg-hero-closing {
     font-size: 13px;
-  }
-  .mj-gallery {
-    grid-template-columns: 1fr;
-    grid-auto-rows: clamp(200px, 56vw, 280px);
-    gap: 10px;
-  }
-  .mj-card--span-1,
-  .mj-card--span-2,
-  .mj-card--span-4 {
-    grid-column: span 1;
   }
   .mfg-grid {
     grid-template-columns: 1fr;

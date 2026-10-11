@@ -14,7 +14,6 @@ import {
   paginateItems,
   resolveManufacturingNumericRedirect,
 } from '@/lib/manufacturing';
-import { MAHJONG_HOME } from '@/lib/mahjong';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -54,10 +53,6 @@ export default async function ManufacturingCategoryPage({
     getManufacturingMenuItems(),
   ]);
   if (!data) notFound();
-
-  if (isMahjongCategory(data.category)) {
-    redirect(MAHJONG_HOME);
-  }
 
   const canonical = manufacturingSectionSlug(data.category);
   const { page: pageParam } = await searchParams;

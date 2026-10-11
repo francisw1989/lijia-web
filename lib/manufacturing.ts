@@ -14,7 +14,7 @@ import {
   plainTextFromHtml,
 } from '@/lib/capabilities';
 
-const MAHJONG_HOME = '/manufacturing/mahjong/mahjong-tiles';
+const MAHJONG_HOME = '/manufacturing/mahjong';
 
 export const MFG_PAGE_SIZE = 12;
 
@@ -111,7 +111,7 @@ export const MFG_COMPONENTS: MfgComponent[] = [
     desc: DEFAULT_DESC,
     icon: '/images/ma/2-1.png',
     iconHover: '/images/ma/2-2.png',
-    href: '/manufacturing/mahjong/mahjong-tiles',
+    href: '/manufacturing/mahjong',
   },
   {
     id: 'pcb',
@@ -425,7 +425,7 @@ export async function getManufacturingProductDetail(productId: number): Promise<
       root.id,
       product.category_id,
     );
-    if (!section || isMahjongCategory(section)) return null;
+    if (!section) return null;
     if (product.category_id !== section.id) return null;
 
     return { product, category: section };
@@ -442,7 +442,7 @@ export async function allManufacturingCategoryParams() {
     if (!root) return [];
 
     return categories
-      .filter((item) => item.parent_id === root.id && !isMahjongCategory(item))
+      .filter((item) => item.parent_id === root.id)
       .map((item) => ({ id: manufacturingSectionSlug(item) }));
   } catch {
     return [];
@@ -456,7 +456,7 @@ export async function allManufacturingProductParams() {
     if (!root) return [];
 
     const sections = categories.filter(
-      (item) => item.parent_id === root.id && !isMahjongCategory(item),
+      (item) => item.parent_id === root.id,
     );
     const params: { id: string; productId: string }[] = [];
 
@@ -507,12 +507,6 @@ export async function resolveManufacturingNumericRedirect(id: number) {
       product.category_id,
     );
     if (!l2) return null;
-    if (isMahjongCategory(l2)) {
-      if (productCat && productCat.id !== l2.id) {
-        return `/manufacturing/mahjong/${manufacturingSectionSlug(productCat)}/${product.id}`;
-      }
-      return MAHJONG_HOME;
-    }
     return manufacturingProductHref(l2, product.id);
   } catch {
     return null;
@@ -548,10 +542,7 @@ function pageFromCategory(
       ? fromProducts
       : MFG_COMPONENTS.map((item) => ({
           ...item,
-          href:
-            item.id === 'mahjong'
-              ? MAHJONG_HOME
-              : `/manufacturing/${item.id}`,
+          href: `/manufacturing/${item.id}`,
         }));
 
   return {
