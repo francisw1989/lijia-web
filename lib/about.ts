@@ -138,18 +138,11 @@ export const getAboutSection = cache(async (
   }
 });
 
-/** Our Facilities：按固定四个图集分类拉取 */
+/** Our Facilities：拉取指定图集分类，顺序沿用接口（album.sort / 图片 sort） */
 export const getFacilityAlbums = cache(async (): Promise<FacilityAlbumTab[]> => {
   try {
     const albums = await getAlbums([...FACILITY_ALBUM_NAMES]);
-    const byName = new Map(
-      albums.map((album) => [album.name.trim().toLowerCase(), album]),
-    );
-    const ordered = FACILITY_ALBUM_NAMES.map(
-      (name) => byName.get(name.toLowerCase()),
-    ).filter((album): album is Album => Boolean(album));
-
-    return albumsToTabs(ordered);
+    return albumsToTabs(albums);
   } catch (error) {
     console.error('[getFacilityAlbums]', error);
     return [];
