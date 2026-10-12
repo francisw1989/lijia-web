@@ -84,28 +84,24 @@ export async function SiteFooter() {
             <Logo />
           </Link>
           <a className="footer-complaint" href="mailto:info@lijiagames.com">
-            <svg
-              className="footer-complaint-icon"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M12 2.4 19.4 5.2v6.2c0 4.4-3 7.4-7.4 9.2-4.4-1.8-7.4-4.8-7.4-9.2V5.2L12 2.4z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
+            <span className="footer-complaint-icon" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="footer-complaint-default"
+                src="/images/20.png"
+                alt=""
+                width={22}
+                height={22}
               />
-              <path
-                d="M12 7.2v5.1"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="footer-complaint-hover"
+                src="/images/20-1.png"
+                alt=""
+                width={22}
+                height={22}
               />
-              <circle cx="12" cy="15.5" r="1.15" fill="currentColor" />
-            </svg>
+            </span>
             <span>
               Complaint Hotline:{' '}
               <em>info@lijiagames.com</em>
