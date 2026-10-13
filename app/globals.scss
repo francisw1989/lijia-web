@@ -5630,12 +5630,13 @@ a.gallery-tile-link:hover {
 .float-dock {
   position: fixed;
   right: 24px;
-  bottom: calc(28px + env(safe-area-inset-bottom));
+  top: 50%;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
+  transform: translateY(-50%);
 }
 .float-dock-rail {
   display: flex;
@@ -5776,7 +5777,6 @@ a.gallery-tile-link:hover {
 @media (max-width: 800px) {
   .float-dock {
     right: 14px;
-    bottom: calc(18px + env(safe-area-inset-bottom));
   }
   .float-dock-rail {
     width: 40px;

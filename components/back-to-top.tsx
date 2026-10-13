@@ -68,19 +68,6 @@ export function BackToTop() {
   return (
     <div className="float-dock" aria-label="Quick links">
       <div className="float-dock-rail">
-        {SOCIAL.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className="float-dock-item"
-            aria-label={item.label}
-            {...(item.href.startsWith('http')
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
-          >
-            {item.icon}
-          </a>
-        ))}
         <a
           href="mailto:info@lijiagames.com"
           className="float-dock-item float-dock-complaint"
@@ -109,6 +96,19 @@ export function BackToTop() {
             <span className="float-dock-tip-email">info@lijiagames.com</span>
           </span>
         </a>
+        {SOCIAL.map((item) => (
+          <a
+            key={item.label}
+            href={item.href}
+            className="float-dock-item"
+            aria-label={item.label}
+            {...(item.href.startsWith('http')
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
+          >
+            {item.icon}
+          </a>
+        ))}
       </div>
 
       <button
