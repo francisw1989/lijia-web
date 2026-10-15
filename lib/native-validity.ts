@@ -21,11 +21,11 @@ export function englishNativeInvalid(e: InvalidEvent<ValidityEl>) {
     el.setCustomValidity('Please enter a valid email address.');
     return;
   }
-  if (el.validity.tooShort) {
+  if (el.validity.tooShort && 'minLength' in el) {
     el.setCustomValidity(`Please use at least ${el.minLength} characters.`);
     return;
   }
-  if (el.validity.tooLong) {
+  if (el.validity.tooLong && 'maxLength' in el) {
     el.setCustomValidity(`Please use no more than ${el.maxLength} characters.`);
     return;
   }
