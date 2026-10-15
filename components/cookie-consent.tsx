@@ -40,8 +40,9 @@ export function CookieConsent() {
             Cookies &amp; Privacy
           </h2>
           <p className="cookie-consent-text">
-            We use essential cookies to keep this site working. By continuing, you agree to our
-            handling of information you submit through forms, as described in our privacy terms.
+            We use essential cookies and local storage to keep this site working, including community
+            login. By continuing, you agree to our handling of information from forms and community
+            features, as described in our privacy terms.
           </p>
           <p className="cookie-consent-links">
             <Link href="/tools/cookies-privacy">Cookies &amp; Privacy</Link>

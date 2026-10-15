@@ -64,7 +64,7 @@ export default async function HomePage() {
     created_at: item.created_at,
     keywords: item.keywords,
     cover: item.cover,
-    href: `/about/news/${item.id}`,
+    href: `/events/${item.id}`,
   }));
 
   return (

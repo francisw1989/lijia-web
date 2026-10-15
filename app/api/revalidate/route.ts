@@ -15,7 +15,19 @@ const ALL_TAGS = [
   'homepage',
   'files',
   'dice-templates',
+  'articles',
 ] as const;
+
+function revalidateArticlePaths(id?: number) {
+  revalidateTag('articles', { expire: 0 });
+  revalidatePath('/blog');
+  revalidatePath('/forum');
+  if (id && Number.isFinite(id)) {
+    revalidateTag(`article-${id}`, { expire: 0 });
+    revalidatePath(`/blog/${id}`);
+    revalidatePath(`/forum/${id}`);
+  }
+}
 
 function revalidateAll() {
   for (const tag of ALL_TAGS) {
@@ -75,7 +87,7 @@ export async function POST(request: NextRequest) {
     revalidatePath('/tools/faq');
     revalidatePath('/manufacturing');
     revalidatePath('/manufacturing/mahjong');
-    revalidatePath('/about/news');
+    revalidatePath('/events');
     revalidatePath('/about/facilities');
     revalidatePath('/about/team');
     revalidatePath('/about/team/list');
@@ -86,7 +98,7 @@ export async function POST(request: NextRequest) {
       revalidatePath(`/manufacturing/${id}`);
       revalidatePath('/manufacturing', 'layout');
       revalidatePath('/manufacturing/mahjong', 'layout');
-      revalidatePath(`/about/news/${id}`);
+      revalidatePath(`/events/${id}`);
       revalidatePath(`/about/facilities/${id}`);
       revalidatePath(`/about/team/${id}`);
       revalidatePath(`/tools/videos/${id}`);
@@ -101,7 +113,7 @@ export async function POST(request: NextRequest) {
       revalidatePath('/tools/terms');
       revalidatePath('/tools/safety');
       revalidatePath('/tools/dice');
-      revalidatePath('/about/news');
+      revalidatePath('/events');
       revalidatePath('/about/facilities');
       revalidatePath('/about/team');
       revalidatePath('/about/team/list');
@@ -119,6 +131,16 @@ export async function POST(request: NextRequest) {
     revalidateTag('files', { expire: 0 });
     revalidateTag('dice-templates', { expire: 0 });
     revalidatePath('/tools/generator');
+  } else if (type === 'article' || type === 'blog' || type === 'forum') {
+    revalidateArticlePaths(id && Number.isFinite(id) ? id : undefined);
+    if (type === 'blog') {
+      revalidatePath('/blog');
+      if (id && Number.isFinite(id)) revalidatePath(`/blog/${id}`);
+    }
+    if (type === 'forum') {
+      revalidatePath('/forum');
+      if (id && Number.isFinite(id)) revalidatePath(`/forum/${id}`);
+    }
   } else {
     revalidatePath('/');
   }

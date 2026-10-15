@@ -62,8 +62,8 @@ const ABOUT_SECTIONS: Record<
     fallbackTitle: 'Our Team',
   },
   news: {
-    categoryName: 'News & Events',
-    fallbackTitle: 'News & Events',
+    categoryName: 'Events',
+    fallbackTitle: 'Events',
   },
 };
 
@@ -87,7 +87,13 @@ function findAboutCategory(
     if (child) return child;
   }
 
-  return categories.find((item) => item.name === categoryName) ?? null;
+  // Events 等已从 About 拆出的一级栏目，按名称匹配（含历史别名）
+  return (
+    categories.find((item) => item.name === categoryName) ??
+    (categoryName === 'Events'
+      ? categories.find((item) => item.name === 'News & Events') ?? null
+      : null)
+  );
 }
 
 function sectionFromCategory(
@@ -405,7 +411,7 @@ function productToNewsItem(item: {
   };
 }
 
-/** News & Events：推荐新闻 + 全部列表 */
+/** Events：推荐内容 + 全部列表 */
 export const getNewsPageData = cache(async (): Promise<NewsPageData> => {
   try {
     const categories = await getProductCategories();

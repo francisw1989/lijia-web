@@ -4,12 +4,16 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { SuccessDialog } from '@/components/success-dialog';
 import { PROJECT_SERVICE_LINKS } from '@/lib/project';
+import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitProjectMessage } from '@/lib/submit-message';
+import { useCommunityFormPrefill } from '@/lib/use-community-form-prefill';
 
 export function ProjectContent() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const { name, setName, email, setEmail, resetToUser } =
+    useCommunityFormPrefill();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,6 +38,7 @@ export function ProjectContent() {
     }
     setSent(true);
     form.reset();
+    resetToUser();
   };
 
   return (
@@ -53,7 +58,18 @@ export function ProjectContent() {
         <form className="project-form" onSubmit={onSubmit}>
           <label className="project-field project-field-full">
             <span>Name</span>
-            <input name="name" type="text" required autoComplete="name" />
+            <input
+              name="name"
+              type="text"
+              required
+              autoComplete="name"
+              value={name}
+              onChange={(e) => {
+                clearNativeValidity(e);
+                setName(e.target.value);
+              }}
+              onInvalid={englishNativeInvalid}
+            />
           </label>
 
           <div className="project-form-row">
@@ -70,7 +86,18 @@ export function ProjectContent() {
           <div className="project-form-row">
             <label className="project-field">
               <span>Email</span>
-              <input name="email" type="email" required autoComplete="email" />
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => {
+                  clearNativeValidity(e);
+                  setEmail(e.target.value);
+                }}
+                onInvalid={englishNativeInvalid}
+              />
             </label>
             <label className="project-field">
               <span>Game/Project Name</span>

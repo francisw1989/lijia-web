@@ -20,7 +20,6 @@ export const ABOUT_NAV = [
   { href: '/about/facilities', label: 'Our Facilities' },
   { href: '/about/history', label: 'Our Story & Philosophy' },
   { href: '/about/team', label: 'Our Team' },
-  { href: '/about/news', label: 'News & Events' },
 ] as const;
 
 function productToStoryNode(item: ProductListItem): StoryNode {

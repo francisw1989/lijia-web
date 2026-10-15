@@ -6,7 +6,9 @@ import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { SuccessDialog } from '@/components/success-dialog';
 import { CONTACT_JIANGSU } from '@/lib/contact';
+import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitContactMessage } from '@/lib/submit-message';
+import { useCommunityFormPrefill } from '@/lib/use-community-form-prefill';
 
 const INFO_ICONS = {
   phone: '/images/15.png',
@@ -28,6 +30,8 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const { name, setName, email, setEmail, resetToUser } =
+    useCommunityFormPrefill();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +56,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
     }
     setSent(true);
     form.reset();
+    resetToUser();
   };
 
   return (
@@ -134,19 +139,55 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
                 <div className="contact-form-grid">
                   <label className="contact-field">
                     <span>Name</span>
-                    <input name="name" type="text" required autoComplete="name" />
+                    <input
+                      name="name"
+                      type="text"
+                      required
+                      autoComplete="name"
+                      value={name}
+                      onChange={(e) => {
+                        clearNativeValidity(e);
+                        setName(e.target.value);
+                      }}
+                      onInvalid={englishNativeInvalid}
+                    />
                   </label>
                   <label className="contact-field">
                     <span>Email</span>
-                    <input name="email" type="email" required autoComplete="email" />
+                    <input
+                      name="email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => {
+                        clearNativeValidity(e);
+                        setEmail(e.target.value);
+                      }}
+                      onInvalid={englishNativeInvalid}
+                    />
                   </label>
                   <label className="contact-field">
                     <span>Country/Region</span>
-                    <input name="country" type="text" required autoComplete="country-name" />
+                    <input
+                      name="country"
+                      type="text"
+                      required
+                      autoComplete="country-name"
+                      onInput={clearNativeValidity}
+                      onInvalid={englishNativeInvalid}
+                    />
                   </label>
                   <label className="contact-field">
                     <span>Phone Number</span>
-                    <input name="phone" type="tel" required autoComplete="tel" />
+                    <input
+                      name="phone"
+                      type="tel"
+                      required
+                      autoComplete="tel"
+                      onInput={clearNativeValidity}
+                      onInvalid={englishNativeInvalid}
+                    />
                   </label>
                   <label className="contact-field">
                     <span>Company</span>

@@ -83,30 +83,6 @@ export async function SiteFooter() {
           <Link href="/" className="inline-flex" aria-label="LIJIA GAME PRODUCTION">
             <Logo />
           </Link>
-          <a className="footer-complaint" href="mailto:info@lijiagames.com">
-            <span className="footer-complaint-icon" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className="footer-complaint-default"
-                src="/images/20.png"
-                alt=""
-                width={22}
-                height={22}
-              />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className="footer-complaint-hover"
-                src="/images/20-1.png"
-                alt=""
-                width={22}
-                height={22}
-              />
-            </span>
-            <span>
-              Complaint Hotline:{' '}
-              <em>info@lijiagames.com</em>
-            </span>
-          </a>
           <div className="footer-social" aria-label="Social">
             {SOCIAL.map((item) => (
               <a

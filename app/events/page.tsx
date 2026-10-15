@@ -3,14 +3,13 @@ import { pageMetadata } from '@/lib/site-title';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AboutBanner } from '@/components/about-banner';
-import { AboutShell } from '@/components/about-shell';
 import { getAboutSection, getNewsPageData, type NewsItem } from '@/lib/about';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { meta } = await getAboutSection('news');
   return pageMetadata({
-    title: meta.title,
+    title: meta.title || 'Events',
     description: meta.description,
     keywords: meta.keywords,
   });
@@ -26,12 +25,12 @@ function formatDate(value: string) {
   });
 }
 
-function newsHref(id: number) {
-  return `/about/news/${id}`;
+function eventHref(id: number) {
+  return `/events/${id}`;
 }
 
-function NewsCard({ item }: { item: NewsItem }) {
-  const href = newsHref(item.id);
+function EventCard({ item }: { item: NewsItem }) {
+  const href = eventHref(item.id);
   return (
     <article className="about-news-card">
       {item.cover ? (
@@ -64,8 +63,8 @@ function NewsCard({ item }: { item: NewsItem }) {
   );
 }
 
-function NewsRow({ item }: { item: NewsItem }) {
-  const href = newsHref(item.id);
+function EventRow({ item }: { item: NewsItem }) {
+  const href = eventHref(item.id);
   return (
     <article className="about-news-row">
       {item.cover ? (
@@ -95,7 +94,7 @@ function NewsRow({ item }: { item: NewsItem }) {
   );
 }
 
-export default async function AboutNewsPage() {
+export default async function EventsPage() {
   const [{ banner }, { featured, articles }] = await Promise.all([
     getAboutSection('news'),
     getNewsPageData(),
@@ -103,13 +102,19 @@ export default async function AboutNewsPage() {
 
   return (
     <>
-      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} title={banner.title} subtitle={banner.subtitle} />
-      <AboutShell>
-        <div className="about-news-page">
+      <AboutBanner
+        src={banner.image}
+        poster={banner.poster}
+        alt={banner.alt}
+        title={banner.title}
+        subtitle={banner.subtitle}
+      />
+      <section className="section-pad">
+        <div className="container about-news-page">
           {featured.length ? (
             <div className="about-news-featured">
               {featured.map((item) => (
-                <NewsCard key={`featured-${item.id}`} item={item} />
+                <EventCard key={`featured-${item.id}`} item={item} />
               ))}
             </div>
           ) : null}
@@ -119,14 +124,14 @@ export default async function AboutNewsPage() {
           {articles.length ? (
             <div className="about-news-list">
               {articles.map((item) => (
-                <NewsRow key={`list-${item.id}`} item={item} />
+                <EventRow key={`list-${item.id}`} item={item} />
               ))}
             </div>
           ) : (
             <p className="about-news-desc">No articles yet.</p>
           )}
         </div>
-      </AboutShell>
+      </section>
     </>
   );
 }

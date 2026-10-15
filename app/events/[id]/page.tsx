@@ -3,7 +3,6 @@ import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
-import { AboutShell } from '@/components/about-shell';
 import { ArticleDetail } from '@/components/article-detail';
 import { getAboutSection, getNewsPageData } from '@/lib/about';
 import { getProduct } from '@/lib/cms';
@@ -41,7 +40,7 @@ function formatDate(value: string) {
   return `${MONTHS[Number(month) - 1]} ${day}, ${year}`;
 }
 
-export default async function AboutNewsDetailPage({ params }: Props) {
+export default async function EventDetailPage({ params }: Props) {
   const { id } = await params;
   const [{ banner }, article] = await Promise.all([
     getAboutSection('news'),
@@ -52,18 +51,26 @@ export default async function AboutNewsDetailPage({ params }: Props) {
 
   return (
     <>
-      <AboutBanner src={banner.image} poster={banner.poster} alt={banner.alt} title={banner.title} subtitle={banner.subtitle} />
-      <AboutShell>
-        <ArticleDetail
-          title={article.title}
-          kicker={formatDate(article.created_at)}
-          html={article.content}
-        >
-          <Link href="/about/news" className="about-news-more">
-            &lt; back to News &amp; Events
-          </Link>
-        </ArticleDetail>
-      </AboutShell>
+      <AboutBanner
+        src={banner.image}
+        poster={banner.poster}
+        alt={banner.alt}
+        title={banner.title}
+        subtitle={banner.subtitle}
+      />
+      <section className="section-pad">
+        <div className="container">
+          <ArticleDetail
+            title={article.title}
+            kicker={formatDate(article.created_at)}
+            html={article.content}
+          >
+            <Link href="/events" className="about-news-more">
+              &lt; back to Events
+            </Link>
+          </ArticleDetail>
+        </div>
+      </section>
     </>
   );
 }

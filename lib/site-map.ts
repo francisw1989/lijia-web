@@ -27,7 +27,6 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
       { href: '/about/history', label: 'Our Story & Philosophy' },
       { href: '/about/team', label: 'Our Team' },
       { href: '/about/team/list', label: 'Our Team — All Members' },
-      { href: '/about/news', label: 'News & Events' },
     ],
   },
   {
@@ -70,6 +69,15 @@ export const SITE_MAP_SECTIONS: SiteMapSection[] = [
     title: 'Start A Project',
     href: '/start-a-project',
     links: [{ href: '/start-a-project', label: 'Start A Project' }],
+  },
+  {
+    title: 'Community',
+    href: '/blog',
+    links: [
+      { href: '/blog', label: 'Blog' },
+      { href: '/forum', label: 'Forum' },
+      { href: '/events', label: 'Events' },
+    ],
   },
   {
     title: 'Contact us',

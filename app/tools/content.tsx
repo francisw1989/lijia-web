@@ -12,6 +12,7 @@ import {
   type ToolsResourceCard,
   type ToolsVideoItem,
 } from '@/lib/tools-static';
+import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitToolsMessage } from '@/lib/submit-message';
 
 export function ToolsContent({
@@ -124,11 +125,25 @@ export function ToolsContent({
             <div className="tools-cta-fields">
               <label className="tools-cta-field tools-cta-name">
                 <span>Your Name*</span>
-                <input name="name" type="text" required autoComplete="name" />
+                <input
+                  name="name"
+                  type="text"
+                  required
+                  autoComplete="name"
+                  onInput={clearNativeValidity}
+                  onInvalid={englishNativeInvalid}
+                />
               </label>
               <label className="tools-cta-field tools-cta-email">
                 <span>Your Email*</span>
-                <input name="email" type="email" required autoComplete="email" />
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  onInput={clearNativeValidity}
+                  onInvalid={englishNativeInvalid}
+                />
               </label>
               <label className="tools-cta-field tools-cta-message">
                 <span>Your Message</span>

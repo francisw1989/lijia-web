@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: '/about/news',
+        destination: '/events',
+        permanent: true,
+      },
+      {
+        source: '/about/news/:id',
+        destination: '/events/:id',
+        permanent: true,
+      },
       // Old mahjong L3 structure → new flat L2 structure
       {
         source: '/manufacturing/mahjong/mahjong-tiles',

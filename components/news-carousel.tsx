@@ -17,7 +17,7 @@ export type NewsCardItem = {
   category_name?: string | null;
   keywords?: string | null;
   cover?: string | null;
-  /** 默认 /about/news/:id */
+  /** 默认 /events/:id */
   href?: string;
 };
 
@@ -102,7 +102,7 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
         {items.map((item, index) => {
           const href =
             item.href ||
-            (item.id > 0 ? `/about/news/${item.id}` : '/about/news');
+            (item.id > 0 ? `/events/${item.id}` : '/events');
           const cover = item.cover || FALLBACKS[index % FALLBACKS.length];
           const title = item.title?.trim() || '';
           const category =
@@ -160,7 +160,7 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
       </div>
 
       <div className="flex-row-center mt36">
-        <Link href="/about/news" className="btn btn-primary btn-pill">
+        <Link href="/events" className="btn btn-primary btn-pill">
           View More
           <Image
             src="/images/6.png"
