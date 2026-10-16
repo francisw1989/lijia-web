@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next';
+import { getCommunityListPagePaths } from '@/lib/articles';
 import { SITE_MAP_SECTIONS } from '@/lib/site-map';
 import { absoluteUrl, getSiteUrl } from '@/lib/site';
 
@@ -11,12 +12,13 @@ function collectPaths() {
   return [...paths];
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
-  return collectPaths().map((path) => ({
+  const paths = [...collectPaths(), ...(await getCommunityListPagePaths())];
+  return paths.map((path) => ({
     url: path === '/' ? base : absoluteUrl(path),
     lastModified: new Date(),
     changeFrequency: path === '/' ? 'daily' : 'weekly',
-    priority: path === '/' ? 1 : path.startsWith('/tools') ? 0.8 : 0.7,
+    priority: path === '/' ? 1 : path.includes('/page/') ? 0.5 : path.startsWith('/tools') ? 0.8 : 0.7,
   }));
 }

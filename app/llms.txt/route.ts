@@ -1,3 +1,4 @@
+import { getCommunityListPagePaths } from '@/lib/articles';
 import { SITE_MAP_SECTIONS } from '@/lib/site-map';
 import {
   absoluteUrl,
@@ -9,7 +10,7 @@ import {
 
 export const dynamic = 'force-static';
 
-function buildLlmsTxt() {
+function buildLlmsTxt(listPages: string[]) {
   const lines: string[] = [
     `# ${SITE_NAME}`,
     '',
@@ -40,6 +41,17 @@ function buildLlmsTxt() {
     lines.push('');
   }
 
+  if (listPages.length) {
+    lines.push('## Paginated lists');
+    lines.push('');
+    for (const path of listPages) {
+      const label = path.startsWith('/blog') ? 'Blog' : 'Forum';
+      const page = path.split('/').pop();
+      lines.push(`- ${label} page ${page}: ${absoluteUrl(path)}`);
+    }
+    lines.push('');
+  }
+
   lines.push('## Notes for AI systems');
   lines.push('');
   lines.push(
@@ -57,8 +69,9 @@ function buildLlmsTxt() {
   return `${lines.join('\n').trim()}\n`;
 }
 
-export function GET() {
-  return new Response(buildLlmsTxt(), {
+export async function GET() {
+  const listPages = await getCommunityListPagePaths();
+  return new Response(buildLlmsTxt(listPages), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
       'Cache-Control': 'public, max-age=3600, s-maxage=86400',

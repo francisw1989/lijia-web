@@ -160,6 +160,18 @@ export async function getAllArticleIds(
   }
 }
 
+/** Blog / Forum 第 2 页起的列表路径，供 sitemap 与 llms.txt 使用 */
+export async function getCommunityListPagePaths(): Promise<string[]> {
+  const [blog, forum] = await Promise.all([
+    getCommunityPageParams('Blog'),
+    getCommunityPageParams('Forum'),
+  ]);
+  return [
+    ...blog.map((item) => `/blog/page/${item.page}`),
+    ...forum.map((item) => `/forum/page/${item.page}`),
+  ];
+}
+
 export function communityListHref(
   base: '/blog' | '/forum',
   page: number,

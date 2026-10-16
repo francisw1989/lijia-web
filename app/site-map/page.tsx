@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { RevealInit } from '@/components/reveal-init';
-import { SITE_MAP_SECTIONS } from '@/lib/site-map';
+import { getCommunityListPagePaths } from '@/lib/articles';
+import { SITE_MAP_SECTIONS, type SiteMapSection } from '@/lib/site-map';
 import { pageMetadata } from '@/lib/site-title';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -11,7 +12,26 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function SiteMapPage() {
+function withListPages(sections: SiteMapSection[], listPages: string[]): SiteMapSection[] {
+  if (!listPages.length) return sections;
+  return sections.map((section) => {
+    if (section.title !== 'Community') return section;
+    return {
+      ...section,
+      links: [
+        ...section.links,
+        ...listPages.map((href) => {
+          const page = href.split('/').pop();
+          const label = href.startsWith('/blog') ? 'Blog' : 'Forum';
+          return { href, label: `${label} · Page ${page}` };
+        }),
+      ],
+    };
+  });
+}
+
+export default async function SiteMapPage() {
+  const sections = withListPages(SITE_MAP_SECTIONS, await getCommunityListPagePaths());
   return (
     <main className="bg-white min-h-page">
       <RevealInit />
@@ -21,7 +41,7 @@ export default function SiteMapPage() {
           Find every main section and list page on this site.
         </p>
         <div className="site-map-grid">
-          {SITE_MAP_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <div key={section.title} className="site-map-col">
               <h2>
                 {section.href ? (
