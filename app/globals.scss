@@ -642,6 +642,13 @@ input {
   padding: 80px 0;
   margin: 0 auto;
 }
+.presence-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, #072a57e0 0%, #072a57b8 55%, #072a5759 100%);
+}
 .presence-inner {
   padding: 0 80px;
 }

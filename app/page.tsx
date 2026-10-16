@@ -166,6 +166,7 @@ export default async function HomePage() {
           fill
           sizes="100vw"
         />
+        <div className="presence-overlay" aria-hidden="true" />
         <div className="relative z-1 presence-inner">
           <h2
             className="uppercase font-extrabold font40 mb8 presence-title"
