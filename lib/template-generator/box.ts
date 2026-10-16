@@ -84,12 +84,8 @@ function offsetPolygonOutward(pts: Pt[], dist: number): Pt[] {
   return out;
 }
 
-function materialToken(mm: number) {
-  return Number.isInteger(mm) ? String(mm) : String(mm).replace('.', '');
-}
-
-export function boxPdfFileName(x: number, y: number, z: number, thickness: number) {
-  return templatePdfFileName('TwoPieceBox', `${x}x${y}x${z}t${materialToken(thickness)}`);
+export function boxPdfFileName(x: number, y: number, z: number, _thickness: number) {
+  return templatePdfFileName('TwoPieceBox', `${x}x${y}x${z}`);
 }
 
 /** Y > X：粘合耳在左右壁；否则在上下壁（对齐 Panda） */

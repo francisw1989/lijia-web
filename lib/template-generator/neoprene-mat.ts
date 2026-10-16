@@ -25,10 +25,10 @@ export const DEFAULT_NEOPRENE_RADIUS = 20;
 export function neopreneMatPdfFileName(
   x: number,
   y: number,
-  r: number,
-  stitched: boolean,
+  _r: number,
+  _stitched: boolean,
 ) {
-  return templatePdfFileName('NeopreneMat', `${x}x${y}r${r}${stitched ? 's' : ''}`);
+  return templatePdfFileName('NeopreneMat', `${x}x${y}`);
 }
 
 export function generateNeopreneMatPdf(

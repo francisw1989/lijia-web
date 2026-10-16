@@ -95,10 +95,6 @@ function formatMm(n: number) {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
-function materialToken(mm: number) {
-  return Number.isInteger(mm) ? String(mm) : String(mm).replace('.', '');
-}
-
 function marginRect(doc: jsPDF, x: number, y: number, w: number, h: number) {
   if (w <= SAFE * 2 || h <= SAFE * 2) return;
   strokeGuide(doc, 'margin');
@@ -114,8 +110,8 @@ export function magneticInnerSize(a: number, b: number, c: number, t: number) {
   };
 }
 
-export function magneticBoxPdfFileName(a: number, b: number, c: number, t: number) {
-  return templatePdfFileName('MagneticBox', `${a}x${b}x${c}t${materialToken(t)}`);
+export function magneticBoxPdfFileName(a: number, b: number, c: number, _t: number) {
+  return templatePdfFileName('MagneticBox', `${a}x${b}x${c}`);
 }
 
 function shrinkFold(n: number, t: number, layers = 1) {

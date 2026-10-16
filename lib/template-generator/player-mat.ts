@@ -13,8 +13,8 @@ import {
 export const PLAYER_MAT_SAFE = 10;
 export const PLAYER_MAT_BLEED = 5;
 
-export function playerMatPdfFileName(x: number, y: number, r: number) {
-  return templatePdfFileName('PlayerMat', `${x}x${y}r${r}`);
+export function playerMatPdfFileName(x: number, y: number, _r: number) {
+  return templatePdfFileName('PlayerMat', `${x}x${y}`);
 }
 
 export function generatePlayerMatPdf(

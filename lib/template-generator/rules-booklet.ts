@@ -12,12 +12,10 @@ export function bookletInsets(outside: number, spine: number) {
 export function rulesBookletPdfFileName(
   w: number,
   h: number,
-  outside: number,
-  spine: number,
+  _outside: number,
+  _spine: number,
 ) {
-  const extras =
-    outside > 0 || spine > 0 ? `o${outside}s${spine}` : '';
-  return templatePdfFileName('RulesBooklet', `${w}x${h}${extras}`);
+  return templatePdfFileName('RulesBooklet', `${w}x${h}`);
 }
 
 function drawPageMargin(

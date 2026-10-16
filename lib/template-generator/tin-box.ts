@@ -23,8 +23,8 @@ export function roundedRectPerimeter(w: number, h: number, radius: number) {
   return 2 * (w - 2 * r) + 2 * (h - 2 * r) + 2 * Math.PI * r;
 }
 
-export function tinBoxPdfFileName(a: number, b: number, c: number, r: number) {
-  return templatePdfFileName('TinBox', `${a}x${b}x${c}r${r}`);
+export function tinBoxPdfFileName(a: number, b: number, c: number, _r: number) {
+  return templatePdfFileName('TinBox', `${a}x${b}x${c}`);
 }
 
 function marginRounded(
