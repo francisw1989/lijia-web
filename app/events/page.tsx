@@ -119,7 +119,7 @@ export default async function EventsPage() {
             </div>
           ) : null}
 
-          <h2 className="about-news-all-heading">all article</h2>
+          <h2 className="about-news-all-heading">All Events</h2>
 
           {articles.length ? (
             <div className="about-news-list">
