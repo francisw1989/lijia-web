@@ -232,7 +232,7 @@ export function ArticleEngagement({
         </div>
       )}
 
-      <section className="article-comments" id="comments">
+      <section className="article-comments">
         <div className="article-comments-head">
           <h2 className="article-comments-title">{commentsTitle}</h2>
           <span className="article-comments-count">{commentCount}</span>

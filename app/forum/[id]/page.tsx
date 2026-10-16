@@ -127,7 +127,7 @@ export default async function ForumDetailPage({ params }: Props) {
 
             {description ? <p className="forum-question-desc">{description}</p> : null}
 
-            <div className="forum-question-actions">
+            <div className="forum-question-actions" id="comments">
               <a href="#comments" className="forum-question-answer-btn">
                 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none">
                   <path
