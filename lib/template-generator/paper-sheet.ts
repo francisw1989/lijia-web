@@ -8,13 +8,14 @@ import {
   LEGEND_W,
   PAD,
   openPdfDoc,
+  templatePdfFileName,
 } from './style';
 import type { SheetFoldId } from './folds';
 
 export { SHEET_FOLDS, type SheetFoldId } from './folds';
 
 export function paperSheetPdfFileName(x: number, y: number) {
-  return `PaperSheet${x}x${y}mm.pdf`;
+  return templatePdfFileName('PaperSheet', `${x}x${y}`);
 }
 
 export function generatePaperSheetPdf(

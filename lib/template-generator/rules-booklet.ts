@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, headerMinPageWidth, loadLogoDataUrl } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 
 export function bookletInsets(outside: number, spine: number) {
   const out = Number.isFinite(outside) && outside > 0 ? outside : 0;
@@ -17,7 +17,7 @@ export function rulesBookletPdfFileName(
 ) {
   const extras =
     outside > 0 || spine > 0 ? `o${outside}s${spine}` : '';
-  return `RulesBooklet${w}x${h}${extras}mm.pdf`;
+  return templatePdfFileName('RulesBooklet', `${w}x${h}${extras}`);
 }
 
 function drawPageMargin(

@@ -5,7 +5,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, drawRoundedGuides, openPdfDoc } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, drawRoundedGuides, openPdfDoc, templatePdfFileName } from './style';
 
 const CORNER = 3.5;
 
@@ -83,7 +83,7 @@ function cornerRadius(w: number, h: number) {
 }
 
 export function cardsPdfFileName(w: number, h: number) {
-  return `Cards${w}x${h}mm.pdf`;
+  return templatePdfFileName('Cards', `${w}x${h}`);
 }
 
 export function generateCardsPdf(

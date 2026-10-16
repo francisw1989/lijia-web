@@ -7,6 +7,7 @@ import {
   LEGEND_W,
   PAD,
   openPdfDoc,
+  templatePdfFileName,
 } from './style';
 
 /** 缝边会吃进成品边，安全区比普通 3mm 更大 */
@@ -27,7 +28,7 @@ export function neopreneMatPdfFileName(
   r: number,
   stitched: boolean,
 ) {
-  return `NeopreneMat${x}x${y}r${r}mm${stitched ? '-stitched' : ''}.pdf`;
+  return templatePdfFileName('NeopreneMat', `${x}x${y}r${r}${stitched ? 's' : ''}`);
 }
 
 export function generateNeopreneMatPdf(

@@ -5,7 +5,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 
 /**
  * Foil Pack 展开刀线（对齐 BODA 规律）：
@@ -29,10 +29,7 @@ export function foilPackPdfFileName(input: {
   z: number;
   cards?: number;
 }) {
-  if (input.cards && input.cards > 0) {
-    return `FoilPack${input.x}x${input.y}-${input.cards}cards.pdf`;
-  }
-  return `FoilPack${input.x}x${input.y}x${formatMm(input.z)}mm.pdf`;
+  return templatePdfFileName('FoilPack', `${input.x}x${input.y}x${formatMm(input.z)}`);
 }
 
 function marginRect(doc: jsPDF, x: number, y: number, w: number, h: number) {

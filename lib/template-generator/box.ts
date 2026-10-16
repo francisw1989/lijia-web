@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, loadLogoDataUrl } from './logo';
-import { BLEED, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc } from './style';
+import { BLEED, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 
 export const BOX_MATERIALS = [
   { mm: 1, label: '1mm high density mounted cardboard' },
@@ -89,7 +89,7 @@ function materialToken(mm: number) {
 }
 
 export function boxPdfFileName(x: number, y: number, z: number, thickness: number) {
-  return `Box-${materialToken(thickness)}_${x}x${y}x${z}mm.pdf`;
+  return templatePdfFileName('TwoPieceBox', `${x}x${y}x${z}t${materialToken(thickness)}`);
 }
 
 /** Y > X：粘合耳在左右壁；否则在上下壁（对齐 Panda） */

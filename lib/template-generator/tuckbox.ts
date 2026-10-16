@@ -16,7 +16,7 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 
 /** 卡牌纸张选项：用张数推算盒深时使用 */
 export const CARD_STOCKS = [
@@ -62,10 +62,7 @@ export function tuckboxPdfFileName(input: {
   z: number;
   cards?: number;
 }) {
-  if (input.cards && input.cards > 0) {
-    return `Tuckbox${input.x}x${input.y}-${input.cards}cards.pdf`;
-  }
-  return `Tuckbox${input.x}x${input.y}x${formatMm(input.z)}mm.pdf`;
+  return templatePdfFileName('Tuckbox', `${input.x}x${input.y}x${formatMm(input.z)}`);
 }
 
 function poly(doc: jsPDF, pts: Pt[], close = true) {

@@ -116,15 +116,47 @@ export function drawRoundedGuides(
   }
 }
 
+/** Tuckbox_56x89x16mm_template_lijia260930.pdf — 日期为下载当天 YYMMDD */
+export function templatePdfFileName(product: string, size: string, date = new Date()) {
+  const yy = String(date.getFullYear()).slice(-2);
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const dims = String(size).replace(/mm$/i, '');
+  return `${product}_${dims}mm_template_lijia${yy}${mm}${dd}.pdf`;
+}
+
+function pdfFileName(fileName: string) {
+  const name = fileName?.trim() || 'template.pdf';
+  return name.toLowerCase().endsWith('.pdf') ? name : `${name}.pdf`;
+}
+
 function triggerBlobDownload(blob: Blob, fileName: string) {
+  const name = pdfFileName(fileName);
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = objectUrl;
-  a.download = fileName || 'template.pdf';
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   a.remove();
   window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
+}
+
+/**
+ * 桌面预览不能用 blob: 地址，否则标签页和另存为都是 UUID。
+ * 先暂存 PDF，再打开带文件名的地址。
+ */
+async function previewPdfInNewTab(blob: Blob, fileName: string) {
+  const name = pdfFileName(fileName);
+  const body = new FormData();
+  body.append('name', name);
+  body.append('file', new File([blob], name, { type: 'application/pdf' }));
+  const res = await fetch('/api/template-pdf', { method: 'POST', body });
+  const data = (await res.json().catch(() => ({}))) as { url?: string; message?: string };
+  if (!res.ok || !data.url) {
+    throw new Error(data.message || 'Could not open the PDF');
+  }
+  window.open(data.url, '_blank', 'noopener,noreferrer');
 }
 
 /** 桌面：新标签预览；手机：直接下载（须由用户点击触发） */
@@ -133,12 +165,12 @@ export async function openPdfDoc(doc: jsPDF, fileName = 'template.pdf') {
   if (isWeChatBrowser()) {
     return;
   }
+  const name = pdfFileName(fileName);
   if (isMobilePdfClient()) {
-    doc.save(fileName);
+    doc.save(name);
     return;
   }
-  const url = String(doc.output('bloburl'));
-  window.open(url, '_blank', 'noopener,noreferrer');
+  await previewPdfInNewTab(doc.output('blob'), name);
 }
 
 /** 远程 PDF：桌面预览；手机下载（须由用户点击触发） */
@@ -158,6 +190,5 @@ export async function openOrDownloadRemotePdf(
     triggerBlobDownload(blob, fileName);
     return;
   }
-  const objectUrl = URL.createObjectURL(blob);
-  window.open(objectUrl, '_blank', 'noopener,noreferrer');
+  await previewPdfInNewTab(blob, fileName);
 }

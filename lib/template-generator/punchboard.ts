@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, loadLogoDataUrl } from './logo';
-import { BLEED, drawRectGuides, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc } from './style';
+import { BLEED, drawRectGuides, HEADER, LEGEND_W, PAD, SAFE, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 
 const SAMPLE = 20;
 const SAMPLE_GAP = 8;
@@ -35,7 +35,7 @@ function drawSamples(doc: jsPDF, bx: number, by: number, bw: number, bh: number)
 }
 
 export function punchboardPdfFileName(x: number, y: number) {
-  return `Punchboard${x}x${y}mm.pdf`;
+  return templatePdfFileName('Punchboard', `${x}x${y}`);
 }
 
 export function generatePunchboardPdf(

@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { drawHeader, drawLegend, headerMinPageWidth, loadLogoDataUrl } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 
 export const MAGNETIC_THICKNESSES = [
   { mm: 1.2, label: '1.2 mm' },
@@ -115,7 +115,7 @@ export function magneticInnerSize(a: number, b: number, c: number, t: number) {
 }
 
 export function magneticBoxPdfFileName(a: number, b: number, c: number, t: number) {
-  return `MagneticBox-${materialToken(t)}_${a}x${b}x${c}mm.pdf`;
+  return templatePdfFileName('MagneticBox', `${a}x${b}x${c}t${materialToken(t)}`);
 }
 
 function shrinkFold(n: number, t: number, layers = 1) {

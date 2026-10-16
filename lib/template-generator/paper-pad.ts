@@ -7,10 +7,11 @@ import {
   LEGEND_W,
   PAD,
   openPdfDoc,
+  templatePdfFileName,
 } from './style';
 
 export function paperPadPdfFileName(x: number, y: number) {
-  return `PaperPad${x}x${y}mm.pdf`;
+  return templatePdfFileName('PaperPad', `${x}x${y}`);
 }
 
 export function generatePaperPadPdf(

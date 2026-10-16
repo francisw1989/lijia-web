@@ -9,6 +9,7 @@ import {
   SAFE,
   strokeGuide,
   openPdfDoc,
+  templatePdfFileName,
 } from './style';
 
 function formatMm(n: number) {
@@ -23,7 +24,7 @@ export function roundedRectPerimeter(w: number, h: number, radius: number) {
 }
 
 export function tinBoxPdfFileName(a: number, b: number, c: number, r: number) {
-  return `TinBox_${a}x${b}x${c}r${r}mm.pdf`;
+  return templatePdfFileName('TinBox', `${a}x${b}x${c}r${r}`);
 }
 
 function marginRounded(

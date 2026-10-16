@@ -5,7 +5,7 @@ import {
   ink,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc } from './style';
+import { BLEED, HEADER, LEGEND_W, PAD, SAFE, WRAP, strokeGuide, openPdfDoc, templatePdfFileName } from './style';
 import {
   FOLD_PRESETS,
   foldLines,
@@ -135,7 +135,7 @@ function drawBack(
 }
 
 export function boardPdfFileName(x: number, y: number) {
-  return `GameBoard${x}x${y}mm.pdf`;
+  return templatePdfFileName('GameBoard', `${x}x${y}`);
 }
 
 export function generateGameBoardPdf(

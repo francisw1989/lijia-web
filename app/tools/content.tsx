@@ -14,6 +14,7 @@ import {
 } from '@/lib/tools-static';
 import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitToolsMessage } from '@/lib/submit-message';
+import { useCommunityFormPrefill } from '@/lib/use-community-form-prefill';
 
 export function ToolsContent({
   resources,
@@ -27,6 +28,8 @@ export function ToolsContent({
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const { name, setName, email, setEmail, resetToUser } =
+    useCommunityFormPrefill();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,6 +50,7 @@ export function ToolsContent({
     }
     setSent(true);
     form.reset();
+    resetToUser();
   };
 
   return (
@@ -130,7 +134,11 @@ export function ToolsContent({
                   type="text"
                   required
                   autoComplete="name"
-                  onInput={clearNativeValidity}
+                  value={name}
+                  onChange={(e) => {
+                    clearNativeValidity(e);
+                    setName(e.target.value);
+                  }}
                   onInvalid={englishNativeInvalid}
                 />
               </label>
@@ -141,7 +149,11 @@ export function ToolsContent({
                   type="email"
                   required
                   autoComplete="email"
-                  onInput={clearNativeValidity}
+                  value={email}
+                  onChange={(e) => {
+                    clearNativeValidity(e);
+                    setEmail(e.target.value);
+                  }}
                   onInvalid={englishNativeInvalid}
                 />
               </label>

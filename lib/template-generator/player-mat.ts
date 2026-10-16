@@ -6,6 +6,7 @@ import {
   LEGEND_W,
   PAD,
   openPdfDoc,
+  templatePdfFileName,
 } from './style';
 
 /** Paper Player Mats：内安全边 10mm，外出血 5mm */
@@ -13,7 +14,7 @@ export const PLAYER_MAT_SAFE = 10;
 export const PLAYER_MAT_BLEED = 5;
 
 export function playerMatPdfFileName(x: number, y: number, r: number) {
-  return `PlayerMat${x}x${y}r${r}mm.pdf`;
+  return templatePdfFileName('PlayerMat', `${x}x${y}r${r}`);
 }
 
 export function generatePlayerMatPdf(
