@@ -58,7 +58,7 @@ export default async function QualityGalleryPage({ params }: Props) {
         <CapabilitiesNav />
       </div>
 
-      <div className="container" style={{ paddingBottom: 64 }}>
+      <div className="container" style={{ paddingBottom: 64, paddingTop: 20 }}>
         <Link href="/capabilities/quality" className="about-news-more">
           &lt; back to Quality Control
         </Link>
