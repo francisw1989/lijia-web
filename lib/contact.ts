@@ -13,34 +13,29 @@ export type ContactLocation = {
 
 export const CONTACT_LOCATIONS: ContactLocation[] = [
   {
-    id: 'ningbo',
-    label: 'Ning Bo',
-    phones: ['0086-574-88255396', '0086-574-88255396'],
-    emails: ['info@lijiagames.com', 'tony@lijiagames.com'],
-    apps: [
-      { label: 'WeChat', value: 'chinastarningbo' },
-      { label: 'Skype', value: 'tonynb5518' },
-    ],
-    address: [
-      'A20-01, No.558, Middle Taikang Road,',
-      'Yinzhou District, 315100,',
-      'Ningbo, Zhejiang, China',
-    ],
-  },
-  {
     id: 'jiangsu',
-    label: 'Jiang Su',
-    phones: ['0086-523-87654321', '0086-523-87654322'],
-    emails: ['info@lijiagames.com', 'factory@lijiagames.com'],
+    label: 'Jiangsu Factory',
+    phones: [
+      '+86-574-89017853',
+      '+86-574-59017951',
+      '+86-574-88255396',
+    ],
+    emails: [
+      'info@lijiagames.com',
+      'tony@lijiagames.com',
+      'lily@lijiagames.com',
+    ],
     apps: [
-      { label: 'WeChat', value: 'lijiagames' },
-      { label: 'Skype', value: 'lijiafactory' },
+      { label: 'WeChat', value: 'tonychinastar' },
+      { label: 'WeChat', value: 'cnlilyzhang' },
+      { label: 'Skype', value: 'lijiagame' },
+      { label: 'Teams', value: 'lijiagame' },
     ],
     address: [
-      'Lijia Game Production Co., Ltd.,',
-      'Industrial Park,',
-      'Taixing, Jiangsu,',
-      'China 225400',
+      'Lijia Game Production Co., Ltd. (Factory)',
+      '#186, Jiangping Road,',
+      'Taixing, Jiangsu, 225451,',
+      'China',
     ],
   },
 ];

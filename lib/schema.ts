@@ -15,7 +15,7 @@ type SiteCopy = {
 };
 
 export function organizationSchema(copy: SiteCopy = {}) {
-  const ningbo = CONTACT_LOCATIONS[0];
+  const factory = CONTACT_LOCATIONS[0];
   const name = copy.name?.trim() || SITE_NAME;
   const description = copy.description?.trim() || SITE_DESCRIPTION;
   return {
@@ -25,14 +25,14 @@ export function organizationSchema(copy: SiteCopy = {}) {
     legalName: SITE_LEGAL_NAME,
     url: getSiteUrl(),
     description,
-    email: ningbo?.emails[0] || 'info@lijiagames.com',
-    telephone: ningbo?.phones[0],
+    email: factory?.emails[0] || 'info@lijiagames.com',
+    telephone: factory?.phones[0],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'A20-01, No.558, Middle Taikang Road, Yinzhou District',
-      addressLocality: 'Ningbo',
-      addressRegion: 'Zhejiang',
-      postalCode: '315100',
+      streetAddress: '#186, Jiangping Road',
+      addressLocality: 'Taixing',
+      addressRegion: 'Jiangsu',
+      postalCode: '225451',
       addressCountry: 'CN',
     },
     contactPoint: CONTACT_LOCATIONS.flatMap((loc) =>

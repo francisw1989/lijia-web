@@ -111,8 +111,8 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
                 <div>
                   <strong>APP</strong>
                   {location.apps.map((app) => (
-                    <p key={app.label} className="contact-info-line">
-                      {app.label}:{app.value}
+                    <p key={`${app.label}-${app.value}`} className="contact-info-line">
+                      {app.label}: {app.value}
                     </p>
                   ))}
                 </div>
