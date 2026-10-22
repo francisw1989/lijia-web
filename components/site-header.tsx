@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Logo } from './logo';
 import { AuthModal } from './auth-modal';
+import { SearchOverlay } from './search-overlay';
 import {
   clearCommunitySession,
   getCommunityUser,
@@ -42,6 +43,8 @@ export function SiteHeader() {
   const [communityOpen, setCommunityOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchKbd, setSearchKbd] = useState('⌘K');
   const [user, setUser] = useState<CommunityUser | null>(null);
 
   useEffect(() => {
@@ -53,7 +56,21 @@ export function SiteHeader() {
   useEffect(() => {
     setOpen(false);
     setCommunityOpen(false);
+    setSearchOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+    setSearchKbd(isMac ? '⌘K' : 'Ctrl+K');
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const openAuth = (mode: 'login' | 'register') => {
     setAuthMode(mode);
@@ -123,6 +140,19 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex-row-middle gap-20 header-actions">
+            <button
+              type="button"
+              className="header-search-btn"
+              aria-label="Search"
+              onClick={() => setSearchOpen(true)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <span className="header-search-label">Search</span>
+              <kbd className="header-search-kbd">{searchKbd}</kbd>
+            </button>
             {user ? (
               <div className="header-user">
                 <span className="header-username">{user.username}</span>
@@ -169,6 +199,7 @@ export function SiteHeader() {
         onClose={() => setAuthOpen(false)}
         onSuccess={() => setUser(getCommunityUser())}
       />
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }
