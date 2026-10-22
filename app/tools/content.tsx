@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { SuccessDialog } from '@/components/success-dialog';
 import { ToolsVideoSection } from '@/components/tools-video-section';
+import { InquiryCodeField } from '@/components/inquiry-code-field';
+import { TurnstileField } from '@/components/turnstile-field';
 import {
   SAMPLE_BOX,
   TOOLS_INTRO,
@@ -15,6 +17,7 @@ import {
 import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitToolsMessage } from '@/lib/submit-message';
 import { useCommunityFormPrefill } from '@/lib/use-community-form-prefill';
+import { useInquiryAuth } from '@/lib/use-inquiry-code';
 
 export function ToolsContent({
   resources,
@@ -28,13 +31,26 @@ export function ToolsContent({
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileReset, setTurnstileReset] = useState(0);
+  const [code, setCode] = useState('');
   const { name, setName, email, setEmail, resetToUser } =
     useCommunityFormPrefill();
+  const { isLoggedIn } = useInquiryAuth();
+  const needsTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
     setError('');
+    if (needsTurnstile && !turnstileToken) {
+      setError('Please complete the security check.');
+      return;
+    }
+    if (!isLoggedIn && code.trim().length !== 6) {
+      setError('Please enter the 6-digit verification code.');
+      return;
+    }
     setSubmitting(true);
     const form = e.currentTarget;
     const data = new FormData(form);
@@ -42,15 +58,26 @@ export function ToolsContent({
       name: String(data.get('name') || ''),
       email: String(data.get('email') || ''),
       message: String(data.get('message') || ''),
+      turnstileToken,
+      ...(isLoggedIn ? {} : { code: code.trim() }),
     });
     setSubmitting(false);
+    setCode('');
     if (!result.ok) {
+      setTurnstileToken('');
+      setTurnstileReset((n) => n + 1);
       setError(result.message);
       return;
     }
+    setTurnstileToken('');
     setSent(true);
     form.reset();
     resetToUser();
+  };
+
+  const onSuccessClose = () => {
+    setSent(false);
+    setTurnstileReset((n) => n + 1);
   };
 
   return (
@@ -157,10 +184,25 @@ export function ToolsContent({
                   onInvalid={englishNativeInvalid}
                 />
               </label>
+              {!isLoggedIn ? (
+                <InquiryCodeField
+                  className="tools-cta-field tools-cta-code"
+                  email={email}
+                  code={code}
+                  onCodeChange={setCode}
+                />
+              ) : null}
               <label className="tools-cta-field tools-cta-message">
                 <span>Your Message</span>
                 <textarea name="message" rows={3} />
               </label>
+              {!sent ? (
+                <TurnstileField
+                  className="turnstile-field tools-cta-turnstile"
+                  onToken={setTurnstileToken}
+                  resetSignal={turnstileReset}
+                />
+              ) : null}
             </div>
             <button
               type="submit"
@@ -173,7 +215,7 @@ export function ToolsContent({
           </form>
         </div>
       </section>
-      <SuccessDialog open={sent} onClose={() => setSent(false)} />
+      <SuccessDialog open={sent} onClose={onSuccessClose} />
     </>
   );
 }

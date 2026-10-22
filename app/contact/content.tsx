@@ -5,10 +5,13 @@ import { FormEvent, useState } from 'react';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { SuccessDialog } from '@/components/success-dialog';
+import { InquiryCodeField } from '@/components/inquiry-code-field';
+import { TurnstileField } from '@/components/turnstile-field';
 import { CONTACT_JIANGSU } from '@/lib/contact';
 import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitContactMessage } from '@/lib/submit-message';
 import { useCommunityFormPrefill } from '@/lib/use-community-form-prefill';
+import { useInquiryAuth } from '@/lib/use-inquiry-code';
 
 const INFO_ICONS = {
   phone: '/images/15.png',
@@ -30,13 +33,26 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileReset, setTurnstileReset] = useState(0);
+  const [code, setCode] = useState('');
   const { name, setName, email, setEmail, resetToUser } =
     useCommunityFormPrefill();
+  const { isLoggedIn } = useInquiryAuth();
+  const needsTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
     setError('');
+    if (needsTurnstile && !turnstileToken) {
+      setError('Please complete the security check.');
+      return;
+    }
+    if (!isLoggedIn && code.trim().length !== 6) {
+      setError('Please enter the 6-digit verification code.');
+      return;
+    }
     setSubmitting(true);
     const form = e.currentTarget;
     const data = new FormData(form);
@@ -48,15 +64,27 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
       company: String(data.get('company') || ''),
       subject: String(data.get('subject') || ''),
       message: String(data.get('message') || ''),
+      turnstileToken,
+      ...(isLoggedIn ? {} : { code: code.trim() }),
     });
     setSubmitting(false);
+    setCode('');
     if (!result.ok) {
+      // token 已消耗，失败后立刻换新的；成功则等关闭弹窗再重置，避免马上又转圈
+      setTurnstileToken('');
+      setTurnstileReset((n) => n + 1);
       setError(result.message);
       return;
     }
+    setTurnstileToken('');
     setSent(true);
     form.reset();
     resetToUser();
+  };
+
+  const onSuccessClose = () => {
+    setSent(false);
+    setTurnstileReset((n) => n + 1);
   };
 
   return (
@@ -167,6 +195,14 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
                       onInvalid={englishNativeInvalid}
                     />
                   </label>
+                  {!isLoggedIn ? (
+                    <InquiryCodeField
+                      className="contact-field contact-field-span"
+                      email={email}
+                      code={code}
+                      onCodeChange={setCode}
+                    />
+                  ) : null}
                   <label className="contact-field">
                     <span>Country/Region</span>
                     <input
@@ -202,6 +238,12 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
                   <span>Message (Optional)</span>
                   <textarea name="message" rows={5} />
                 </label>
+                {!sent ? (
+                  <TurnstileField
+                    onToken={setTurnstileToken}
+                    resetSignal={turnstileReset}
+                  />
+                ) : null}
                 <button
                   type="submit"
                   className="btn btn-primary contact-submit"
@@ -214,7 +256,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
             </div>
           </div>
         </div>
-        <SuccessDialog open={sent} onClose={() => setSent(false)} />
+        <SuccessDialog open={sent} onClose={onSuccessClose} />
       </section>
     </>
   );

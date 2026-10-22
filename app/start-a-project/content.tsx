@@ -3,22 +3,38 @@
 import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { SuccessDialog } from '@/components/success-dialog';
+import { InquiryCodeField } from '@/components/inquiry-code-field';
+import { TurnstileField } from '@/components/turnstile-field';
 import { PROJECT_SERVICE_LINKS } from '@/lib/project';
 import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 import { submitProjectMessage } from '@/lib/submit-message';
 import { useCommunityFormPrefill } from '@/lib/use-community-form-prefill';
+import { useInquiryAuth } from '@/lib/use-inquiry-code';
 
 export function ProjectContent() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileReset, setTurnstileReset] = useState(0);
+  const [code, setCode] = useState('');
   const { name, setName, email, setEmail, resetToUser } =
     useCommunityFormPrefill();
+  const { isLoggedIn } = useInquiryAuth();
+  const needsTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
     setError('');
+    if (needsTurnstile && !turnstileToken) {
+      setError('Please complete the security check.');
+      return;
+    }
+    if (!isLoggedIn && code.trim().length !== 6) {
+      setError('Please enter the 6-digit verification code.');
+      return;
+    }
     setSubmitting(true);
     const form = e.currentTarget;
     const data = new FormData(form);
@@ -30,15 +46,26 @@ export function ProjectContent() {
       projectName: String(data.get('projectName') || ''),
       components: String(data.get('components') || ''),
       notes: String(data.get('notes') || ''),
+      turnstileToken,
+      ...(isLoggedIn ? {} : { code: code.trim() }),
     });
     setSubmitting(false);
+    setCode('');
     if (!result.ok) {
+      setTurnstileToken('');
+      setTurnstileReset((n) => n + 1);
       setError(result.message);
       return;
     }
+    setTurnstileToken('');
     setSent(true);
     form.reset();
     resetToUser();
+  };
+
+  const onSuccessClose = () => {
+    setSent(false);
+    setTurnstileReset((n) => n + 1);
   };
 
   return (
@@ -105,6 +132,15 @@ export function ProjectContent() {
             </label>
           </div>
 
+          {!isLoggedIn ? (
+            <InquiryCodeField
+              className="project-field project-field-full"
+              email={email}
+              code={code}
+              onCodeChange={setCode}
+            />
+          ) : null}
+
           <label className="project-field project-field-full">
             <span>Component List</span>
             <textarea name="components" rows={5} />
@@ -114,6 +150,13 @@ export function ProjectContent() {
             <span>Notes</span>
             <textarea name="notes" rows={5} />
           </label>
+
+          {!sent ? (
+            <TurnstileField
+              onToken={setTurnstileToken}
+              resetSignal={turnstileReset}
+            />
+          ) : null}
 
           <button
             type="submit"
@@ -125,7 +168,7 @@ export function ProjectContent() {
           {error ? <p className="project-form-error">{error}</p> : null}
         </form>
       </div>
-      <SuccessDialog open={sent} onClose={() => setSent(false)} />
+      <SuccessDialog open={sent} onClose={onSuccessClose} />
     </section>
   );
 }

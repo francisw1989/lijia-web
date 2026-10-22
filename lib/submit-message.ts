@@ -1,3 +1,5 @@
+import { getCommunityToken } from '@/lib/community-auth';
+
 type SubmitResult =
   | { ok: true }
   | { ok: false; message: string };
@@ -7,9 +9,15 @@ async function postMessage(
   body: Record<string, string>,
 ): Promise<SubmitResult> {
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    const token = getCommunityToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+
     const res = await fetch(path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(body),
     });
     const data = (await res.json().catch(() => ({}))) as { message?: string };
