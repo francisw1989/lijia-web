@@ -141,17 +141,17 @@ export function SearchOverlay({ open, onClose }: Props) {
                     const index = flatIndex;
                     return (
                       <li key={`${item.type}-${item.href}-${item.id ?? item.title}`}>
-                        <button
-                          type="button"
+                        <Link
+                          href={item.href}
                           className={`search-overlay-item${index === active ? ' is-active' : ''}`}
                           onMouseEnter={() => setActive(index)}
-                          onClick={() => goResult(item)}
+                          onClick={onClose}
                         >
                           <span className="search-overlay-item-title">{item.title}</span>
                           {item.snippet ? (
                             <span className="search-overlay-item-snippet">{item.snippet}</span>
                           ) : null}
-                        </button>
+                        </Link>
                       </li>
                     );
                   })}

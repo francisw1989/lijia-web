@@ -1099,7 +1099,7 @@ input {
   gap: 8px;
   padding: 7px 12px;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease;
@@ -1109,7 +1109,7 @@ input {
   color: var(--navy);
 }
 .header-search-kbd {
-  font-size: 11px;
+  font-size: 12px;
   font-family: inherit;
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -1142,7 +1142,7 @@ input {
   outline: none;
   padding: 18px 64px 18px 20px;
   font: inherit;
-  font-size: 17px;
+  font-size: 18px;
   color: #222;
   background: transparent;
 }
@@ -1151,7 +1151,7 @@ input {
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 11px;
+  font-size: 12px;
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 2px 6px;
@@ -1166,11 +1166,11 @@ input {
   margin: 0;
   padding: 18px 20px;
   color: rgba(51, 51, 51, 0.55);
-  font-size: 14px;
+  font-size: 15px;
 }
 .search-overlay-group-title {
   margin: 8px 20px 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1183,6 +1183,8 @@ input {
 }
 .search-overlay-item {
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   appearance: none;
   border: 0;
   background: transparent;
@@ -1193,29 +1195,36 @@ input {
   flex-direction: column;
   gap: 2px;
   font: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 .search-overlay-item:hover,
 .search-overlay-item.is-active {
   background: rgba(0, 51, 95, 0.06);
 }
 .search-overlay-item-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--navy);
+  word-break: break-word;
 }
 .search-overlay-item-snippet {
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(51, 51, 51, 0.6);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .search-overlay-footer {
   border-top: 1px solid var(--line);
   padding: 10px 20px;
 }
 .search-overlay-all {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--navy);
   text-decoration: underline;
@@ -1225,7 +1234,7 @@ input {
 }
 .search-page-title {
   margin: 0 0 20px;
-  font-size: 36px;
+  font-size: 37px;
   color: var(--navy);
 }
 .search-page-form {
@@ -1251,7 +1260,7 @@ input {
 }
 .search-page-group-title {
   margin: 0 0 10px;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(51, 51, 51, 0.5);
@@ -1278,16 +1287,19 @@ input {
   box-shadow: 0 8px 24px rgba(0, 51, 95, 0.08);
 }
 .search-page-item-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 650;
   color: var(--navy);
 }
 .search-page-item-snippet {
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(51, 51, 51, 0.7);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .search-page-item-href {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(51, 51, 51, 0.4);
 }
 .menu-btn {

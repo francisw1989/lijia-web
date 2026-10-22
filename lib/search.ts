@@ -97,7 +97,8 @@ function resolveCategoryHref(hit: CmsSearchHit): string {
   if (/event/.test(root)) return '/events';
   if (/team/.test(root)) return '/about/team';
   if (/facilit/.test(root)) return '/about/facilities';
-  if (/capabilit/.test(root)) {
+  // root 可能是 "Scope of capabilities" / "Capabilities"
+  if (/capabilit/.test(root) || /scope\s*of\s*capabilit/.test(root)) {
     if (hit.parent_id == null) return '/capabilities/scope';
     return `/capabilities/scope#${hit.id}`;
   }
@@ -187,28 +188,24 @@ export async function searchSite(
   const limit = Math.min(50, Math.max(1, options?.limit ?? 20));
   if (!q) return { query: '', results: [] };
 
-  const staticHits = matchStaticPages(q, limit);
-
-  let cmsHits: SearchResult[] = [];
+  // /api/search 已完成映射 + 静态页兜底，勿再次 mapCmsHit（会丢掉 root/parent 导致 href 变成 /）
   try {
     const res = await fetch(
       `/api/search?q=${encodeURIComponent(q)}&limit=${limit}`,
       { cache: 'no-store' },
     );
     if (res.ok) {
-      const data = (await res.json()) as { results?: CmsSearchHit[] };
-      cmsHits = (data.results || [])
-        .map(mapCmsHit)
-        .filter(Boolean) as SearchResult[];
+      const data = (await res.json()) as SearchResponse;
+      return {
+        query: data.query || q,
+        results: Array.isArray(data.results) ? data.results.slice(0, limit) : [],
+      };
     }
   } catch {
-    /* CMS 不可用时仍返回静态页匹配 */
+    /* fall through */
   }
 
-  return {
-    query: q,
-    results: mergeResults(staticHits, cmsHits, limit),
-  };
+  return { query: q, results: matchStaticPages(q, limit) };
 }
 
 /** 服务端（RSC / route）直连 CMS */
