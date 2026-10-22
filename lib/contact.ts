@@ -15,27 +15,16 @@ export const CONTACT_LOCATIONS: ContactLocation[] = [
   {
     id: 'jiangsu',
     label: 'Jiangsu Factory',
-    phones: [
-      '+86-574-89017853',
-      '+86-574-59017951',
-      '+86-574-88255396',
-    ],
-    emails: [
-      'info@lijiagames.com',
-      'tony@lijiagames.com',
-      'lily@lijiagames.com',
-    ],
+    phones: ['+86-574-88255396'],
+    emails: ['info@lijiagames.com'],
     apps: [
       { label: 'WeChat', value: 'tonychinastar' },
       { label: 'WeChat', value: 'cnlilyzhang' },
-      { label: 'Skype', value: 'lijiagame' },
-      { label: 'Teams', value: 'lijiagame' },
+      { label: 'WhatsApp', value: '+8613867892160' },
     ],
     address: [
-      'Lijia Game Production Co., Ltd. (Factory)',
-      '#186, Jiangping Road,',
-      'Taixing, Jiangsu, 225451,',
-      'China',
+      'Office Add: A20-01, No. 558, Middle Taikang Road, Yinzhou District, 315000 Ningbo, Zhejiang, China',
+      'Factory Add: #186, Jiangping Road, Zhangqiao Town, Taixing City, Jiangsu 225451, China',
     ],
   },
 ];

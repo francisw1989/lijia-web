@@ -137,7 +137,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
                   <Image src={INFO_ICONS.app} alt="" width={28} height={28} />
                 </span>
                 <div>
-                  <strong>APP</strong>
+                  <strong>IM</strong>
                   {location.apps.map((app) => (
                     <p key={`${app.label}-${app.value}`} className="contact-info-line">
                       {app.label}: {app.value}

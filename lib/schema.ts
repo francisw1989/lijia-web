@@ -29,7 +29,7 @@ export function organizationSchema(copy: SiteCopy = {}) {
     telephone: factory?.phones[0],
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '#186, Jiangping Road',
+      streetAddress: '#186, Jiangping Road, Zhangqiao Town',
       addressLocality: 'Taixing',
       addressRegion: 'Jiangsu',
       postalCode: '225451',
