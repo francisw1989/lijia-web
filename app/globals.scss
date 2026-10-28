@@ -800,6 +800,67 @@ input {
   overflow: hidden;
 }
 
+/* 折叠富文本：默认展示指定高度，超出部分渐变隐藏 */
+.collapsible-inner {
+  position: relative;
+  display: flow-root;
+}
+.collapsible.is-collapsed .collapsible-inner {
+  max-height: var(--collapsible-max-h, 500px);
+  overflow: hidden;
+}
+.collapsible-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 160px;
+  padding-bottom: 4px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.88) 48%,
+    var(--bg) 100%
+  );
+}
+/* 「View All」压在渐变上，仍需可点击 */
+.collapsible-fade .collapsible-toggle {
+  pointer-events: auto;
+}
+.collapsible-actions {
+  display: flex;
+  justify-content: center;
+}
+.collapsible-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--navy);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.collapsible-toggle:hover {
+  color: var(--navy-deep);
+}
+.collapsible-toggle svg {
+  flex: none;
+  transition: transform 0.25s ease;
+}
+.collapsible-toggle svg.is-up {
+  transform: rotate(180deg);
+}
+
 /* 按钮 */
 .btn {
   display: inline-flex;
@@ -1742,6 +1803,14 @@ input {
   display: grid;
   gap: 10px;
 }
+/* 仅桌面端吸顶（手机端为单列布局，菜单在正文上方，不做吸顶） */
+@media (min-width: 801px) {
+  .about-tabs {
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+    align-self: start;
+  }
+}
 .about-tabs .about-tab {
   width: 100%;
   justify-content: flex-start;
@@ -1771,6 +1840,36 @@ input {
 }
 .page-tabs-wrap .page-tabs {
   margin-bottom: 0;
+}
+
+/* 分段式 Tab（Capabilities 顶部）：灰底容器 + 选中项白色浮起卡片 */
+.page-tabs--segment {
+  gap: 4px;
+  padding: 3px;
+  border-radius: 16px;
+  background: #eef1f6;
+}
+.page-tabs--segment .about-tab {
+  background: transparent;
+  color: #6b7280;
+  border-radius: 10px;
+  width: 212px;
+  height: 56px;
+  font-size: 16px;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.page-tabs--segment .about-tab:hover {
+  background: transparent;
+  color: #374151;
+}
+.page-tabs--segment .about-tab.is-active {
+  background: var(--white);
+  color: var(--navy);
+  box-shadow: 0 2px 8px rgba(15, 42, 79, 0.14);
+}
+.page-tabs--segment .about-tab.is-active:hover {
+  background: var(--white);
+  color: var(--navy);
 }
 
 .about-shell-team {

@@ -5,7 +5,7 @@ export default function ScopeLoading() {
       <section className="about-hero container cap-scope-skeleton-hero" aria-hidden />
       <section className="cap-shell">
         <div className="container">
-          <div className="page-tabs cap-scope-skeleton-tabs" aria-hidden>
+          <div className="page-tabs page-tabs--segment cap-scope-skeleton-tabs" aria-hidden>
             <span className="about-tab is-active">Scope of capabilities</span>
             <span className="about-tab">Quality Control</span>
           </div>

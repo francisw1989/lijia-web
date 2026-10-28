@@ -8,7 +8,7 @@ export function CapabilitiesNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="page-tabs" aria-label="Capabilities sections">
+    <nav className="page-tabs page-tabs--segment" aria-label="Capabilities sections">
       {CAPABILITIES_NAV.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (

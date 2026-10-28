@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { AboutShell } from '@/components/about-shell';
+import { CollapsibleBody } from '@/components/collapsible-body';
 import { GalleryTile, imageTitle } from '@/components/gallery-img-hover';
 import { MarqueeTrack } from '@/components/marquee-track';
 import { hasRichContent } from '@/lib/capabilities';
@@ -117,10 +118,10 @@ export function FacilitiesContent({
               </div>
             ) : null}
             {hasRichContent(body) ? (
-              <div
-                className="cap-tag-page-body"
-                suppressHydrationWarning
-                dangerouslySetInnerHTML={{ __html: body }}
+              <CollapsibleBody
+                html={body}
+                maxHeight={500}
+                bodyClassName="cap-tag-page-body"
               />
             ) : null}
           </article>
