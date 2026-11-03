@@ -13,6 +13,7 @@ import {
   subscribeAuth,
   type CommunityUser,
 } from '@/lib/community-auth';
+import { articleHref } from '@/lib/articles';
 import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 
 export function ForumCompose() {
@@ -67,7 +68,12 @@ export function ForumCompose() {
         router.refresh();
         return;
       }
-      router.push(`/forum/${post.id}`);
+      router.push(
+        articleHref('Forum', {
+          id: post.id,
+          title: title.trim() || String(post.title || post.id),
+        }),
+      );
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to post');

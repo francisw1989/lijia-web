@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
 import { ArticleDetail } from '@/components/article-detail';
-import { getAboutSection, getNewsPageData } from '@/lib/about';
+import {
+  getAboutSection,
+  getEventByParam,
+  getEventParams,
+} from '@/lib/about';
 import { getProduct } from '@/lib/cms';
 
 type Props = {
@@ -12,17 +16,14 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  try {
-    const { articles } = await getNewsPageData();
-    return articles.map((item) => ({ id: String(item.id) }));
-  } catch {
-    return [];
-  }
+  return getEventParams();
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const article = await getProduct(Number(id));
+  const resolved = await getEventByParam(id);
+  if (!resolved) return pageMetadata({ title: 'Article not found' });
+  const article = await getProduct(resolved.productId);
   if (!article) return pageMetadata({ title: 'Article not found' });
   return pageMetadata({
     title: article.title,
@@ -42,9 +43,13 @@ function formatDate(value: string) {
 
 export default async function EventDetailPage({ params }: Props) {
   const { id } = await params;
+  const resolved = await getEventByParam(id);
+  if (!resolved) notFound();
+  if (id !== resolved.slug) permanentRedirect(`/events/${resolved.slug}`);
+
   const [{ banner }, article] = await Promise.all([
     getAboutSection('news'),
-    getProduct(Number(id)),
+    getProduct(resolved.productId),
   ]);
 
   if (!article) notFound();

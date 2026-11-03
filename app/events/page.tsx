@@ -3,7 +3,12 @@ import { pageMetadata } from '@/lib/site-title';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AboutBanner } from '@/components/about-banner';
-import { getAboutSection, getNewsPageData, type NewsItem } from '@/lib/about';
+import {
+  eventHref,
+  getAboutSection,
+  getNewsPageData,
+  type NewsItem,
+} from '@/lib/about';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,12 +30,8 @@ function formatDate(value: string) {
   });
 }
 
-function eventHref(id: number) {
-  return `/events/${id}`;
-}
-
 function EventCard({ item }: { item: NewsItem }) {
-  const href = eventHref(item.id);
+  const href = eventHref(item);
   return (
     <article className="about-news-card">
       {item.cover ? (
@@ -64,7 +65,7 @@ function EventCard({ item }: { item: NewsItem }) {
 }
 
 function EventRow({ item }: { item: NewsItem }) {
-  const href = eventHref(item.id);
+  const href = eventHref(item);
   return (
     <article className="about-news-row">
       {item.cover ? (

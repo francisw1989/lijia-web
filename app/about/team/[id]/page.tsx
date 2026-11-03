@@ -2,14 +2,14 @@ import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
 import { AboutShell } from '@/components/about-shell';
 import { TeamBadge } from '@/components/team-badge';
 import {
   getAboutSection,
-  getTeamMember,
-  getTeamMembers,
+  getTeamMemberByParam,
+  getTeamMemberParams,
 } from '@/lib/about';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 
@@ -18,33 +18,31 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  try {
-    const members = await getTeamMembers();
-    return members.map((item) => ({ id: String(item.id) }));
-  } catch {
-    return [];
-  }
+  return getTeamMemberParams();
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const member = await getTeamMember(Number(id));
-  if (!member) return pageMetadata({ title: 'Team member not found' });
+  const data = await getTeamMemberByParam(id);
+  if (!data) return pageMetadata({ title: 'Team member not found' });
   return pageMetadata({
-    title: member.name,
-    description: member.description || undefined,
-    keywords: member.keywords || undefined,
+    title: data.member.name,
+    description: data.member.description || undefined,
+    keywords: data.member.keywords || undefined,
   });
 }
 
 export default async function TeamMemberDetailPage({ params }: Props) {
   const { id } = await params;
-  const [{ banner, meta }, member] = await Promise.all([
+  const [{ banner, meta }, data] = await Promise.all([
     getAboutSection('team'),
-    getTeamMember(Number(id)),
+    getTeamMemberByParam(id),
   ]);
 
-  if (!member) notFound();
+  if (!data) notFound();
+  if (id !== data.slug) permanentRedirect(`/about/team/${data.slug}`);
+
+  const { member } = data;
 
   return (
     <>

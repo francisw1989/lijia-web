@@ -10,6 +10,7 @@ import {
   type ProductListItem,
 } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
+import { contentSlug, resolveContentParam } from '@/lib/slug';
 
 export const CAPABILITIES_NAV = [
   { href: '/capabilities/scope', label: 'Scope of capabilities' },
@@ -569,7 +570,7 @@ export type QualityAlbum = {
   images: QualityGalleryImage[];
 };
 
-/** Quality Control：CMS 图集（含 id，供 View More 全览页） */
+/** Quality Control：CMS 图集（路径段为名称 slug） */
 export const getQualityAlbum = cache(async (): Promise<QualityAlbum | null> => {
   try {
     const albums = await getAlbums([QUALITY_ROOT_NAME]);
@@ -580,7 +581,7 @@ export const getQualityAlbum = cache(async (): Promise<QualityAlbum | null> => {
     if (!album?.images?.length) return null;
 
     return {
-      id: String(album.id),
+      id: contentSlug(album.name, album.id),
       label: album.name,
       images: album.images.map((img) => ({
         src: img.url,
@@ -602,9 +603,26 @@ export const getQualityGallery = cache(async (): Promise<QualityGalleryImage[]> 
 export async function getQualityAlbumById(
   id: string,
 ): Promise<QualityAlbum | null> {
-  const album = await getQualityAlbum();
-  if (!album || album.id !== String(id)) return null;
-  return album;
+  try {
+    const albums = await getAlbums([QUALITY_ROOT_NAME]);
+    const candidates = albums
+      .filter((item) => item.images?.length)
+      .map((item) => ({ id: item.id, title: item.name }));
+    const resolved = resolveContentParam(candidates, id);
+    if (!resolved) return null;
+    const raw = albums.find((item) => item.id === resolved.id);
+    if (!raw?.images?.length) return null;
+    return {
+      id: resolved.slug,
+      label: raw.name,
+      images: raw.images.map((img) => ({
+        src: img.url,
+        alt: img.alt || raw.name,
+      })),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function getQualityAlbumParams(): Promise<{ id: string }[]> {

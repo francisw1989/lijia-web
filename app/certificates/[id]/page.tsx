@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { pageMetadata } from '@/lib/site-title';
 import { RevealInit } from '@/components/reveal-init';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
@@ -9,8 +9,8 @@ import { HeroMedia } from '@/components/hero-media';
 import { ArticleDetail } from '@/components/article-detail';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import {
-  getCertificateArticle,
   getCertificateArticleParams,
+  getCertificateByParam,
   getCertificatesPageData,
 } from '@/lib/certificates';
 
@@ -26,23 +26,26 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const article = await getCertificateArticle(Number(id));
-  if (!article) return pageMetadata({ title: 'Not found' });
+  const data = await getCertificateByParam(id);
+  if (!data) return pageMetadata({ title: 'Not found' });
   return pageMetadata({
-    title: article.title,
-    description: article.description || undefined,
-    keywords: article.keywords || undefined,
+    title: data.article.title,
+    description: data.article.description || undefined,
+    keywords: data.article.keywords || undefined,
   });
 }
 
 export default async function CertificateArticlePage({ params }: Props) {
   const { id } = await params;
-  const [{ meta, banner }, article] = await Promise.all([
+  const [{ meta, banner }, data] = await Promise.all([
     getCertificatesPageData(),
-    getCertificateArticle(Number(id)),
+    getCertificateByParam(id),
   ]);
 
-  if (!article) notFound();
+  if (!data) notFound();
+  if (id !== data.slug) permanentRedirect(`/certificates/${data.slug}`);
+
+  const { article } = data;
 
   return (
     <main className="bg-white min-h-page">

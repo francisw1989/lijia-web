@@ -9,6 +9,12 @@ import {
   type ProductTag,
 } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
+import {
+  contentSlug,
+  contentSlugMap,
+  resolveContentParam,
+  slugFromMap,
+} from '@/lib/slug';
 import type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
 
 export type { ToolsResourceCard, ToolsVideoItem } from '@/lib/tools-static';
@@ -456,12 +462,34 @@ export const getToolsVideoDetail = cache(
   },
 );
 
+export function toolsVideoHref(video: { id: number; title: string }) {
+  return `/tools/videos/${contentSlug(video.title, video.id)}`;
+}
+
 export async function getToolsVideoParams(): Promise<{ id: string }[]> {
   try {
     const { videos } = await getToolsVideos();
-    return videos.map((item) => ({ id: String(item.id) }));
+    const map = contentSlugMap(videos);
+    return videos.map((item) => ({
+      id: slugFromMap(map, item.id, item.title),
+    }));
   } catch {
     return [];
+  }
+}
+
+export async function getToolsVideoByParam(
+  param: string,
+): Promise<{ video: ToolsVideoDetail; slug: string } | null> {
+  try {
+    const { videos } = await getToolsVideos();
+    const resolved = resolveContentParam(videos, param);
+    if (!resolved) return null;
+    const video = await getToolsVideoDetail(resolved.id);
+    if (!video) return null;
+    return { video, slug: resolved.slug };
+  } catch {
+    return null;
   }
 }
 

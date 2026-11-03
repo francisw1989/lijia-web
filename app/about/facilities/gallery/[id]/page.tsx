@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import { AboutShell } from '@/components/about-shell';
 import {
@@ -37,6 +37,7 @@ export default async function FacilitiesGalleryPage({ params }: Props) {
   ]);
 
   if (!album) notFound();
+  if (id !== album.id) permanentRedirect(`/about/facilities/gallery/${album.id}`);
 
   return (
     <>

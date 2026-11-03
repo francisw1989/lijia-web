@@ -102,7 +102,9 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
         {items.map((item, index) => {
           const href =
             item.href ||
-            (item.id > 0 ? `/events/${item.id}` : '/events');
+            (item.id > 0
+              ? `/events/${(item as { slug?: string }).slug || item.id}`
+              : '/events');
           const cover = item.cover || FALLBACKS[index % FALLBACKS.length];
           const title = item.title?.trim() || '';
           const category =

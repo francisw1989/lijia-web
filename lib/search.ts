@@ -1,10 +1,13 @@
+import { facilitiesArticleHref, eventHref, teamMemberHref } from '@/lib/about';
+import { articleHref } from '@/lib/articles';
 import { scopeTagHref } from '@/lib/capabilities';
-import { SITE_MAP_SECTIONS } from '@/lib/site-map';
 import {
   isMahjongCategory,
   manufacturingCategoryHref,
   manufacturingProductHref,
 } from '@/lib/manufacturing';
+import { SITE_MAP_SECTIONS } from '@/lib/site-map';
+import { contentSlug } from '@/lib/slug';
 
 export type SearchResultType = 'page' | 'product' | 'article' | 'faq' | 'category';
 
@@ -71,10 +74,18 @@ function resolveProductHref(hit: CmsSearchHit): string {
     }
     return manufacturingProductHref(hit.section_slug || section, product);
   }
-  if (/certificate/.test(root)) return `/certificates/${hit.id}`;
-  if (/event/.test(root)) return `/events/${hit.id}`;
-  if (/team/.test(root)) return `/about/team/${hit.id}`;
-  if (/facilit/.test(root)) return `/about/facilities/${hit.id}`;
+  if (/certificate/.test(root)) {
+    return `/certificates/${contentSlug(hit.title, hit.id)}`;
+  }
+  if (/event/.test(root)) {
+    return eventHref({ id: hit.id, title: hit.title });
+  }
+  if (/team/.test(root)) {
+    return teamMemberHref({ id: hit.id, name: hit.title });
+  }
+  if (/facilit/.test(root)) {
+    return facilitiesArticleHref({ id: hit.id, title: hit.title });
+  }
   if (/capabilit/.test(root)) {
     return scopeTagHref(
       {
@@ -84,6 +95,9 @@ function resolveProductHref(hit: CmsSearchHit): string {
       },
       { id: hit.id, title: hit.title },
     );
+  }
+  if (/tools/.test(root) && /video|discover/i.test(hit.category_name || hit.section_name || '')) {
+    return `/tools/videos/${contentSlug(hit.title, hit.id)}`;
   }
   if (/tools/.test(root)) return '/tools';
   return `/manufacturing`;
@@ -114,7 +128,10 @@ function resolveCategoryHref(hit: CmsSearchHit): string {
 
 function resolveArticleHref(hit: CmsSearchHit): string {
   const isForum = /forum/i.test(hit.category_name || hit.group || '');
-  return isForum ? `/forum/${hit.id}` : `/blog/${hit.id}`;
+  return articleHref(isForum ? 'Forum' : 'Blog', {
+    id: hit.id,
+    title: hit.title,
+  });
 }
 
 function mapCmsHit(hit: CmsSearchHit): SearchResult | null {

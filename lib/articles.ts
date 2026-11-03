@@ -1,5 +1,11 @@
 import { cache } from 'react';
 import { cmsFetch } from '@/lib/cms';
+import {
+  contentSlug,
+  contentSlugMap,
+  resolveContentParam,
+  slugFromMap,
+} from '@/lib/slug';
 
 export const COMMUNITY_PAGE_SIZE = 10;
 
@@ -140,24 +146,75 @@ export async function getCommunityPageParams(
   }
 }
 
+async function listAllArticles(
+  category: 'Blog' | 'Forum',
+): Promise<ArticleListItem[]> {
+  const items: ArticleListItem[] = [];
+  let page = 1;
+  let pageCount = 1;
+  const pageSize = 100;
+  do {
+    const res = await getArticles(category, { page, pageSize });
+    items.push(...res.list);
+    pageCount = pageCountFromTotal(res.total, pageSize);
+    page += 1;
+  } while (page <= pageCount);
+  return items;
+}
+
+export function articleHref(
+  category: 'Blog' | 'Forum',
+  article: { id: number; title: string },
+  slugMap?: Map<number, string>,
+) {
+  const base = category === 'Forum' ? '/forum' : '/blog';
+  const slug = slugMap
+    ? slugFromMap(slugMap, article.id, article.title)
+    : contentSlug(article.title, article.id);
+  return `${base}/${slug}`;
+}
+
+/** 静态参数：路径段为标题 slug（兼容旧数字由页面 permanentRedirect） */
 export async function getAllArticleIds(
   category: 'Blog' | 'Forum',
 ): Promise<{ id: string }[]> {
   try {
-    const ids: string[] = [];
-    let page = 1;
-    let pageCount = 1;
-    const pageSize = 100;
-    do {
-      const res = await getArticles(category, { page, pageSize });
-      ids.push(...res.list.map((item) => String(item.id)));
-      pageCount = pageCountFromTotal(res.total, pageSize);
-      page += 1;
-    } while (page <= pageCount);
-    return ids.map((id) => ({ id }));
+    const list = await listAllArticles(category);
+    const map = contentSlugMap(list);
+    return list.map((item) => ({
+      id: slugFromMap(map, item.id, item.title),
+    }));
   } catch {
     return [];
   }
+}
+
+export async function getArticleByParam(
+  category: 'Blog' | 'Forum',
+  param: string,
+): Promise<{ article: Article; slug: string } | null> {
+  try {
+    const list = await listAllArticles(category);
+    const resolved = resolveContentParam(list, param);
+    if (!resolved) return null;
+    const article = await getArticle(resolved.id);
+    if (!article || article.category_name !== category) return null;
+    return { article, slug: resolved.slug };
+  } catch {
+    return null;
+  }
+}
+
+/** Blog / Forum 详情路径，供 sitemap */
+export async function getCommunityArticlePaths(): Promise<string[]> {
+  const [blog, forum] = await Promise.all([
+    getAllArticleIds('Blog'),
+    getAllArticleIds('Forum'),
+  ]);
+  return [
+    ...blog.map((item) => `/blog/${item.id}`),
+    ...forum.map((item) => `/forum/${item.id}`),
+  ];
 }
 
 /** Blog / Forum 第 2 页起的列表路径，供 sitemap 与 llms.txt 使用 */

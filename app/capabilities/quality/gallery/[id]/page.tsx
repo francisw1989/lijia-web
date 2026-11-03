@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { pageMetadata } from '@/lib/site-title';
 import { CapabilitiesNav } from '@/components/capabilities-nav';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
@@ -38,6 +38,9 @@ export default async function QualityGalleryPage({ params }: Props) {
   ]);
 
   if (!album) notFound();
+  if (id !== album.id) {
+    permanentRedirect(`/capabilities/quality/gallery/${album.id}`);
+  }
 
   return (
     <>

@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { ArticleEngagement } from '@/components/article-engagement';
 import { CommunityStatsWithLike } from '@/components/community-stats-like';
 import { ForumRecommend } from '@/components/forum-recommend';
-import { getAllArticleIds, getArticle, getForumPageData } from '@/lib/articles';
+import {
+  getAllArticleIds,
+  getArticleByParam,
+  getForumPageData,
+} from '@/lib/articles';
 import { pageMetadata } from '@/lib/site-title';
 
 type Props = {
@@ -17,14 +21,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const article = await getArticle(Number(id));
-  if (!article || article.category_name !== 'Forum') {
-    return pageMetadata({ title: 'Topic not found' });
-  }
+  const data = await getArticleByParam('Forum', id);
+  if (!data) return pageMetadata({ title: 'Topic not found' });
   return pageMetadata({
-    title: article.title,
-    description: article.description || undefined,
-    keywords: article.keywords || undefined,
+    title: data.article.title,
+    description: data.article.description || undefined,
+    keywords: data.article.keywords || undefined,
   });
 }
 
@@ -58,12 +60,14 @@ function initials(name: string) {
 
 export default async function ForumDetailPage({ params }: Props) {
   const { id } = await params;
-  const [article, { recommended }] = await Promise.all([
-    getArticle(Number(id)),
+  const [data, { recommended }] = await Promise.all([
+    getArticleByParam('Forum', id),
     getForumPageData(),
   ]);
-  if (!article || article.category_name !== 'Forum') notFound();
+  if (!data) notFound();
+  if (id !== data.slug) permanentRedirect(`/forum/${data.slug}`);
 
+  const { article } = data;
   const author = article.author_username || 'Community Member';
   const tags = parseTags(article.keywords);
   const description = article.description?.trim() || '';

@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { ArticleDetail } from '@/components/article-detail';
 import { ArticleEngagement } from '@/components/article-engagement';
 import { BlogRecommend } from '@/components/blog-recommend';
-import { getAllArticleIds, getArticle, getBlogPageData } from '@/lib/articles';
+import {
+  getAllArticleIds,
+  getArticleByParam,
+  getBlogPageData,
+} from '@/lib/articles';
 import { pageMetadata } from '@/lib/site-title';
 
 type Props = {
@@ -17,14 +21,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const article = await getArticle(Number(id));
-  if (!article || article.category_name !== 'Blog') {
-    return pageMetadata({ title: 'Article not found' });
-  }
+  const data = await getArticleByParam('Blog', id);
+  if (!data) return pageMetadata({ title: 'Article not found' });
   return pageMetadata({
-    title: article.title,
-    description: article.description || undefined,
-    keywords: article.keywords || undefined,
+    title: data.article.title,
+    description: data.article.description || undefined,
+    keywords: data.article.keywords || undefined,
   });
 }
 
@@ -39,12 +41,14 @@ function formatDate(value: string) {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { id } = await params;
-  const [article, { recommended }] = await Promise.all([
-    getArticle(Number(id)),
+  const [data, { recommended }] = await Promise.all([
+    getArticleByParam('Blog', id),
     getBlogPageData(),
   ]);
-  if (!article || article.category_name !== 'Blog') notFound();
+  if (!data) notFound();
+  if (id !== data.slug) permanentRedirect(`/blog/${data.slug}`);
 
+  const { article } = data;
   const sideItems = recommended.filter((item) => item.id !== article.id);
 
   return (

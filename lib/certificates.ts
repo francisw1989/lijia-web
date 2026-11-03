@@ -9,6 +9,12 @@ import {
   type ProductListItem,
 } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
+import {
+  contentSlug,
+  contentSlugMap,
+  resolveContentParam,
+  slugFromMap,
+} from '@/lib/slug';
 
 const CERTIFICATES_NAME = 'Certificates';
 const CERT_CHILD = 'certificate';
@@ -94,17 +100,18 @@ function mapItems(
   list: ProductListItem[],
   group: CertificateLogoItem['group'],
 ): CertificateLogoItem[] {
-  return list
+  const filtered = list
     .slice()
     .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
-    .filter((item) => item.cover?.trim())
-    .map((item) => ({
-      id: item.id,
-      title: item.title,
-      image: item.cover.trim(),
-      href: `/certificates/${item.id}`,
-      group,
-    }));
+    .filter((item) => item.cover?.trim());
+  const slugMap = contentSlugMap(filtered);
+  return filtered.map((item) => ({
+    id: item.id,
+    title: item.title,
+    image: item.cover.trim(),
+    href: `/certificates/${slugFromMap(slugMap, item.id, item.title)}`,
+    group,
+  }));
 }
 
 /** Certificates：一级栏目 → metadata / banner + 证书/合作伙伴图集 */
@@ -156,5 +163,22 @@ export async function getCertificateArticle(id: number): Promise<Product | null>
 
 export const getCertificateArticleParams = cache(async () => {
   const { items } = await getCertificatesPageData();
-  return items.map((item) => ({ id: String(item.id) }));
+  return items.map((item) => ({
+    id: item.href.split('/').pop() || contentSlug(item.title, item.id),
+  }));
 });
+
+export async function getCertificateByParam(
+  param: string,
+): Promise<{ article: Product; slug: string } | null> {
+  try {
+    const { items } = await getCertificatesPageData();
+    const resolved = resolveContentParam(items, param);
+    if (!resolved) return null;
+    const article = await getCertificateArticle(resolved.id);
+    if (!article) return null;
+    return { article, slug: resolved.slug };
+  } catch {
+    return null;
+  }
+}

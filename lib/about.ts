@@ -9,6 +9,12 @@ import {
   type ProductCategory,
 } from '@/lib/cms';
 import { categoryBannerCopy, categoryBannerMedia } from '@/lib/media';
+import {
+  contentSlug,
+  contentSlugMap,
+  resolveContentParam,
+  slugFromMap,
+} from '@/lib/slug';
 
 export type AboutSectionKey = 'history' | 'facilities' | 'team' | 'news';
 
@@ -117,16 +123,18 @@ function sectionFromCategory(
 }
 
 function albumsToTabs(albums: Album[]): FacilityAlbumTab[] {
-  return albums
-    .filter((album) => album.images?.length)
-    .map((album) => ({
-      id: String(album.id),
-      label: album.name,
-      images: album.images.map((img) => ({
-        src: img.url,
-        alt: img.alt || album.name,
-      })),
-    }));
+  const withNames = albums.filter((album) => album.images?.length);
+  const slugMap = contentSlugMap(
+    withNames.map((album) => ({ id: album.id, title: album.name })),
+  );
+  return withNames.map((album) => ({
+    id: slugFromMap(slugMap, album.id, album.name),
+    label: album.name,
+    images: album.images.map((img) => ({
+      src: img.url,
+      alt: img.alt || album.name,
+    })),
+  }));
 }
 
 /** 四个 About 子页：metadata / banner 来自对应二级栏目 */
@@ -155,13 +163,27 @@ export const getFacilityAlbums = cache(async (): Promise<FacilityAlbumTab[]> => 
   }
 });
 
-/** Our Facilities：单个图集（View More 全览页） */
+/** Our Facilities：单个图集（View More 全览页；param 为名称 slug，兼容旧数字 id） */
 export async function getFacilityAlbum(
   id: string,
 ): Promise<FacilityAlbumTab | null> {
   try {
-    const albums = await getFacilityAlbums();
-    return albums.find((item) => item.id === String(id)) ?? null;
+    const albums = await getAlbums([...FACILITY_ALBUM_NAMES]);
+    const candidates = albums
+      .filter((album) => album.images?.length)
+      .map((album) => ({ id: album.id, title: album.name }));
+    const resolved = resolveContentParam(candidates, id);
+    if (!resolved) return null;
+    const album = albums.find((item) => item.id === resolved.id);
+    if (!album?.images?.length) return null;
+    return {
+      id: resolved.slug,
+      label: album.name,
+      images: album.images.map((img) => ({
+        src: img.url,
+        alt: img.alt || album.name,
+      })),
+    };
   } catch (error) {
     console.error('[getFacilityAlbum]', error);
     return null;
@@ -265,9 +287,37 @@ export async function getFacilitiesArticleParams(): Promise<{ id: string }[]> {
     );
     if (!category) return [];
     const { list } = await getProducts(1, 100, category.id);
-    return list.map((item) => ({ id: String(item.id) }));
+    const map = contentSlugMap(list);
+    return list.map((item) => ({
+      id: slugFromMap(map, item.id, item.title),
+    }));
   } catch {
     return [];
+  }
+}
+
+export function facilitiesArticleHref(article: { id: number; title: string }) {
+  return `/about/facilities/${contentSlug(article.title, article.id)}`;
+}
+
+export async function getFacilitiesArticleByParam(
+  param: string,
+): Promise<{ article: FacilitiesArticle; slug: string } | null> {
+  try {
+    const categories = await getProductCategories();
+    const category = findAboutCategory(
+      categories,
+      ABOUT_SECTIONS.facilities.categoryName,
+    );
+    if (!category) return null;
+    const { list } = await getProducts(1, 100, category.id);
+    const resolved = resolveContentParam(list, param);
+    if (!resolved) return null;
+    const article = await getFacilitiesArticle(resolved.id);
+    if (!article) return null;
+    return { article, slug: resolved.slug };
+  } catch {
+    return null;
   }
 }
 
@@ -276,7 +326,12 @@ export type TeamMember = {
   name: string;
   role: string;
   image: string;
+  slug?: string;
 };
+
+export function teamMemberHref(member: { id: number; name: string; slug?: string }) {
+  return `/about/team/${member.slug || contentSlug(member.name, member.id)}`;
+}
 
 export type TeamMemberDetail = TeamMember & {
   content: string;
@@ -319,10 +374,14 @@ export const getTeamMembers = cache(async (
     const { list } = await getProducts(1, 100, category.id, {
       isRecommended: options?.recommendedOnly ? true : undefined,
     });
-    const members = [...list]
+    const filtered = [...list]
       .filter((item) => item.cover)
-      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
-      .map(productToTeamMember);
+      .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id));
+    const slugMap = contentSlugMap(filtered);
+    const members = filtered.map((item) => ({
+      ...productToTeamMember(item),
+      slug: slugFromMap(slugMap, item.id, item.title),
+    }));
     const limit = options?.limit;
     return limit != null && limit > 0 ? members.slice(0, limit) : members;
   } catch (error) {
@@ -344,6 +403,7 @@ export async function getTeamMember(
 
     return {
       ...productToTeamMember(product),
+      slug: contentSlug(product.title, product.id),
       content: product.content || '',
       description: product.description || '',
       keywords: product.keywords || '',
@@ -352,6 +412,31 @@ export async function getTeamMember(
     console.error('[getTeamMember]', error);
     return null;
   }
+}
+
+export async function getTeamMemberByParam(
+  param: string,
+): Promise<{ member: TeamMemberDetail; slug: string } | null> {
+  try {
+    const members = await getTeamMembers();
+    const resolved = resolveContentParam(
+      members.map((m) => ({ id: m.id, title: m.name })),
+      param,
+    );
+    if (!resolved) return null;
+    const member = await getTeamMember(resolved.id);
+    if (!member) return null;
+    return { member, slug: resolved.slug };
+  } catch {
+    return null;
+  }
+}
+
+export async function getTeamMemberParams(): Promise<{ id: string }[]> {
+  const members = await getTeamMembers();
+  return members.map((m) => ({
+    id: m.slug || contentSlug(m.name, m.id),
+  }));
 }
 
 /** Our Team：图集分类「Our Team」下的活动照片 */
@@ -382,6 +467,8 @@ export type NewsItem = {
   created_at: string;
   is_recommended: boolean;
   sort: number;
+  /** 详情页路径段（标题 slug） */
+  slug?: string;
 };
 
 export type NewsPageData = {
@@ -422,8 +509,14 @@ export const getNewsPageData = cache(async (): Promise<NewsPageData> => {
     if (!category) return { featured: [], articles: [] };
 
     const { list } = await getProducts(1, 100, category.id);
+    const slugMap = contentSlugMap(list);
+    const withSlug = (item: (typeof list)[number]) => ({
+      ...productToNewsItem(item),
+      slug: slugFromMap(slugMap, item.id, item.title),
+    });
+
     const articles = [...list]
-      .map(productToNewsItem)
+      .map(withSlug)
       .sort((a, b) =>
         compareBySortThen(a, b, (x, y) => {
           const t =
@@ -437,7 +530,7 @@ export const getNewsPageData = cache(async (): Promise<NewsPageData> => {
       .filter((item) => Number(item.is_recommended) === 1)
       .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .slice(0, 3)
-      .map(productToNewsItem);
+      .map(withSlug);
 
     return { featured, articles };
   } catch (error) {
@@ -445,6 +538,34 @@ export const getNewsPageData = cache(async (): Promise<NewsPageData> => {
     return { featured: [], articles: [] };
   }
 });
+
+export function eventHref(item: { id: number; title: string; slug?: string }) {
+  return `/events/${item.slug || contentSlug(item.title, item.id)}`;
+}
+
+export async function getEventByParam(
+  param: string,
+): Promise<{ productId: number; slug: string } | null> {
+  try {
+    const { articles } = await getNewsPageData();
+    const resolved = resolveContentParam(articles, param);
+    if (!resolved) return null;
+    return { productId: resolved.id, slug: resolved.slug };
+  } catch {
+    return null;
+  }
+}
+
+export async function getEventParams(): Promise<{ id: string }[]> {
+  try {
+    const { articles } = await getNewsPageData();
+    return articles.map((item) => ({
+      id: item.slug || contentSlug(item.title, item.id),
+    }));
+  } catch {
+    return [];
+  }
+}
 
 /** 首页新闻轮播：只取最近 N 条，避免拉全量列表 */
 export const getNewsCarouselItems = cache(async (limit = 12): Promise<NewsItem[]> => {
@@ -457,8 +578,12 @@ export const getNewsCarouselItems = cache(async (limit = 12): Promise<NewsItem[]
     if (!category) return [];
 
     const { list } = await getProducts(1, limit, category.id);
+    const slugMap = contentSlugMap(list);
     return [...list]
-      .map(productToNewsItem)
+      .map((item) => ({
+        ...productToNewsItem(item),
+        slug: slugFromMap(slugMap, item.id, item.title),
+      }))
       .sort((a, b) =>
         compareBySortThen(a, b, (x, y) => {
           const t =

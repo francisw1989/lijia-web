@@ -5,7 +5,7 @@ import { CountUp } from '@/components/count-up';
 import { HomeBannerActions } from '@/components/home-banner-actions';
 import { NewsCarousel } from '@/components/news-carousel';
 import { RevealInit } from '@/components/reveal-init';
-import { getNewsCarouselItems } from '@/lib/about';
+import { eventHref, getNewsCarouselItems } from '@/lib/about';
 import { getHomeCapabilityPanels } from '@/lib/capabilities';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { getHomepageSettings, titleLines } from '@/lib/homepage';
@@ -64,7 +64,7 @@ export default async function HomePage() {
     created_at: item.created_at,
     keywords: item.keywords,
     cover: item.cover,
-    href: `/events/${item.id}`,
+    href: eventHref(item),
   }));
 
   return (

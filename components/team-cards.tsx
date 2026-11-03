@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { TeamBadge } from '@/components/team-badge';
-import type { TeamMember } from '@/lib/about';
+import { teamMemberHref, type TeamMember } from '@/lib/about';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 export function TeamCards({ members }: { members: TeamMember[] }) {
@@ -12,7 +12,7 @@ export function TeamCards({ members }: { members: TeamMember[] }) {
       {members.map((member, index) => (
         <Link
           key={member.id}
-          href={`/about/team/${member.id}`}
+          href={teamMemberHref(member)}
           className="team-card reveal"
           style={{ transitionDelay: `${Math.min(index, 7) * 70}ms` }}
         >

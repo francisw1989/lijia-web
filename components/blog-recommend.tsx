@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ArticleListItem } from '@/lib/articles';
+import { articleHref, type ArticleListItem } from '@/lib/articles';
 
 function formatDate(value: string) {
   const d = new Date(value.replace(' ', 'T'));
@@ -36,7 +36,7 @@ export function BlogRecommend({ items }: { items: ArticleListItem[] }) {
         ) : (
           items.map((item) => (
             <li key={item.id} className="blog-recommend-item">
-              <Link href={`/blog/${item.id}`} className="blog-recommend-link">
+              <Link href={articleHref('Blog', item)} className="blog-recommend-link">
                 {item.title}
               </Link>
               <p className="blog-recommend-meta">

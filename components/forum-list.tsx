@@ -4,6 +4,7 @@ import { ForumRecommend } from '@/components/forum-recommend';
 import { CommunityStatsWithLike } from '@/components/community-stats-like';
 import { PagePager } from '@/components/page-pager';
 import {
+  articleHref,
   communityListHref,
   type ArticleListItem,
   type CommunityPageData,
@@ -29,7 +30,7 @@ function parseTags(keywords: string) {
 }
 
 function ForumRow({ item }: { item: ArticleListItem }) {
-  const href = `/forum/${item.id}`;
+  const href = articleHref('Forum', item);
   const author = item.author_username || 'Community Member';
   const tags = parseTags(item.keywords);
   const excerpt = item.description?.trim() || '';

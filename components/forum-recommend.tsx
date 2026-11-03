@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ArticleListItem } from '@/lib/articles';
+import { articleHref, type ArticleListItem } from '@/lib/articles';
 
 function formatDate(value: string) {
   const d = new Date(value.replace(' ', 'T'));
@@ -35,7 +35,7 @@ export function ForumRecommend({ items }: { items: ArticleListItem[] }) {
             const answers = item.comment_count || 0;
             return (
               <li key={item.id} className="blog-recommend-item">
-                <Link href={`/forum/${item.id}`} className="blog-recommend-link">
+                <Link href={articleHref('Forum', item)} className="blog-recommend-link">
                   {item.title}
                 </Link>
                 <p className="blog-recommend-meta">

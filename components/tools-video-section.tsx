@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
+import { toolsVideoHref } from '@/lib/tools';
 import type { ToolsVideoItem } from '@/lib/tools-static';
 
 function IconPlay() {
@@ -24,7 +25,7 @@ function VideoThumb({
   return (
     <div className={`tools-video-tile${className ? ` ${className}` : ''}`}>
       <Link
-        href={`/tools/videos/${item.id}`}
+        href={toolsVideoHref(item)}
         className="tools-video-thumb"
         aria-label={`Open ${item.title}`}
       >
@@ -46,7 +47,7 @@ function VideoThumb({
       </Link>
       {item.title ? (
         <Link
-          href={`/tools/videos/${item.id}`}
+          href={toolsVideoHref(item)}
           className="tools-video-caption"
           title={item.title}
         >

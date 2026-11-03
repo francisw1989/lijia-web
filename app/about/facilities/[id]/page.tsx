@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import { AboutShell } from '@/components/about-shell';
 import { ArticleDetail } from '@/components/article-detail';
 import { isVideoMediaUrl } from '@/lib/media';
 import {
   getAboutSection,
-  getFacilitiesArticle,
+  getFacilitiesArticleByParam,
   getFacilitiesArticleParams,
 } from '@/lib/about';
 
@@ -22,24 +22,26 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const article = await getFacilitiesArticle(Number(id));
-  if (!article) return pageMetadata({ title: 'Article not found' });
+  const data = await getFacilitiesArticleByParam(id);
+  if (!data) return pageMetadata({ title: 'Article not found' });
   return pageMetadata({
-    title: article.title,
-    description: article.description || undefined,
-    keywords: article.keywords || undefined,
+    title: data.article.title,
+    description: data.article.description || undefined,
+    keywords: data.article.keywords || undefined,
   });
 }
 
 export default async function FacilitiesArticlePage({ params }: Props) {
   const { id } = await params;
-  const [{ banner }, article] = await Promise.all([
+  const [{ banner }, data] = await Promise.all([
     getAboutSection('facilities'),
-    getFacilitiesArticle(Number(id)),
+    getFacilitiesArticleByParam(id),
   ]);
 
-  if (!article) notFound();
+  if (!data) notFound();
+  if (id !== data.slug) permanentRedirect(`/about/facilities/${data.slug}`);
 
+  const { article } = data;
   const videoSrc = isVideoMediaUrl(article.cover, article.coverType)
     ? article.cover.trim()
     : '';

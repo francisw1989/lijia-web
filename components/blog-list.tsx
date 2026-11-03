@@ -4,6 +4,7 @@ import { BlogRecommend } from '@/components/blog-recommend';
 import { CommunityStats } from '@/components/community-stats';
 import { PagePager } from '@/components/page-pager';
 import {
+  articleHref,
   communityListHref,
   type ArticleListItem,
   type CommunityPageData,
@@ -28,7 +29,7 @@ function parseKeywords(keywords: string) {
 }
 
 function BlogCard({ item }: { item: ArticleListItem }) {
-  const href = `/blog/${item.id}`;
+  const href = articleHref('Blog', item);
   const tags = parseKeywords(item.keywords);
   const excerpt = item.description?.trim() || '';
 
