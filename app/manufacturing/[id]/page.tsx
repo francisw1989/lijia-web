@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { GalleryLink } from '@/components/gallery-img-hover';
@@ -44,7 +44,7 @@ export default async function ManufacturingCategoryPage({
 
   if (/^\d+$/.test(slug)) {
     const target = await resolveManufacturingNumericRedirect(Number(slug));
-    if (target) redirect(target);
+    if (target) permanentRedirect(target);
     notFound();
   }
 
@@ -58,7 +58,7 @@ export default async function ManufacturingCategoryPage({
   const { page: pageParam } = await searchParams;
   const pageNum = Number(pageParam) || 1;
   if (slug !== canonical) {
-    redirect(
+    permanentRedirect(
       pageNum > 1
         ? `/manufacturing/${canonical}?page=${pageNum}`
         : `/manufacturing/${canonical}`,

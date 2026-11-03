@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
@@ -45,9 +45,9 @@ export default async function CapabilityProductPage({ params }: Props) {
   const { product, category, categorySlug, productSlug } = data;
   const canonicalPath = `/capabilities/scope/${categorySlug}/${productSlug}`;
 
-  // 旧数字 URL 或 slug 不一致 → 跳到标题路径
+  // 旧数字 URL 或 slug 不一致 → 永久跳到标题路径（利于 Google 换收录）
   if (categoryId !== categorySlug || productId !== productSlug) {
-    redirect(canonicalPath);
+    permanentRedirect(canonicalPath);
   }
 
   const backHref = scopeCategoryHref(category.id);

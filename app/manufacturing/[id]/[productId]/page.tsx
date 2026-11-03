@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
@@ -51,9 +51,9 @@ export default async function ManufacturingProductPage({ params }: Props) {
   const canonical = manufacturingSectionSlug(category);
   const canonicalPath = `/manufacturing/${canonical}/${productSlug}`;
 
-  // 旧数字 URL 或栏目 slug 不一致 → 301 到标题 slug
+  // 旧数字 URL 或栏目 slug 不一致 → 永久跳到标题 slug（利于 Google 换收录）
   if (slug !== canonical || productId !== productSlug) {
-    redirect(canonicalPath);
+    permanentRedirect(canonicalPath);
   }
 
   const categoryHref = manufacturingCategoryHref(category);
