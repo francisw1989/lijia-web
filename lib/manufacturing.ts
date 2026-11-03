@@ -56,13 +56,51 @@ export function manufacturingCategoryHref(
   return `/manufacturing/${category}`;
 }
 
+/** 产品详情段：优先标题 slug；空或非英文标题时回退 id */
+export function manufacturingProductSlug(
+  title: string,
+  id?: string | number,
+) {
+  const base = slugifyMfgName(title);
+  if (base) return base;
+  return id != null ? String(id) : '';
+}
+
+/**
+ * 同栏目内标题 slug 冲突时追加 -{id}，保证可反查。
+ * 返回 Map<productId, productSlug>
+ */
+export function manufacturingProductSlugMap(
+  products: { id: number; title: string }[],
+) {
+  const bases = products.map((p) => ({
+    id: p.id,
+    base: manufacturingProductSlug(p.title, p.id),
+  }));
+  const counts = new Map<string, number>();
+  for (const item of bases) {
+    counts.set(item.base, (counts.get(item.base) || 0) + 1);
+  }
+  const map = new Map<number, string>();
+  for (const item of bases) {
+    const slug =
+      (counts.get(item.base) || 0) > 1 ? `${item.base}-${item.id}` : item.base;
+    map.set(item.id, slug);
+  }
+  return map;
+}
+
 export function manufacturingProductHref(
   section: { id: number; name: string; keywords?: string } | string | number,
-  productId: string | number,
+  product: { id: number | string; title?: string } | string | number,
 ) {
-  const slug =
+  const sectionSlug =
     typeof section === 'object' ? manufacturingSectionSlug(section) : String(section);
-  return `/manufacturing/${slug}/${productId}`;
+  const productSlug =
+    typeof product === 'object'
+      ? manufacturingProductSlug(product.title || '', product.id)
+      : String(product);
+  return `/manufacturing/${sectionSlug}/${productSlug}`;
 }
 
 export type MfgComponent = {
@@ -310,6 +348,7 @@ function mapCategoryToComponent(category: ProductCategory): MfgComponent {
 function mapProductToComponent(
   product: ProductListItem,
   section?: ProductCategory | number | null,
+  productSlug?: string,
 ): MfgComponent {
   const customHref =
     Number(product.use_custom_link) === 1
@@ -323,6 +362,8 @@ function mapProductToComponent(
         : product.category_id != null
           ? String(product.category_id)
           : '';
+  const resolvedProductSlug =
+    productSlug || manufacturingProductSlug(product.title, product.id);
 
   return {
     id: String(product.id),
@@ -335,7 +376,9 @@ function mapProductToComponent(
       product.video_cover?.trim() ||
       product.icon?.trim() ||
       '',
-    href: customHref || (slug ? manufacturingProductHref(slug, product.id) : '/manufacturing'),
+    href:
+      customHref ||
+      (slug ? `/manufacturing/${slug}/${resolvedProductSlug}` : '/manufacturing'),
   };
 }
 
@@ -435,6 +478,71 @@ export async function getManufacturingProductDetail(productId: number): Promise<
   }
 }
 
+/** 按栏目 slug + 产品标题 slug（或旧数字 id）解析详情 */
+export async function getManufacturingProductByParam(
+  sectionSlug: string,
+  productParam: string,
+): Promise<{
+  product: Product;
+  category: ProductCategory;
+  productSlug: string;
+} | null> {
+  try {
+    const categories = await getProductCategories();
+    const root = findMfgRoot(categories);
+    if (!root) return null;
+
+    const section = findMfgSectionBySlug(categories, root, sectionSlug);
+    if (!section) return null;
+
+    const param = productParam.trim();
+    if (/^\d+$/.test(param)) {
+      const data = await getManufacturingProductDetail(Number(param));
+      if (!data || data.category.id !== section.id) return null;
+      const { list } = await getProducts(1, 200, section.id);
+      const siblings = list.filter((item) => item.category_id === section.id);
+      const slugMap = manufacturingProductSlugMap(siblings);
+      return {
+        ...data,
+        productSlug:
+          slugMap.get(data.product.id) ||
+          manufacturingProductSlug(data.product.title, data.product.id),
+      };
+    }
+
+    const { list } = await getProducts(1, 200, section.id);
+    const siblings = list.filter((item) => item.category_id === section.id);
+    const slugMap = manufacturingProductSlugMap(siblings);
+
+    let matchedId: number | null = null;
+    for (const [id, slug] of slugMap) {
+      if (slug === param) {
+        matchedId = id;
+        break;
+      }
+    }
+    // 兼容「标题-id」歧义后缀
+    if (matchedId == null) {
+      const idSuffix = param.match(/-(\d+)$/);
+      if (idSuffix) {
+        const maybeId = Number(idSuffix[1]);
+        if (slugMap.get(maybeId) === param) matchedId = maybeId;
+      }
+    }
+    if (matchedId == null) return null;
+
+    const data = await getManufacturingProductDetail(matchedId);
+    if (!data || data.category.id !== section.id) return null;
+    return {
+      ...data,
+      productSlug: slugMap.get(matchedId) || param,
+    };
+  } catch (error) {
+    console.error('[getManufacturingProductByParam]', error);
+    return null;
+  }
+}
+
 export async function allManufacturingCategoryParams() {
   try {
     const categories = await getProductCategories();
@@ -461,13 +569,14 @@ export async function allManufacturingProductParams() {
     const params: { id: string; productId: string }[] = [];
 
     for (const section of sections) {
-      const { list } = await getProducts(1, 100, section.id);
-      for (const item of list) {
-        if (item.category_id !== section.id) continue;
+      const { list } = await getProducts(1, 200, section.id);
+      const siblings = list.filter((item) => item.category_id === section.id);
+      const slugMap = manufacturingProductSlugMap(siblings);
+      for (const item of siblings) {
         if (Number(item.use_custom_link) === 1) continue;
         params.push({
           id: manufacturingSectionSlug(section),
-          productId: String(item.id),
+          productId: slugMap.get(item.id) || manufacturingProductSlug(item.title, item.id),
         });
       }
     }
@@ -507,7 +616,13 @@ export async function resolveManufacturingNumericRedirect(id: number) {
       product.category_id,
     );
     if (!l2) return null;
-    return manufacturingProductHref(l2, product.id);
+    const { list } = await getProducts(1, 200, l2.id);
+    const siblings = list.filter((item) => item.category_id === l2.id);
+    const slugMap = manufacturingProductSlugMap(siblings);
+    const productSlug =
+      slugMap.get(product.id) ||
+      manufacturingProductSlug(product.title, product.id);
+    return `/manufacturing/${manufacturingSectionSlug(l2)}/${productSlug}`;
   } catch {
     return null;
   }
@@ -617,12 +732,17 @@ export const getManufacturingCategoryPage = cache(async (
     if (!category) return null;
 
     const { list } = await getProducts(1, 100, category.id);
-    const articles = list
-      .filter((item) => item.category_id === category.id)
+    const siblings = list.filter((item) => item.category_id === category.id);
+    const slugMap = manufacturingProductSlugMap(siblings);
+    const articles = siblings
       .slice()
       .sort((a, b) => compareBySortThen(a, b, (x, y) => x.id - y.id))
       .map((item) => {
-        const mapped = mapProductToComponent(item, category);
+        const mapped = mapProductToComponent(
+          item,
+          category,
+          slugMap.get(item.id),
+        );
         return {
           ...mapped,
           image: mapped.image || category.icon?.trim() || '',

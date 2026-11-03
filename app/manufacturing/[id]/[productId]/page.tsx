@@ -7,7 +7,7 @@ import { ManufacturingBreadcrumb } from '@/components/manufacturing-nav';
 import {
   allManufacturingProductParams,
   getManufacturingMenuItems,
-  getManufacturingProductDetail,
+  getManufacturingProductByParam,
   isMeaningfulDescription,
   manufacturingCategoryHref,
   manufacturingSectionSlug,
@@ -23,10 +23,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { productId } = await params;
-  if (!/^\d+$/.test(productId)) return pageMetadata({ title: 'Not found' });
-
-  const data = await getManufacturingProductDetail(Number(productId));
+  const { id: slug, productId } = await params;
+  const data = await getManufacturingProductByParam(slug, productId);
   if (!data) return pageMetadata({ title: 'Not found' });
 
   const description =
@@ -43,18 +41,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ManufacturingProductPage({ params }: Props) {
   const { id: slug, productId } = await params;
-  if (!/^\d+$/.test(productId)) notFound();
-
   const [data, menuItems] = await Promise.all([
-    getManufacturingProductDetail(Number(productId)),
+    getManufacturingProductByParam(slug, productId),
     getManufacturingMenuItems(),
   ]);
   if (!data?.category) notFound();
 
-  const { product, category } = data;
+  const { product, category, productSlug } = data;
   const canonical = manufacturingSectionSlug(category);
-  if (slug !== canonical) {
-    redirect(`/manufacturing/${canonical}/${product.id}`);
+  const canonicalPath = `/manufacturing/${canonical}/${productSlug}`;
+
+  // 旧数字 URL 或栏目 slug 不一致 → 301 到标题 slug
+  if (slug !== canonical || productId !== productSlug) {
+    redirect(canonicalPath);
   }
 
   const categoryHref = manufacturingCategoryHref(category);

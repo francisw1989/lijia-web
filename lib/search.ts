@@ -61,16 +61,14 @@ function resolveProductHref(hit: CmsSearchHit): string {
   };
 
   if (/manufactur/.test(root)) {
+    const product = { id: hit.id, title: hit.title };
     if (isMahjongCategory(section) || /mahjong/i.test(hit.section_slug || '')) {
       return manufacturingProductHref(
         { id: section.id, name: 'Mahjong', keywords: 'mahjong' },
-        hit.id,
+        product,
       );
     }
-    return manufacturingProductHref(
-      hit.section_slug || section,
-      hit.id,
-    );
+    return manufacturingProductHref(hit.section_slug || section, product);
   }
   if (/certificate/.test(root)) return `/certificates/${hit.id}`;
   if (/event/.test(root)) return `/events/${hit.id}`;
