@@ -3904,6 +3904,14 @@ a.contact-info-line:hover {
   margin: 0 auto;
   padding: 32px 0 40px;
 }
+/* Events 详情：正文与评论同宽 */
+.event-article {
+  width: min(1000px, calc(100% - 32px));
+  margin: 0 auto;
+}
+.event-article .cap-tag-page {
+  width: 100%;
+}
 .cap-tag-page .mj-breadcrumb {
   margin-bottom: 30px;
 }

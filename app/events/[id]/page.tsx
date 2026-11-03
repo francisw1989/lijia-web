@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
 import { ArticleDetail } from '@/components/article-detail';
+import { ArticleEngagement } from '@/components/article-engagement';
 import {
   getAboutSection,
   getEventByParam,
@@ -65,15 +66,25 @@ export default async function EventDetailPage({ params }: Props) {
       />
       <section className="section-pad">
         <div className="container">
-          <ArticleDetail
-            title={article.title}
-            kicker={formatDate(article.created_at)}
-            html={article.content}
-          >
-            <Link href="/events" className="about-news-more">
-              &lt; back to Events
-            </Link>
-          </ArticleDetail>
+          <div className="event-article">
+            <ArticleDetail
+              title={article.title}
+              kicker={formatDate(article.created_at)}
+              html={article.content}
+            >
+              <Link href="/events" className="about-news-more">
+                &lt; back to Events
+              </Link>
+            </ArticleDetail>
+            <ArticleEngagement
+              articleId={article.id}
+              target="product"
+              initialComments={article.comments || []}
+              initialLikeCount={article.like_count || 0}
+              initialCommentCount={article.comment_count || 0}
+              initialViewCount={article.view_count || 0}
+            />
+          </div>
         </div>
       </section>
     </>

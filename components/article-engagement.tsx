@@ -5,23 +5,37 @@ import { AuthModal } from '@/components/auth-modal';
 import {
   COMMUNITY_MUTED_MESSAGE,
   fetchArticleLiked,
+  fetchProductLiked,
   getCommunityToken,
   getCommunityUser,
   isCommunityMuted,
   postComment,
+  postProductComment,
+  recordProductView,
   recordView,
   refreshCommunityMe,
   subscribeAuth,
   toggleLike,
+  toggleProductLike,
   type CommunityUser,
 } from '@/lib/community-auth';
 import type { ArticleComment } from '@/lib/articles';
 import { CommunityStat } from '@/components/community-stats';
 import { clearNativeValidity, englishNativeInvalid } from '@/lib/native-validity';
 
+export type EngagementComment = {
+  id: number;
+  content: string;
+  created_at: string;
+  username?: string | null;
+  is_recommended?: number;
+};
+
 type Props = {
   articleId: number;
-  initialComments: ArticleComment[];
+  /** article = Blog/Forum；product = Events 等产品内容 */
+  target?: 'article' | 'product';
+  initialComments: EngagementComment[];
   initialLikeCount: number;
   initialCommentCount: number;
   initialViewCount: number;
@@ -53,7 +67,7 @@ function commentTime(value: string) {
 }
 
 /** 推荐优先，同级按时间倒序（最新在前） */
-export function sortComments(list: ArticleComment[]) {
+export function sortComments(list: EngagementComment[]) {
   return [...list].sort((a, b) => {
     const ar = a.is_recommended ? 1 : 0;
     const br = b.is_recommended ? 1 : 0;
@@ -95,6 +109,7 @@ function UserAvatar({ name, size = 36 }: { name: string; size?: number }) {
 
 export function ArticleEngagement({
   articleId,
+  target = 'article',
   initialComments,
   initialLikeCount,
   initialCommentCount,
@@ -119,6 +134,7 @@ export function ArticleEngagement({
   const [submitting, setSubmitting] = useState(false);
   const [liking, setLiking] = useState(false);
   const [message, setMessage] = useState('');
+  const isProduct = target === 'product';
 
   useEffect(() => {
     setUser(getCommunityUser());
@@ -138,7 +154,9 @@ export function ArticleEngagement({
         if (!cancelled) setLiked(false);
         return;
       }
-      const isLiked = await fetchArticleLiked(articleId);
+      const isLiked = isProduct
+        ? await fetchProductLiked(articleId)
+        : await fetchArticleLiked(articleId);
       if (!cancelled) setLiked(isLiked);
     };
     syncLiked();
@@ -149,11 +167,15 @@ export function ArticleEngagement({
       cancelled = true;
       unsub();
     };
-  }, [articleId]);
+  }, [articleId, isProduct]);
 
   useEffect(() => {
-    recordView(articleId).catch(() => {});
-  }, [articleId]);
+    if (isProduct) {
+      recordProductView(articleId).catch(() => {});
+    } else {
+      recordView(articleId).catch(() => {});
+    }
+  }, [articleId, isProduct]);
 
   const requireAuth = () => {
     if (!getCommunityToken()) {
@@ -175,7 +197,9 @@ export function ArticleEngagement({
     setLiking(true);
     setMessage('');
     try {
-      const data = await toggleLike(articleId);
+      const data = isProduct
+        ? await toggleProductLike(articleId)
+        : await toggleLike(articleId);
       setLiked(data.liked);
       setLikeCount(data.like_count);
     } catch (err) {
@@ -197,7 +221,9 @@ export function ArticleEngagement({
     setSubmitting(true);
     setMessage('');
     try {
-      const data = await postComment(articleId, text);
+      const data = isProduct
+        ? await postProductComment(articleId, text)
+        : await postComment(articleId, text);
       setContent('');
       setCommentCount(data.comment_count);
       if (data.pending) {
@@ -205,7 +231,7 @@ export function ArticleEngagement({
           data.message || 'Your content was submitted and will appear after review.',
         );
       } else {
-        const comment = data.comment as ArticleComment;
+        const comment = data.comment as EngagementComment | ArticleComment;
         setComments((prev) => sortComments([comment, ...prev]));
         setMessage('Posted. Page will refresh shortly.');
       }

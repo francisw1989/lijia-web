@@ -203,6 +203,43 @@ export async function recordView(articleId: number) {
   await communityFetch(`articles/${articleId}/view`, { method: 'POST' });
 }
 
+export async function postProductComment(productId: number, content: string) {
+  const { ok, status, data } = await communityFetch<{
+    comment: unknown;
+    comment_count: number;
+    pending?: boolean;
+    message?: string;
+  }>('product-comments', {
+    method: 'POST',
+    body: JSON.stringify({ product_id: productId, content }),
+  });
+  if (!ok) throw new Error(communityActionError(status, data, 'Comment failed'));
+  return data;
+}
+
+export async function toggleProductLike(productId: number) {
+  const { ok, status, data } = await communityFetch<{
+    liked: boolean;
+    like_count: number;
+    message?: string;
+    code?: string;
+  }>(`products/${productId}/like`, { method: 'POST' });
+  if (!ok) throw new Error(communityActionError(status, data, 'Like failed'));
+  return data;
+}
+
+export async function fetchProductLiked(productId: number) {
+  if (!getCommunityToken() || !productId) return false;
+  const { ok, data } = await communityFetch<{ liked?: boolean }>(
+    `products/${productId}`,
+  );
+  return ok && Boolean(data.liked);
+}
+
+export async function recordProductView(productId: number) {
+  await communityFetch(`products/${productId}/view`, { method: 'POST' });
+}
+
 export async function createForumPost(input: {
   title: string;
   content: string;

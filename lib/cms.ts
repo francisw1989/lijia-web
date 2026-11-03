@@ -51,6 +51,19 @@ export type ProductCategory = {
   sort: number;
 };
 
+export type ProductComment = {
+  id: number;
+  product_id: number;
+  user_id: number;
+  content: string;
+  status: number;
+  is_recommended?: number;
+  created_at: string;
+  updated_at?: string;
+  username?: string | null;
+  email?: string | null;
+};
+
 export type ProductListItem = {
   id: number;
   title: string;
@@ -72,6 +85,9 @@ export type ProductListItem = {
   custom_link?: string;
   content_tag_id?: number | null;
   content_tag_name?: string | null;
+  view_count?: number;
+  like_count?: number;
+  comment_count?: number;
   created_at: string;
   updated_at: string;
   category_name: string | null;
@@ -80,6 +96,8 @@ export type ProductListItem = {
 export type Product = ProductListItem & {
   content: string;
   status: number;
+  comments?: ProductComment[];
+  liked?: boolean;
 };
 
 export type ProductTag = {
