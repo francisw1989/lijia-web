@@ -1,3 +1,4 @@
+import { scopeTagHref } from '@/lib/capabilities';
 import { SITE_MAP_SECTIONS } from '@/lib/site-map';
 import {
   isMahjongCategory,
@@ -75,7 +76,14 @@ function resolveProductHref(hit: CmsSearchHit): string {
   if (/team/.test(root)) return `/about/team/${hit.id}`;
   if (/facilit/.test(root)) return `/about/facilities/${hit.id}`;
   if (/capabilit/.test(root)) {
-    return `/capabilities/scope/${hit.category_id}/${hit.id}`;
+    return scopeTagHref(
+      {
+        id: hit.category_id || hit.id,
+        name: hit.section_name || hit.category_name || '',
+        keywords: hit.section_slug || '',
+      },
+      { id: hit.id, title: hit.title },
+    );
   }
   if (/tools/.test(root)) return '/tools';
   return `/manufacturing`;

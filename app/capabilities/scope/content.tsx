@@ -101,7 +101,10 @@ export function ScopeContent({ items }: { items: ScopeItem[] }) {
               {active.tags.map((item) => (
                 <Link
                   key={item.id}
-                  href={scopeTagHref(active.id, item.id)}
+                  href={scopeTagHref(
+                    { id: active.id, slug: active.slug, name: active.title },
+                    { id: item.id, slug: item.slug, title: item.title },
+                  )}
                   className="cap-tag"
                 >
                   {item.title}

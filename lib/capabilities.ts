@@ -21,6 +21,8 @@ export type ScopeTag = {
   title: string;
   description: string;
   cover: string;
+  /** 详情页 URL 段（标题 slug） */
+  slug: string;
 };
 
 export type ScopeItem = {
@@ -29,6 +31,8 @@ export type ScopeItem = {
   subtitle: string;
   icon: string;
   image: string;
+  /** 栏目 URL 段 */
+  slug: string;
   tags: ScopeTag[];
 };
 
@@ -154,8 +158,74 @@ function mapProductsByCategory(products: ProductListItem[]) {
   return map;
 }
 
-export function scopeTagHref(categoryId: number, productId: number) {
-  return `/capabilities/scope/${categoryId}/${productId}`;
+function slugifyScopeName(name: string) {
+  return (
+    String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, ' ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || ''
+  );
+}
+
+/** 栏目段：keywords 若已是纯 slug 则用之，否则标题 slugify；空则回退 id */
+export function scopeCategorySlug(category: {
+  id: number;
+  name: string;
+  keywords?: string;
+}) {
+  const kw = String(category.keywords || '')
+    .trim()
+    .toLowerCase();
+  if (kw && /^[a-z0-9-]+$/.test(kw)) return kw;
+  return slugifyScopeName(category.name) || String(category.id);
+}
+
+export function scopeProductSlug(title: string, id?: string | number) {
+  const base = slugifyScopeName(title);
+  if (base) return base;
+  return id != null ? String(id) : '';
+}
+
+/** 同栏目内产品 slug 冲突时追加 -{id} */
+export function scopeProductSlugMap(products: { id: number; title: string }[]) {
+  const bases = products.map((p) => ({
+    id: p.id,
+    base: scopeProductSlug(p.title, p.id),
+  }));
+  const counts = new Map<string, number>();
+  for (const item of bases) {
+    counts.set(item.base, (counts.get(item.base) || 0) + 1);
+  }
+  const map = new Map<number, string>();
+  for (const item of bases) {
+    map.set(
+      item.id,
+      (counts.get(item.base) || 0) > 1 ? `${item.base}-${item.id}` : item.base,
+    );
+  }
+  return map;
+}
+
+export function scopeTagHref(
+  category: { id: number; name?: string; keywords?: string; slug?: string } | string | number,
+  product: { id: number | string; title?: string; slug?: string } | string | number,
+) {
+  const categorySlug =
+    typeof category === 'object'
+      ? category.slug ||
+        scopeCategorySlug({
+          id: category.id,
+          name: category.name || '',
+          keywords: category.keywords,
+        })
+      : String(category);
+  const productSlug =
+    typeof product === 'object'
+      ? product.slug || scopeProductSlug(product.title || '', product.id)
+      : String(product);
+  return `/capabilities/scope/${categorySlug}/${productSlug}`;
 }
 
 export function scopeCategoryHref(categoryId: number) {
@@ -261,22 +331,30 @@ export const getScopePageData = cache(async (): Promise<ScopePageData> => {
     const { list: products } = await getProducts(1, 100, root.id);
     const productsByCategory = mapProductsByCategory(products);
 
-    const items: ScopeItem[] = children.map((category, index) => ({
-      id: category.id,
-      title: category.name,
-      subtitle: category.subtitle || category.description || '',
-      icon:
-        category.thumbnail ||
-        category.image ||
-        SCOPE_ICONS[index % SCOPE_ICONS.length],
-      image: category.image || DEFAULT_SCOPE_IMAGE,
-      tags: (productsByCategory.get(category.id) ?? []).map((product) => ({
-        id: product.id,
-        title: product.title,
-        description: product.description || '',
-        cover: product.cover || '',
-      })),
-    }));
+    const items: ScopeItem[] = children.map((category, index) => {
+      const products = productsByCategory.get(category.id) ?? [];
+      const productSlugs = scopeProductSlugMap(products);
+      return {
+        id: category.id,
+        title: category.name,
+        slug: scopeCategorySlug(category),
+        subtitle: category.subtitle || category.description || '',
+        icon:
+          category.thumbnail ||
+          category.image ||
+          SCOPE_ICONS[index % SCOPE_ICONS.length],
+        image: category.image || DEFAULT_SCOPE_IMAGE,
+        tags: products.map((product) => ({
+          id: product.id,
+          title: product.title,
+          slug:
+            productSlugs.get(product.id) ||
+            scopeProductSlug(product.title, product.id),
+          description: product.description || '',
+          cover: product.cover || '',
+        })),
+      };
+    });
 
     return {
       meta: scopeMetaFromRoot(root),
@@ -317,26 +395,94 @@ export async function getScopeProductDetail(
   }
 }
 
+/** 按栏目 slug + 产品标题 slug（或旧数字 id）解析详情 */
+export async function getScopeProductByParam(
+  categoryParam: string,
+  productParam: string,
+): Promise<{
+  product: Product;
+  category: ProductCategory;
+  image: string;
+  categorySlug: string;
+  productSlug: string;
+} | null> {
+  try {
+    const categories = await getProductCategories();
+    const root = findScopeRoot(categories);
+    if (!root) return null;
+
+    const children = categories.filter((item) => item.parent_id === root.id);
+    const catParam = categoryParam.trim();
+    const category =
+      children.find((item) => scopeCategorySlug(item) === catParam) ??
+      ( /^\d+$/.test(catParam)
+        ? children.find((item) => item.id === Number(catParam))
+        : undefined) ??
+      null;
+    if (!category) return null;
+
+    const categorySlug = scopeCategorySlug(category);
+    const { list } = await getProducts(1, 200, category.id);
+    const siblings = list.filter((item) => item.category_id === category.id);
+    const slugMap = scopeProductSlugMap(siblings);
+
+    const prodParam = productParam.trim();
+    let productId: number | null = null;
+
+    if (/^\d+$/.test(prodParam)) {
+      productId = Number(prodParam);
+    } else {
+      for (const [id, slug] of slugMap) {
+        if (slug === prodParam) {
+          productId = id;
+          break;
+        }
+      }
+    }
+    if (productId == null) return null;
+
+    const data = await getScopeProductDetail(category.id, productId);
+    if (!data?.product || !data.category) return null;
+
+    return {
+      product: data.product,
+      category: data.category,
+      image: data.image,
+      categorySlug,
+      productSlug:
+        slugMap.get(productId) ||
+        scopeProductSlug(data.product.title, productId),
+    };
+  } catch (error) {
+    console.error('[getScopeProductByParam]', error);
+    return null;
+  }
+}
+
 export async function allScopeProductParams() {
   try {
     const categories = await getProductCategories();
     const root = findScopeRoot(categories);
     if (!root) return [];
 
-    const children = new Set(
-      categories.filter((item) => item.parent_id === root.id).map((item) => item.id),
-    );
-    const { list } = await getProducts(1, 100, root.id);
+    const children = categories.filter((item) => item.parent_id === root.id);
+    const params: { categoryId: string; productId: string }[] = [];
 
-    return list
-      .filter(
-        (item) =>
-          item.category_id != null && children.has(item.category_id),
-      )
-      .map((item) => ({
-        categoryId: String(item.category_id),
-        productId: String(item.id),
-      }));
+    for (const category of children) {
+      const { list } = await getProducts(1, 200, category.id);
+      const siblings = list.filter((item) => item.category_id === category.id);
+      const slugMap = scopeProductSlugMap(siblings);
+      const categorySlug = scopeCategorySlug(category);
+      for (const item of siblings) {
+        params.push({
+          categoryId: categorySlug,
+          productId:
+            slugMap.get(item.id) || scopeProductSlug(item.title, item.id),
+        });
+      }
+    }
+
+    return params;
   } catch {
     return [];
   }

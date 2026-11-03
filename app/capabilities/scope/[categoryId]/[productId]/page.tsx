@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
 import {
   allScopeProductParams,
-  getScopeProductDetail,
+  getScopeProductByParam,
   isMeaningfulDescription,
   plainTextFromHtml,
   scopeCategoryHref,
@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoryId, productId } = await params;
-  const data = await getScopeProductDetail(Number(categoryId), Number(productId));
+  const data = await getScopeProductByParam(categoryId, productId);
   if (!data) return pageMetadata({ title: 'Capability not found' });
 
   const description =
@@ -39,16 +39,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CapabilityProductPage({ params }: Props) {
   const { categoryId, productId } = await params;
-  const data = await getScopeProductDetail(Number(categoryId), Number(productId));
+  const data = await getScopeProductByParam(categoryId, productId);
   if (!data) notFound();
 
-  const { product, category } = data;
-  const backHref = scopeCategoryHref(Number(categoryId));
+  const { product, category, categorySlug, productSlug } = data;
+  const canonicalPath = `/capabilities/scope/${categorySlug}/${productSlug}`;
+
+  // 旧数字 URL 或 slug 不一致 → 跳到标题路径
+  if (categoryId !== categorySlug || productId !== productSlug) {
+    redirect(canonicalPath);
+  }
+
+  const backHref = scopeCategoryHref(category.id);
 
   return (
     <ArticleDetail
       title={product.title}
-      kicker={category?.name || product.category_name || ''}
+      kicker={category.name || product.category_name || ''}
       html={product.content}
     >
       <Link href={backHref} className="about-news-more">
