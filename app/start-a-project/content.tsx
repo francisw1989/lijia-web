@@ -17,6 +17,7 @@ export function ProjectContent() {
   const [error, setError] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileReset, setTurnstileReset] = useState(0);
+  const [turnstileReveal, setTurnstileReveal] = useState(0);
   const [code, setCode] = useState('');
   const { name, setName, email, setEmail, resetToUser } =
     useCommunityFormPrefill();
@@ -28,6 +29,7 @@ export function ProjectContent() {
     if (submitting) return;
     setError('');
     if (needsTurnstile && !turnstileToken) {
+      setTurnstileReveal((n) => n + 1);
       setError('Please complete the security check.');
       return;
     }
@@ -155,6 +157,7 @@ export function ProjectContent() {
             <TurnstileField
               onToken={setTurnstileToken}
               resetSignal={turnstileReset}
+              revealSignal={turnstileReveal}
             />
           ) : null}
 

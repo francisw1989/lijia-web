@@ -12,6 +12,9 @@ type TurnstileApi = {
       callback?: (token: string) => void;
       'expired-callback'?: () => void;
       'error-callback'?: () => void;
+      'before-interactive-callback'?: () => void;
+      'after-interactive-callback'?: () => void;
+      'unsupported-callback'?: () => void;
       theme?: 'light' | 'dark' | 'auto';
       appearance?: 'always' | 'execute' | 'interaction-only';
       size?: 'normal' | 'flexible' | 'compact';
@@ -60,19 +63,27 @@ type Props = {
   onToken: (token: string) => void;
   /** 提交成功或失败后递增，触发 widget reset */
   resetSignal?: number;
+  /** 提交时仍无 token 时递增，强制露出验证框 */
+  revealSignal?: number;
   className?: string;
 };
 
 /**
- * 始终展示 Cloudflare 控件，避免 interaction-only 静默失败时
- * 「无验证框却提示 Please complete the security check」。
+ * 默认 interaction-only：多数情况静默通过、不展示控件。
+ * 仅 Cloudflare 要求交互、加载失败，或表单主动 reveal 时才显示。
  */
-export function TurnstileField({ onToken, resetSignal = 0, className }: Props) {
+export function TurnstileField({
+  onToken,
+  resetSignal = 0,
+  revealSignal = 0,
+  className,
+}: Props) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
   const hostRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
   const reactId = useId();
+  const [visible, setVisible] = useState(false);
   const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
@@ -96,21 +107,34 @@ export function TurnstileField({ onToken, resetSignal = 0, className }: Props) {
           widgetIdRef.current = null;
         }
         hostRef.current.innerHTML = '';
+        setVisible(false);
         widgetIdRef.current = window.turnstile.render(hostRef.current, {
           sitekey: siteKey,
           theme: 'light',
-          appearance: 'always',
+          appearance: 'interaction-only',
           size: 'flexible',
-          callback: (token) => onTokenRef.current(token),
+          callback: (token) => {
+            setVisible(false);
+            setLoadError('');
+            onTokenRef.current(token);
+          },
           'expired-callback': () => onTokenRef.current(''),
           'error-callback': () => {
+            setVisible(true);
             onTokenRef.current('');
             setLoadError('Security check failed to load. Please refresh and try again.');
+          },
+          'before-interactive-callback': () => setVisible(true),
+          'after-interactive-callback': () => setVisible(true),
+          'unsupported-callback': () => {
+            setVisible(true);
+            setLoadError('Security check is not supported in this browser.');
           },
         });
       })
       .catch((err) => {
         console.error('[turnstile]', err);
+        setVisible(true);
         setLoadError(
           'Security check unavailable. Please disable ad blockers or try another network.',
         );
@@ -132,6 +156,8 @@ export function TurnstileField({ onToken, resetSignal = 0, className }: Props) {
   useEffect(() => {
     if (!resetSignal || !widgetIdRef.current || !window.turnstile) return;
     try {
+      setVisible(false);
+      setLoadError('');
       window.turnstile.reset(widgetIdRef.current);
       onTokenRef.current('');
     } catch {
@@ -139,10 +165,25 @@ export function TurnstileField({ onToken, resetSignal = 0, className }: Props) {
     }
   }, [resetSignal]);
 
+  useEffect(() => {
+    if (!revealSignal) return;
+    setVisible(true);
+    if (widgetIdRef.current && window.turnstile) {
+      try {
+        window.turnstile.reset(widgetIdRef.current);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [revealSignal]);
+
   if (!siteKey) return null;
 
   return (
-    <div className={`${className || 'turnstile-field'} is-visible`}>
+    <div
+      className={`${className || 'turnstile-field'}${visible ? ' is-visible' : ' is-invisible'}`}
+      aria-hidden={!visible}
+    >
       <div ref={hostRef} />
       {loadError ? <p className="form-error">{loadError}</p> : null}
     </div>
