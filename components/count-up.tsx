@@ -24,7 +24,8 @@ export function CountUp({
   children,
 }: CountUpProps) {
   const ref = useRef<HTMLParagraphElement>(null);
-  const [display, setDisplay] = useState(0);
+  // SSR / 爬虫读到真实终值，避免静态 HTML 里是 0
+  const [display, setDisplay] = useState(value);
   const started = useRef(false);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ export function CountUp({
           if (t < 1) requestAnimationFrame(tick);
         };
 
+        // 首帧起从 0 滚到终值；未开 JS 的爬虫仍保留 SSR 终值
         requestAnimationFrame(tick);
       },
       { threshold: 0.35, rootMargin: '0px 0px -8% 0px' },
