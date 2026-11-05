@@ -70,7 +70,7 @@ export function ScopeContent({ items }: { items: ScopeItem[] }) {
             <span className="cap-icon-media">
               <Image
                 src={item.icon}
-                alt=""
+                alt={item.title}
                 width={64}
                 height={64}
                 unoptimized={isCmsAssetUrl(item.icon)}

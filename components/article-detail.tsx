@@ -1,4 +1,4 @@
-import { hasRichContent } from '@/lib/capabilities';
+import { ensureImgAlt, hasRichContent } from '@/lib/capabilities';
 
 /** 全站文章/产品详情：标题 + 栏目/日期 + 可选媒体 + 正文。 */
 export function ArticleDetail({
@@ -14,7 +14,7 @@ export function ArticleDetail({
   media?: React.ReactNode;
   children?: React.ReactNode;
 }) {
-  const body = html?.trim() || '';
+  const body = ensureImgAlt(html?.trim() || '', title);
 
   return (
     <section className="article-detail cap-tag-page">

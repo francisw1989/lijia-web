@@ -7,12 +7,14 @@ import { RevealInit } from '@/components/reveal-init';
 import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { ArticleDetail } from '@/components/article-detail';
+import { JsonLd } from '@/components/json-ld';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import {
   getCertificateArticleParams,
   getCertificateByParam,
   getCertificatesPageData,
 } from '@/lib/certificates';
+import { articleSchema } from '@/lib/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -27,11 +29,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await getCertificateByParam(id);
-  if (!data) return pageMetadata({ title: 'Not found' });
+  if (!data) return pageMetadata({ title: 'Not found', path: '/certificates' });
   return pageMetadata({
     title: data.article.title,
     description: data.article.description || undefined,
-    keywords: data.article.keywords || undefined,
+    path: `/certificates/${data.slug}`,
+    image: data.article.cover || undefined,
+    type: 'article',
   });
 }
 
@@ -45,10 +49,21 @@ export default async function CertificateArticlePage({ params }: Props) {
   if (!data) notFound();
   if (id !== data.slug) permanentRedirect(`/certificates/${data.slug}`);
 
-  const { article } = data;
+  const { article, slug } = data;
+  const path = `/certificates/${slug}`;
 
   return (
     <main className="bg-white min-h-page">
+      <JsonLd
+        data={articleSchema({
+          headline: article.title,
+          description: article.description,
+          image: article.cover,
+          url: path,
+          datePublished: article.created_at,
+          dateModified: article.updated_at || article.created_at,
+        })}
+      />
       <RevealInit />
       <section className="reveal about-hero container">
         <HeroMedia

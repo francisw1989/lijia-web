@@ -43,7 +43,7 @@ export async function generateMetadata({
       return pageMetadata({
         title: article.meta.title,
         description: article.meta.description,
-        keywords: article.meta.keywords,
+        path: `/tools/${slug}`,
       });
     }
     // terms 无正文时回退文档列表 metadata
@@ -53,21 +53,23 @@ export async function generateMetadata({
         return pageMetadata({
           title: data.meta.title,
           description: data.meta.description,
-          keywords: data.meta.keywords,
+          path: `/tools/${slug}`,
         });
       }
     }
-    return pageMetadata({ title: 'Tools & Resources' });
+    return pageMetadata({ title: 'Tools & Resources', path: '/tools' });
   }
 
-  if (!isToolsResourceSlug(slug)) return pageMetadata({ title: 'Tools & Resources' });
+  if (!isToolsResourceSlug(slug)) {
+    return pageMetadata({ title: 'Tools & Resources', path: '/tools' });
+  }
 
   const data = await getToolsDocPageData(slug);
-  if (!data) return pageMetadata({ title: 'Tools & Resources' });
+  if (!data) return pageMetadata({ title: 'Tools & Resources', path: '/tools' });
   return pageMetadata({
     title: data.meta.title,
     description: data.meta.description,
-    keywords: data.meta.keywords,
+    path: `/tools/${slug}`,
   });
 }
 
@@ -130,7 +132,12 @@ export default async function ToolsSlugPage({ params }: PageProps) {
 
         <div className="tools-doc-header">
           <span className="tools-doc-icon">
-            <Image src={data.icon} alt="" width={88} height={88} />
+            <Image
+              src={data.icon}
+              alt={data.meta.title}
+              width={88}
+              height={88}
+            />
           </span>
           <div>
             <h1 className="tools-doc-heading">{data.meta.title}</h1>

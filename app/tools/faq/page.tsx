@@ -14,6 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: 'FAQ',
     description: 'Frequently asked questions about LIJIA game manufacturing, sampling, MOQ and compliance.',
+  
+    path: '/tools/faq',
   });
 }
 
@@ -42,7 +44,7 @@ export default async function ToolsFaqPage() {
 
         <div className="tools-doc-header">
           <span className="tools-doc-icon">
-            <Image src="/images/t/3.png" alt="" width={88} height={88} />
+            <Image src="/images/t/3.png" alt="FAQ" width={88} height={88} />
           </span>
           <div>
             <h1 className="tools-doc-heading">FAQ</h1>

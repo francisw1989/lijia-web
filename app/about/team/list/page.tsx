@@ -12,6 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${meta.title} | All Members`,
     description: meta.description,
     keywords: meta.keywords,
+  
+    path: '/about/team/list',
   });
 }
 

@@ -12,19 +12,21 @@ export async function generateMetadata(): Promise<Metadata> {
     title: meta.title,
     description: meta.description,
     keywords: meta.keywords,
+  
+    path: '/manufacturing',
   });
 }
 
 function MfgCard({ item }: { item: MfgComponent }) {
   return (
     <Link href={item.href} className="mfg-card">
-      <span className="mfg-card-icon" aria-hidden="true">
+      <span className="mfg-card-icon">
         {item.icon ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             className="mfg-card-icon-default"
             src={item.icon}
-            alt=""
+            alt={item.title}
             width={72}
             height={72}
           />
@@ -37,6 +39,7 @@ function MfgCard({ item }: { item: MfgComponent }) {
             alt=""
             width={72}
             height={72}
+            aria-hidden="true"
           />
         ) : null}
       </span>

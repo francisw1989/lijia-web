@@ -5,12 +5,14 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { AboutBanner } from '@/components/about-banner';
 import { ArticleDetail } from '@/components/article-detail';
 import { ArticleEngagement } from '@/components/article-engagement';
+import { JsonLd } from '@/components/json-ld';
 import {
   getAboutSection,
   getEventByParam,
   getEventParams,
 } from '@/lib/about';
 import { getProduct } from '@/lib/cms';
+import { articleSchema } from '@/lib/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -23,13 +25,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const resolved = await getEventByParam(id);
-  if (!resolved) return pageMetadata({ title: 'Article not found' });
+  if (!resolved) return pageMetadata({ title: 'Article not found', path: '/events' });
   const article = await getProduct(resolved.productId);
-  if (!article) return pageMetadata({ title: 'Article not found' });
+  if (!article) return pageMetadata({ title: 'Article not found', path: '/events' });
   return pageMetadata({
     title: article.title,
     description: article.description || undefined,
-    keywords: article.keywords || undefined,
+    path: `/events/${resolved.slug}`,
+    image: article.cover || undefined,
+    type: 'article',
   });
 }
 
@@ -54,9 +58,20 @@ export default async function EventDetailPage({ params }: Props) {
   ]);
 
   if (!article) notFound();
+  const path = `/events/${resolved.slug}`;
 
   return (
     <>
+      <JsonLd
+        data={articleSchema({
+          headline: article.title,
+          description: article.description,
+          image: article.cover,
+          url: path,
+          datePublished: article.created_at,
+          dateModified: article.updated_at || article.created_at,
+        })}
+      />
       <AboutBanner
         src={banner.image}
         poster={banner.poster}

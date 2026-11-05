@@ -12,6 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: heading || TOOLS_VIDEOS_HEADING,
     description: 'Watch manufacturing tips, component highlights and production videos from LIJIA.',
+  
+    path: '/tools/videos',
   });
 }
 

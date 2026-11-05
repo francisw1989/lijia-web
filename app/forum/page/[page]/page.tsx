@@ -16,11 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { page } = await params;
   const pageNum = Number(page);
   if (!Number.isInteger(pageNum) || pageNum < 1) {
-    return pageMetadata({ title: 'Forum' });
+    return pageMetadata({ title: 'Forum', path: '/forum' });
   }
   return pageMetadata({
     title: pageNum > 1 ? `Forum · Page ${pageNum}` : 'Forum',
     description: 'Ask questions and share answers with the Lijia community.',
+    path: pageNum > 1 ? `/forum/page/${pageNum}` : '/forum',
   });
 }
 

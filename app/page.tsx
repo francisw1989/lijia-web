@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ConnectCta } from '@/components/connect-cta';
@@ -10,6 +11,11 @@ import { getHomeCapabilityPanels } from '@/lib/capabilities';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 import { getHomepageSettings, titleLines } from '@/lib/homepage';
 import { getHomeManufacturingComponents } from '@/lib/manufacturing';
+import { pageMetadata } from '@/lib/site-title';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({ path: '/' });
+}
 
 const CERTS = [
   { name: 'BSCI', image: '/images/2.png' },
@@ -241,11 +247,10 @@ export default async function HomePage() {
                 <Image
                   className="img1"
                   src={item.icon}
-                  alt=""
+                  alt={item.title}
                   width={120}
                   height={120}
                   unoptimized={isCmsAssetUrl(item.icon)}
-                  aria-hidden="true"
                 />
                 <Image
                   className="img2"

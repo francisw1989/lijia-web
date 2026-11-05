@@ -9,6 +9,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: 'Site Map',
     description: 'Browse all main pages and list pages on the Lijia website.',
+  
+    path: '/site-map',
   });
 }
 

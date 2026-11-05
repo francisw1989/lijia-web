@@ -7,6 +7,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: 'Blog',
     description: 'News, guides and insights from Lijia Games.',
+  
+    path: '/blog',
   });
 }
 

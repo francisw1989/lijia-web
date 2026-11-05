@@ -99,7 +99,7 @@ export function ToolsContent({
                 className="tools-resource-card"
               >
                 <span className="tools-resource-icon">
-                  <Image src={item.icon} alt="" width={120} height={120} />
+                  <Image src={item.icon} alt={item.title} width={120} height={120} />
                 </span>
                 <strong>{item.title}</strong>
               </Link>
@@ -111,7 +111,7 @@ export function ToolsContent({
                 className="tools-resource-card"
               >
                 <span className="tools-resource-icon">
-                  <Image src={item.icon} alt="" width={120} height={120} />
+                  <Image src={item.icon} alt={item.title} width={120} height={120} />
                 </span>
                 <strong>{item.title}</strong>
               </a>
@@ -121,7 +121,12 @@ export function ToolsContent({
 
         <Link href={TOOL_GENERATOR.href} id="templates" className="tools-generator">
           <span className="tools-generator-icon">
-            <Image src={TOOL_GENERATOR.icon} alt="" width={220} height={160} />
+            <Image
+              src={TOOL_GENERATOR.icon}
+              alt={TOOL_GENERATOR.title}
+              width={220}
+              height={160}
+            />
           </span>
           <span className="tools-generator-label">
             {TOOL_GENERATOR.title}

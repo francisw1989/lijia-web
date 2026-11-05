@@ -78,7 +78,7 @@ export function BackToTop() {
             <img
               className="float-dock-complaint-default"
               src="/images/20.png"
-              alt=""
+              alt="Complaint"
               width={18}
               height={18}
             />
@@ -89,6 +89,7 @@ export function BackToTop() {
               alt=""
               width={18}
               height={18}
+              aria-hidden="true"
             />
           </span>
           <span className="float-dock-tip" role="tooltip">

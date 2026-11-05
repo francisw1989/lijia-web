@@ -17,6 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: meta.title || 'Events',
     description: meta.description,
     keywords: meta.keywords,
+  
+    path: '/events',
   });
 }
 

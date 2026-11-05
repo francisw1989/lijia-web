@@ -11,6 +11,7 @@ import {
   getTeamMemberByParam,
   getTeamMemberParams,
 } from '@/lib/about';
+import { ensureImgAlt } from '@/lib/capabilities';
 import { isCmsAssetUrl } from '@/lib/cms-asset';
 
 type Props = {
@@ -24,11 +25,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await getTeamMemberByParam(id);
-  if (!data) return pageMetadata({ title: 'Team member not found' });
+  if (!data) {
+    return pageMetadata({ title: 'Team member not found', path: '/about/team' });
+  }
   return pageMetadata({
     title: data.member.name,
     description: data.member.description || undefined,
-    keywords: data.member.keywords || undefined,
+    path: `/about/team/${data.slug}`,
+    image: data.member.image || undefined,
   });
 }
 
@@ -78,7 +82,7 @@ export default async function TeamMemberDetailPage({ params }: Props) {
                 className="team-detail-body"
                 suppressHydrationWarning
                 dangerouslySetInnerHTML={{
-                  __html: member.content || '',
+                  __html: ensureImgAlt(member.content || '', member.name),
                 }}
               />
             </div>

@@ -1098,7 +1098,7 @@ function DiceFaceIcon({ kind }: { kind: DiceTemplateFile['id'] }) {
   return (
     <img
       src={DICE_ICON_SRC[kind]}
-      alt=""
+      alt={`${kind.toUpperCase()} dice`}
       width={52}
       height={52}
       decoding="async"

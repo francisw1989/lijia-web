@@ -7,6 +7,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: 'Forum',
     description: 'Ask questions and share answers with the Lijia community.',
+  
+    path: '/forum',
   });
 }
 

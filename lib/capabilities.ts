@@ -497,6 +497,38 @@ export function plainTextFromHtml(html: string) {
     .trim();
 }
 
+function escapeHtmlAttr(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * 富文本里缺 alt / alt 为空的图片，在 SSR 时补上兜底文案（如文章标题）。
+ * 已有非空 alt 的不改动。
+ */
+export function ensureImgAlt(html: string, fallbackAlt: string) {
+  const alt = escapeHtmlAttr(String(fallbackAlt || '').trim());
+  if (!html?.trim() || !alt) return html;
+
+  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+    const matched = tag.match(
+      /\balt\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i,
+    );
+    const current = (matched?.[1] ?? matched?.[2] ?? matched?.[3] ?? '').trim();
+    if (current) return tag;
+    if (matched) {
+      return tag.replace(
+        /\balt\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/i,
+        `alt="${alt}"`,
+      );
+    }
+    return tag.replace(/<img\b/i, `<img alt="${alt}"`);
+  });
+}
+
 /** 富文本是否有可展示内容（纯文字，或图片/视频等媒体） */
 export function hasRichContent(html: string) {
   const value = html.trim();

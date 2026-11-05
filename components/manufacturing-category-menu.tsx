@@ -24,13 +24,13 @@ export function ManufacturingCategoryMenu({
                 className={`mfg-cat-menu-item${active ? ' is-active' : ''}`}
                 aria-current={active ? 'page' : undefined}
               >
-                <span className="mfg-cat-menu-icon" aria-hidden="true">
+                <span className="mfg-cat-menu-icon">
                   {item.icon ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       className="mfg-cat-menu-icon-default"
                       src={item.icon}
-                      alt=""
+                      alt={item.label}
                       width={64}
                       height={64}
                     />
@@ -43,6 +43,7 @@ export function ManufacturingCategoryMenu({
                       alt=""
                       width={64}
                       height={64}
+                      aria-hidden="true"
                     />
                   ) : null}
                 </span>

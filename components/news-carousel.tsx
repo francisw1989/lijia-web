@@ -58,7 +58,7 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
             aria-label="Previous news"
             onClick={() => swiperRef.current?.slidePrev()}
           >
-            <Image src="/images/9.png" alt="" width={36} height={36} />
+            <Image src="/images/9.png" alt="" width={36} height={36} aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -66,7 +66,7 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
             aria-label="Next news"
             onClick={() => swiperRef.current?.slideNext()}
           >
-            <Image src="/images/10.png" alt="" width={36} height={36} />
+            <Image src="/images/10.png" alt="" width={36} height={36} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export function NewsCarousel({ items }: { items: NewsCardItem[] }) {
                 <Link href={href} className="media aspect-16-10 relative">
                   <Image
                     src={cover}
-                    alt=""
+                    alt={title || category}
                     fill
                     unoptimized={isCmsAssetUrl(cover)}
                     className="object-cover"

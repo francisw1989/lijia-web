@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/site-title';
 import { ArticleDetail } from '@/components/article-detail';
+import { JsonLd } from '@/components/json-ld';
 import {
   allScopeProductParams,
   getScopeProductByParam,
@@ -10,6 +11,7 @@ import {
   plainTextFromHtml,
   scopeCategoryHref,
 } from '@/lib/capabilities';
+import { productSchema } from '@/lib/schema';
 
 type Props = {
   params: Promise<{ categoryId: string; productId: string }>;
@@ -24,7 +26,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { categoryId, productId } = await params;
   const data = await getScopeProductByParam(categoryId, productId);
-  if (!data) return pageMetadata({ title: 'Capability not found' });
+  if (!data) {
+    return pageMetadata({ title: 'Capability not found', path: '/capabilities/scope' });
+  }
 
   const description =
     (isMeaningfulDescription(data.product.title, data.product.description)
@@ -34,6 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return pageMetadata({
     title: data.product.title,
     description,
+    path: `/capabilities/scope/${data.categorySlug}/${data.productSlug}`,
+    image: data.product.cover || undefined,
   });
 }
 
@@ -51,16 +57,30 @@ export default async function CapabilityProductPage({ params }: Props) {
   }
 
   const backHref = scopeCategoryHref(category.id);
+  const description =
+    (isMeaningfulDescription(product.title, product.description)
+      ? product.description
+      : plainTextFromHtml(product.content)) || undefined;
 
   return (
-    <ArticleDetail
-      title={product.title}
-      kicker={category.name || product.category_name || ''}
-      html={product.content}
-    >
-      <Link href={backHref} className="about-news-more">
-        &lt; back to Scope of capabilities
-      </Link>
-    </ArticleDetail>
+    <>
+      <JsonLd
+        data={productSchema({
+          name: product.title,
+          description,
+          image: product.cover || undefined,
+          url: canonicalPath,
+        })}
+      />
+      <ArticleDetail
+        title={product.title}
+        kicker={category.name || product.category_name || ''}
+        html={product.content}
+      >
+        <Link href={backHref} className="about-news-more">
+          &lt; back to Scope of capabilities
+        </Link>
+      </ArticleDetail>
+    </>
   );
 }

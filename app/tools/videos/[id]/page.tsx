@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { pageMetadata } from '@/lib/site-title';
 import { RevealInit } from '@/components/reveal-init';
-import { hasRichContent } from '@/lib/capabilities';
+import { ensureImgAlt, hasRichContent } from '@/lib/capabilities';
 import {
   getToolsVideoByParam,
   getToolsVideoParams,
@@ -21,11 +21,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await getToolsVideoByParam(id);
-  if (!data) return pageMetadata({ title: 'Video not found' });
+  if (!data) return pageMetadata({ title: 'Video not found', path: '/tools/videos' });
   return pageMetadata({
     title: data.video.title,
     description: data.video.description || undefined,
-    keywords: data.video.keywords || undefined,
+    path: `/tools/videos/${data.slug}`,
+    image: data.video.poster || undefined,
   });
 }
 
@@ -36,7 +37,7 @@ export default async function ToolsVideoDetailPage({ params }: Props) {
   if (id !== data.slug) permanentRedirect(`/tools/videos/${data.slug}`);
 
   const { video } = data;
-  const body = video.content.trim();
+  const body = ensureImgAlt(video.content.trim(), video.title);
 
   return (
     <main className="bg-white min-h-page">

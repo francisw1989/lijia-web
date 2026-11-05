@@ -4,11 +4,13 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { ArticleEngagement } from '@/components/article-engagement';
 import { CommunityStatsWithLike } from '@/components/community-stats-like';
 import { ForumRecommend } from '@/components/forum-recommend';
+import { JsonLd } from '@/components/json-ld';
 import {
   getAllArticleIds,
   getArticleByParam,
   getForumPageData,
 } from '@/lib/articles';
+import { articleSchema } from '@/lib/schema';
 import { pageMetadata } from '@/lib/site-title';
 
 type Props = {
@@ -22,11 +24,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await getArticleByParam('Forum', id);
-  if (!data) return pageMetadata({ title: 'Topic not found' });
+  if (!data) return pageMetadata({ title: 'Topic not found', path: '/forum' });
   return pageMetadata({
     title: data.article.title,
     description: data.article.description || undefined,
-    keywords: data.article.keywords || undefined,
+    path: `/forum/${data.slug}`,
+    image: data.article.cover || undefined,
+    type: 'article',
   });
 }
 
@@ -67,15 +71,27 @@ export default async function ForumDetailPage({ params }: Props) {
   if (!data) notFound();
   if (id !== data.slug) permanentRedirect(`/forum/${data.slug}`);
 
-  const { article } = data;
+  const { article, slug } = data;
   const author = article.author_username || 'Community Member';
   const tags = parseTags(article.keywords);
   const description = article.description?.trim() || '';
   const answerCount = article.comment_count || 0;
   const sideItems = recommended.filter((item) => item.id !== article.id);
+  const path = `/forum/${slug}`;
 
   return (
     <main className="community-page forum-detail-page">
+      <JsonLd
+        data={articleSchema({
+          headline: article.title,
+          description: article.description,
+          image: article.cover,
+          url: path,
+          datePublished: article.created_at,
+          dateModified: article.updated_at || article.created_at,
+          authorName: article.author_username,
+        })}
+      />
       <div className="container community-layout forum-layout">
         <div className="community-main forum-main">
           <section className="forum-question-card">

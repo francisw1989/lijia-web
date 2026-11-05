@@ -18,6 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: meta.title,
     description: meta.description,
     keywords: meta.keywords,
+  
+    path: '/tools',
   });
 }
 

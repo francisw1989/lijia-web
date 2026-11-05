@@ -5,12 +5,14 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { FacilitiesHero } from '@/components/facilities-hero';
 import { AboutShell } from '@/components/about-shell';
 import { ArticleDetail } from '@/components/article-detail';
+import { JsonLd } from '@/components/json-ld';
 import { isVideoMediaUrl } from '@/lib/media';
 import {
   getAboutSection,
   getFacilitiesArticleByParam,
   getFacilitiesArticleParams,
 } from '@/lib/about';
+import { articleSchema } from '@/lib/schema';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -23,11 +25,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await getFacilitiesArticleByParam(id);
-  if (!data) return pageMetadata({ title: 'Article not found' });
+  if (!data) {
+    return pageMetadata({ title: 'Article not found', path: '/about/facilities' });
+  }
   return pageMetadata({
     title: data.article.title,
     description: data.article.description || undefined,
-    keywords: data.article.keywords || undefined,
+    path: `/about/facilities/${data.slug}`,
+    image: data.article.cover || undefined,
+    type: 'article',
   });
 }
 
@@ -41,13 +47,22 @@ export default async function FacilitiesArticlePage({ params }: Props) {
   if (!data) notFound();
   if (id !== data.slug) permanentRedirect(`/about/facilities/${data.slug}`);
 
-  const { article } = data;
+  const { article, slug } = data;
+  const path = `/about/facilities/${slug}`;
   const videoSrc = isVideoMediaUrl(article.cover, article.coverType)
     ? article.cover.trim()
     : '';
 
   return (
     <>
+      <JsonLd
+        data={articleSchema({
+          headline: article.title,
+          description: article.description,
+          image: article.cover,
+          url: path,
+        })}
+      />
       <FacilitiesHero
         src={banner.image}
         poster={banner.poster}

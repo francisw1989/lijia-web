@@ -104,7 +104,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
             <div className="contact-info">
               <div className="contact-info-row">
                 <span className="contact-info-icon">
-                  <Image src={INFO_ICONS.phone} alt="" width={28} height={28} />
+                  <Image src={INFO_ICONS.phone} alt="Telephone" width={28} height={28} />
                 </span>
                 <div>
                   <strong>Telephone</strong>
@@ -122,7 +122,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
 
               <div className="contact-info-row">
                 <span className="contact-info-icon">
-                  <Image src={INFO_ICONS.email} alt="" width={28} height={28} />
+                  <Image src={INFO_ICONS.email} alt="Email" width={28} height={28} />
                 </span>
                 <div>
                   <strong>Email</strong>
@@ -136,7 +136,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
 
               <div className="contact-info-row">
                 <span className="contact-info-icon">
-                  <Image src={INFO_ICONS.app} alt="" width={28} height={28} />
+                  <Image src={INFO_ICONS.app} alt="IM" width={28} height={28} />
                 </span>
                 <div>
                   <strong>IM</strong>
@@ -150,7 +150,7 @@ export function ContactContent({ banner }: { banner: BannerCopy }) {
 
               <div className="contact-info-row">
                 <span className="contact-info-icon">
-                  <Image src={INFO_ICONS.address} alt="" width={28} height={28} />
+                  <Image src={INFO_ICONS.address} alt="Address" width={28} height={28} />
                 </span>
                 <div>
                   <strong>Address</strong>

@@ -4,11 +4,13 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { ArticleDetail } from '@/components/article-detail';
 import { ArticleEngagement } from '@/components/article-engagement';
 import { BlogRecommend } from '@/components/blog-recommend';
+import { JsonLd } from '@/components/json-ld';
 import {
   getAllArticleIds,
   getArticleByParam,
   getBlogPageData,
 } from '@/lib/articles';
+import { articleSchema } from '@/lib/schema';
 import { pageMetadata } from '@/lib/site-title';
 
 type Props = {
@@ -22,11 +24,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const data = await getArticleByParam('Blog', id);
-  if (!data) return pageMetadata({ title: 'Article not found' });
+  if (!data) return pageMetadata({ title: 'Article not found', path: '/blog' });
   return pageMetadata({
     title: data.article.title,
     description: data.article.description || undefined,
-    keywords: data.article.keywords || undefined,
+    path: `/blog/${data.slug}`,
+    image: data.article.cover || undefined,
+    type: 'article',
   });
 }
 
@@ -48,11 +52,23 @@ export default async function BlogDetailPage({ params }: Props) {
   if (!data) notFound();
   if (id !== data.slug) permanentRedirect(`/blog/${data.slug}`);
 
-  const { article } = data;
+  const { article, slug } = data;
   const sideItems = recommended.filter((item) => item.id !== article.id);
+  const path = `/blog/${slug}`;
 
   return (
     <main className="community-page community-detail-page">
+      <JsonLd
+        data={articleSchema({
+          headline: article.title,
+          description: article.description,
+          image: article.cover,
+          url: path,
+          datePublished: article.created_at,
+          dateModified: article.updated_at || article.created_at,
+          authorName: article.author_username,
+        })}
+      />
       <div className="container community-layout">
         <div className="community-main blog-detail-card">
           <ArticleDetail title={article.title} kicker={formatDate(article.created_at)} html={article.content}>

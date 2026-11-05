@@ -56,6 +56,12 @@ export function manufacturingCategoryHref(
   return `/manufacturing/${category}`;
 }
 
+/** 栏目列表分页 URL（与博客一致：/manufacturing/{slug}/page/2） */
+export function manufacturingCategoryListHref(sectionSlug: string, page = 1) {
+  const base = `/manufacturing/${sectionSlug}`;
+  return page <= 1 ? base : `${base}/page/${page}`;
+}
+
 /** 产品详情段：优先标题 slug；空或非英文标题时回退 id */
 export function manufacturingProductSlug(
   title: string,
@@ -552,6 +558,27 @@ export async function allManufacturingCategoryParams() {
     return categories
       .filter((item) => item.parent_id === root.id)
       .map((item) => ({ id: manufacturingSectionSlug(item) }));
+  } catch {
+    return [];
+  }
+}
+
+/** 栏目列表第 2 页起的静态参数（供 /manufacturing/[id]/page/[page]） */
+export async function allManufacturingCategoryPageParams(): Promise<
+  { id: string; page: string }[]
+> {
+  try {
+    const categories = await allManufacturingCategoryParams();
+    const out: { id: string; page: string }[] = [];
+    for (const { id } of categories) {
+      const data = await getManufacturingCategoryPage(id);
+      if (!data?.articles.length) continue;
+      const { pageCount } = paginateItems(data.articles, 1);
+      for (let page = 2; page <= pageCount; page += 1) {
+        out.push({ id, page: String(page) });
+      }
+    }
+    return out;
   } catch {
     return [];
   }

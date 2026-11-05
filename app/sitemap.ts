@@ -15,12 +15,15 @@ import {
 } from '@/lib/capabilities';
 import { getCertificateArticleParams } from '@/lib/certificates';
 import {
+  allManufacturingCategoryPageParams,
   allManufacturingCategoryParams,
   allManufacturingProductParams,
 } from '@/lib/manufacturing';
 import { SITE_MAP_SECTIONS } from '@/lib/site-map';
 import { absoluteUrl, getSiteUrl } from '@/lib/site';
 import { getToolsVideoParams } from '@/lib/tools';
+
+const LEGAL_PATHS = new Set(['/tools/terms', '/tools/cookies-privacy']);
 
 function collectPaths() {
   const paths = new Set<string>();
@@ -31,10 +34,19 @@ function collectPaths() {
   return [...paths];
 }
 
+function sitemapPriority(path: string): number {
+  if (path === '/') return 1;
+  if (LEGAL_PATHS.has(path)) return 0.2;
+  if (path.includes('/page/')) return 0.5;
+  if (path.startsWith('/tools')) return 0.7;
+  return 0.75;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const [
     mfgCategories,
+    mfgCategoryPages,
     mfgProducts,
     scopeProducts,
     communityPages,
@@ -48,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     videos,
   ] = await Promise.all([
     allManufacturingCategoryParams(),
+    allManufacturingCategoryPageParams(),
     allManufacturingProductParams(),
     allScopeProductParams(),
     getCommunityListPagePaths(),
@@ -66,6 +79,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...communityPages,
     ...communityArticles,
     ...mfgCategories.map((item) => `/manufacturing/${item.id}`),
+    ...mfgCategoryPages.map(
+      (item) => `/manufacturing/${item.id}/page/${item.page}`,
+    ),
     ...mfgProducts.map(
       (item) => `/manufacturing/${item.id}/${item.productId}`,
     ),
@@ -81,17 +97,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...videos.map((item) => `/tools/videos/${item.id}`),
   ]);
 
+  // 不写统一的 new Date() lastmod，避免全站同一时间戳的假信号
   return [...paths].map((path) => ({
     url: path === '/' ? base : absoluteUrl(path),
-    lastModified: new Date(),
-    changeFrequency: path === '/' ? 'daily' : 'weekly',
-    priority:
-      path === '/'
-        ? 1
-        : path.includes('/page/')
-          ? 0.5
-          : path.startsWith('/tools')
-            ? 0.8
-            : 0.75,
+    changeFrequency:
+      path === '/' ? 'daily' : LEGAL_PATHS.has(path) ? 'yearly' : 'weekly',
+    priority: sitemapPriority(path),
   }));
 }

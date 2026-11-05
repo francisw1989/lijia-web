@@ -8,7 +8,7 @@ export function ConnectCta() {
         className="object-cover"
         src="https://images.wangsanshui.com/images/1787540462773-25bic8.png"
         unoptimized
-        alt=""
+        alt="Let's Connect On Lijia Company"
         fill
         sizes="100vw"
       />

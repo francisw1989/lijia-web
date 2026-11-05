@@ -14,10 +14,15 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { q } = await searchParams;
   const query = String(q || '').trim();
-  return pageMetadata({
+  const meta = await pageMetadata({
     title: query ? `Search: ${query}` : 'Search',
     description: 'Search pages, products, blog posts and resources on Lijia.',
+    path: '/search',
   });
+  return {
+    ...meta,
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function SearchPage({ searchParams }: PageProps) {

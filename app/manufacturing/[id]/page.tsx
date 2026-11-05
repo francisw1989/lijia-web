@@ -9,7 +9,7 @@ import {
   allManufacturingCategoryParams,
   getManufacturingCategoryPage,
   getManufacturingMenuItems,
-  isMahjongCategory,
+  manufacturingCategoryListHref,
   manufacturingSectionSlug,
   paginateItems,
   resolveManufacturingNumericRedirect,
@@ -27,12 +27,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id: slug } = await params;
   const data = await getManufacturingCategoryPage(slug);
-  if (!data) return pageMetadata({ title: 'Not found' });
+  if (!data) return pageMetadata({ title: 'Not found', path: '/manufacturing' });
+  const canonical = manufacturingSectionSlug(data.category);
 
   return pageMetadata({
     title: data.category.name,
     description: data.category.description?.trim() || undefined,
-    keywords: data.category.keywords?.trim() || undefined,
+    path: `/manufacturing/${canonical}`,
+    image: data.category.image || undefined,
   });
 }
 
@@ -57,15 +59,17 @@ export default async function ManufacturingCategoryPage({
   const canonical = manufacturingSectionSlug(data.category);
   const { page: pageParam } = await searchParams;
   const pageNum = Number(pageParam) || 1;
-  if (slug !== canonical) {
-    permanentRedirect(
-      pageNum > 1
-        ? `/manufacturing/${canonical}?page=${pageNum}`
-        : `/manufacturing/${canonical}`,
-    );
+
+  // 旧 ?page=N → 静态 /page/N（与博客一致）
+  if (pageNum > 1) {
+    permanentRedirect(manufacturingCategoryListHref(canonical, pageNum));
   }
 
-  const { items, page, pageCount } = paginateItems(data.articles, pageNum);
+  if (slug !== canonical) {
+    permanentRedirect(manufacturingCategoryListHref(canonical, 1));
+  }
+
+  const { items, page, pageCount } = paginateItems(data.articles, 1);
 
   return (
     <section className="section-pad about-shell">
@@ -75,7 +79,7 @@ export default async function ManufacturingCategoryPage({
           <ManufacturingBreadcrumb
             category={{
               label: data.category.name,
-              href: `/manufacturing/${canonical}`,
+              href: manufacturingCategoryListHref(canonical, 1),
             }}
           />
           <h1 className="about-news-detail-title">{data.category.name}</h1>
@@ -97,11 +101,7 @@ export default async function ManufacturingCategoryPage({
           <PagePager
             page={page}
             pageCount={pageCount}
-            hrefFor={(n) =>
-              n <= 1
-                ? `/manufacturing/${canonical}`
-                : `/manufacturing/${canonical}?page=${n}`
-            }
+            hrefFor={(n) => manufacturingCategoryListHref(canonical, n)}
           />
         </div>
       </div>

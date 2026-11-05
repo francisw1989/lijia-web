@@ -22,10 +22,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const album = await getFacilityAlbum(id);
-  if (!album) return pageMetadata({ title: 'Gallery not found' });
+  if (!album) {
+    return pageMetadata({ title: 'Gallery not found', path: '/about/facilities' });
+  }
   return pageMetadata({
     title: `${album.label} | Our Facilities`,
     description: `Browse all ${album.label} photos from Lijia Our Facilities.`,
+    path: `/about/facilities/gallery/${album.id}`,
+    image: album.images?.[0]?.src || undefined,
   });
 }
 

@@ -9,6 +9,7 @@ import { SiteHeader } from '@/components/site-header';
 import { getHomepageSettings } from '@/lib/homepage';
 import { organizationSchema, websiteSchema } from '@/lib/schema';
 import { getSiteUrl } from '@/lib/site';
+import { clipMetaDescription } from '@/lib/site-title';
 import './globals.scss';
 
 const leagueSpartan = League_Spartan({
@@ -18,7 +19,9 @@ const leagueSpartan = League_Spartan({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { seo } = await getHomepageSettings();
+  const { seo, banner } = await getHomepageSettings();
+  const description = clipMetaDescription(seo.description);
+  const image = banner.imageUrl || undefined;
   return {
     metadataBase: new URL(getSiteUrl()),
     title: {
@@ -26,8 +29,21 @@ export async function generateMetadata(): Promise<Metadata> {
       // 兜底：未显式设置 absolute 的页面仍套上首页标题（页面名在前）
       template: `%s · ${seo.title}`,
     },
-    description: seo.description,
-    keywords: seo.keywords || undefined,
+    description,
+    openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      siteName: seo.title,
+      title: seo.title,
+      description,
+      ...(image ? { images: [{ url: image, alt: seo.title }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo.title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
   };
 }
 

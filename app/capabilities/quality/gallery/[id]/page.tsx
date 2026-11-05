@@ -23,10 +23,14 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const album = await getQualityAlbumById(id);
-  if (!album) return pageMetadata({ title: 'Gallery not found' });
+  if (!album) {
+    return pageMetadata({ title: 'Gallery not found', path: '/capabilities/quality' });
+  }
   return pageMetadata({
     title: `${album.label} | Quality Control`,
     description: `Browse all ${album.label} photos from Lijia Quality Control.`,
+    path: `/capabilities/quality/gallery/${album.id}`,
+    image: album.images?.[0]?.src || undefined,
   });
 }
 
