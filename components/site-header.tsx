@@ -87,7 +87,7 @@ export function SiteHeader() {
             <Logo />
           </Link>
 
-          <nav className={`flex1 flex-row-between nav ${open ? 'is-open' : ''}`} aria-label="Primary">
+          <nav className={`flex1 nav ${open ? 'is-open' : ''}`} aria-label="Primary">
             {NAV.map((item) => {
               if (item.children) {
                 const childActive = item.children.some((c) => isActive(pathname, c.href));
@@ -141,7 +141,7 @@ export function SiteHeader() {
             })}
           </nav>
 
-          <div className="flex-row-middle gap-20 header-actions">
+          <div className="flex-row-middle header-actions">
             <button
               type="button"
               className="header-search-btn"

@@ -24,7 +24,8 @@ export function ComplainModal({ open, onClose }: Props) {
   const [turnstileToken, setTurnstileToken] = useState('');
   const [turnstileReset, setTurnstileReset] = useState(0);
   const [turnstileReveal, setTurnstileReveal] = useState(0);
-  const { name, email, setEmail, resetToUser } = useCommunityFormPrefill();
+  const { name, setName, email, setEmail, resetToUser } =
+    useCommunityFormPrefill();
   const { isLoggedIn } = useInquiryAuth();
   const needsTurnstile = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
@@ -64,6 +65,10 @@ export function ComplainModal({ open, onClose }: Props) {
       setError('Please enter the 6-digit verification code.');
       return;
     }
+    if (!name.trim()) {
+      setError('Please enter your name.');
+      return;
+    }
     if (!message.trim()) {
       setError('Please describe your complaint.');
       return;
@@ -71,9 +76,9 @@ export function ComplainModal({ open, onClose }: Props) {
 
     setSubmitting(true);
     const result = await submitComplainMessage({
+      name: name.trim(),
       email: email.trim(),
       message: message.trim(),
-      ...(name.trim() ? { name: name.trim() } : {}),
       turnstileToken,
       ...(isLoggedIn ? {} : { code: code.trim() }),
     });
@@ -124,6 +129,20 @@ export function ComplainModal({ open, onClose }: Props) {
               Complain
             </h2>
             <form className="auth-modal-form" onSubmit={onSubmit}>
+              <label className="auth-field">
+                <span>Name*</span>
+                <input
+                  type="text"
+                  required
+                  autoComplete="name"
+                  value={name}
+                  onChange={(e) => {
+                    clearNativeValidity(e);
+                    setName(e.target.value);
+                  }}
+                  onInvalid={englishNativeInvalid}
+                />
+              </label>
               <label className="auth-field">
                 <span>Email*</span>
                 <input
