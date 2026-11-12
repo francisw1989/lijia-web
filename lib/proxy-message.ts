@@ -8,7 +8,11 @@ const CMS_API_URL = (process.env.CMS_API_URL || 'http://localhost:3000').replace
 /** 转发留言到 CMS，并带上社区登录 Authorization（已登录可跳过邮箱验证码） */
 export async function proxyMessagePost(
   request: NextRequest,
-  cmsPath: '/api/web/messages/contact' | '/api/web/messages/project' | '/api/web/messages/tools',
+  cmsPath:
+    | '/api/web/messages/contact'
+    | '/api/web/messages/project'
+    | '/api/web/messages/tools'
+    | '/api/web/messages/complain',
 ) {
   let body: unknown;
   try {

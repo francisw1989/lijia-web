@@ -5,7 +5,11 @@ type SubmitResult =
   | { ok: false; message: string };
 
 async function postMessage(
-  path: '/api/messages/contact' | '/api/messages/project' | '/api/messages/tools',
+  path:
+    | '/api/messages/contact'
+    | '/api/messages/project'
+    | '/api/messages/tools'
+    | '/api/messages/complain',
   body: Record<string, string>,
 ): Promise<SubmitResult> {
   try {
@@ -40,4 +44,8 @@ export function submitProjectMessage(body: Record<string, string>) {
 
 export function submitToolsMessage(body: Record<string, string>) {
   return postMessage('/api/messages/tools', body);
+}
+
+export function submitComplainMessage(body: Record<string, string>) {
+  return postMessage('/api/messages/complain', body);
 }

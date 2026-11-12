@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Logo } from './logo';
 import { AuthModal } from './auth-modal';
+import { ComplainModal } from './complain-modal';
 import { SearchOverlay } from './search-overlay';
 import {
   clearCommunitySession,
@@ -43,6 +44,7 @@ export function SiteHeader() {
   const [communityOpen, setCommunityOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [complainOpen, setComplainOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchKbd, setSearchKbd] = useState('⌘K');
   const [user, setUser] = useState<CommunityUser | null>(null);
@@ -181,6 +183,16 @@ export function SiteHeader() {
             </Link>
             <button
               type="button"
+              className="btn btn-complain btn-sm"
+              onClick={() => {
+                setOpen(false);
+                setComplainOpen(true);
+              }}
+            >
+              Complain
+            </button>
+            <button
+              type="button"
               className="menu-btn"
               aria-expanded={open}
               aria-label="Menu"
@@ -199,6 +211,7 @@ export function SiteHeader() {
         onClose={() => setAuthOpen(false)}
         onSuccess={() => setUser(getCommunityUser())}
       />
+      <ComplainModal open={complainOpen} onClose={() => setComplainOpen(false)} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );

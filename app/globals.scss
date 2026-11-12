@@ -914,6 +914,14 @@ input {
   color: var(--white);
 }
 .btn-primary:hover { background: var(--navy-soft); }
+.btn-complain {
+  background: var(--orange);
+  color: var(--white);
+}
+.btn-complain:hover { background: #e66a1f; }
+.complain-modal {
+  width: min(480px, 100%);
+}
 .btn-light {
   background: var(--white);
   color: var(--navy);
