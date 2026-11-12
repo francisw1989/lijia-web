@@ -72,34 +72,8 @@ export function BackToTop() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M22.7 19.3l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.5 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
           </svg>
-        </a>
-        <a
-          href="mailto:info@lijiagames.com"
-          className="float-dock-item float-dock-complaint"
-          aria-label="Complaint Hotline: info@lijiagames.com"
-        >
-          <span className="float-dock-complaint-icon" aria-hidden="true">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="float-dock-complaint-default"
-              src="/images/20.png"
-              alt="Complaint"
-              width={18}
-              height={18}
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="float-dock-complaint-hover"
-              src="/images/20-1.png"
-              alt=""
-              width={18}
-              height={18}
-              aria-hidden="true"
-            />
-          </span>
           <span className="float-dock-tip" role="tooltip">
-            <span className="float-dock-tip-label">Complaint Hotline:</span>
-            <span className="float-dock-tip-email">info@lijiagames.com</span>
+            Tools
           </span>
         </a>
         {SOCIAL.map((item) => (
@@ -113,6 +87,9 @@ export function BackToTop() {
               : {})}
           >
             {item.icon}
+            <span className="float-dock-tip" role="tooltip">
+              {item.label}
+            </span>
           </a>
         ))}
       </div>

@@ -6269,14 +6269,14 @@ a.gallery-tile-link:hover {
   right: calc(100% + 14px);
   top: 50%;
   transform: translateY(-50%) translateX(6px);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 168px;
-  padding: 12px 14px;
+  padding: 8px 12px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16);
+  color: #111827;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -6294,20 +6294,8 @@ a.gallery-tile-link:hover {
   transform: translateY(-50%) rotate(45deg);
   box-shadow: 4px -4px 10px rgba(15, 23, 42, 0.04);
 }
-.float-dock-tip-label {
-  color: #9aa3b2;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.3;
-}
-.float-dock-tip-email {
-  color: #111827;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.3;
-}
-.float-dock-complaint:hover .float-dock-tip,
-.float-dock-complaint:focus-visible .float-dock-tip {
+.float-dock-item:hover .float-dock-tip,
+.float-dock-item:focus-visible .float-dock-tip {
   opacity: 1;
   visibility: visible;
   transform: translateY(-50%) translateX(0);
