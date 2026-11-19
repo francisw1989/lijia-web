@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { ArticleStatsProvider, useArticleStatsMap } from '@/components/article-stats-provider';
 import { ForumCompose } from '@/components/forum-compose';
 import { ForumRecommend } from '@/components/forum-recommend';
 import { CommunityStatsWithLike } from '@/components/community-stats-like';
@@ -34,7 +37,9 @@ function ForumRow({ item }: { item: ArticleListItem }) {
   const author = item.author_username || 'Community Member';
   const tags = parseTags(item.keywords);
   const excerpt = item.description?.trim() || '';
-  const hasReply = (item.comment_count || 0) > 0;
+  const { stats } = useArticleStatsMap();
+  const liveComments = stats[item.id]?.comment_count;
+  const hasReply = (liveComments ?? item.comment_count ?? 0) > 0;
 
   return (
     <article className="forum-feed-item">
@@ -100,25 +105,34 @@ export function ForumList({
   page,
   pageCount,
 }: Pick<CommunityPageData, 'articles' | 'recommended' | 'page' | 'pageCount'>) {
+  const ids = [
+    ...articles.map((item) => item.id),
+    ...recommended.map((item) => item.id),
+  ];
+
   return (
     <main className="community-page forum-page">
       <div className="container community-layout forum-layout">
-        <div className="community-main forum-main">
-          <ForumCompose />
-          <section className="forum-feed-card">
-            {articles.length === 0 ? (
-              <p className="community-empty forum-feed-empty">No topics yet. Ask the first question.</p>
-            ) : (
-              articles.map((item) => <ForumRow key={item.id} item={item} />)
-            )}
-          </section>
-          <PagePager
-            page={page}
-            pageCount={pageCount}
-            hrefFor={(n) => communityListHref('/forum', n)}
-          />
-        </div>
-        <ForumRecommend items={recommended} />
+        <ArticleStatsProvider ids={ids}>
+          <div className="community-main forum-main">
+            <ForumCompose />
+            <section className="forum-feed-card">
+              {articles.length === 0 ? (
+                <p className="community-empty forum-feed-empty">
+                  No topics yet. Ask the first question.
+                </p>
+              ) : (
+                articles.map((item) => <ForumRow key={item.id} item={item} />)
+              )}
+            </section>
+            <PagePager
+              page={page}
+              pageCount={pageCount}
+              hrefFor={(n) => communityListHref('/forum', n)}
+            />
+          </div>
+          <ForumRecommend items={recommended} />
+        </ArticleStatsProvider>
       </div>
     </main>
   );

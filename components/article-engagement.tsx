@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { AuthModal } from '@/components/auth-modal';
 import {
   COMMUNITY_MUTED_MESSAGE,
-  fetchArticleLiked,
-  fetchProductLiked,
+  fetchArticleEngagement,
+  fetchProductEngagement,
   getCommunityToken,
   getCommunityUser,
   isCommunityMuted,
@@ -127,7 +127,7 @@ export function ArticleEngagement({
   const [authOpen, setAuthOpen] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
-  const [viewCount] = useState(initialViewCount);
+  const [viewCount, setViewCount] = useState(initialViewCount);
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState(() => sortComments(initialComments));
   const [content, setContent] = useState('');
@@ -145,23 +145,27 @@ export function ArticleEngagement({
   useEffect(() => {
     setComments(sortComments(initialComments));
     setCommentCount(initialCommentCount);
-  }, [initialComments, initialCommentCount]);
+    setLikeCount(initialLikeCount);
+    setViewCount(initialViewCount);
+  }, [initialComments, initialCommentCount, initialLikeCount, initialViewCount]);
 
+  // 挂载时用社区接口拉实时数量/评论（不依赖 ISR）
   useEffect(() => {
     let cancelled = false;
-    const syncLiked = async () => {
-      if (!getCommunityToken()) {
-        if (!cancelled) setLiked(false);
-        return;
-      }
-      const isLiked = isProduct
-        ? await fetchProductLiked(articleId)
-        : await fetchArticleLiked(articleId);
-      if (!cancelled) setLiked(isLiked);
+    const syncEngagement = async () => {
+      const snap = isProduct
+        ? await fetchProductEngagement(articleId)
+        : await fetchArticleEngagement(articleId);
+      if (cancelled || !snap) return;
+      setLiked(getCommunityToken() ? snap.liked : false);
+      setLikeCount(snap.like_count);
+      setCommentCount(snap.comment_count);
+      setViewCount(snap.view_count);
+      setComments(sortComments(snap.comments));
     };
-    syncLiked();
+    syncEngagement();
     const unsub = subscribeAuth(() => {
-      syncLiked();
+      syncEngagement();
     });
     return () => {
       cancelled = true;
@@ -170,11 +174,17 @@ export function ArticleEngagement({
   }, [articleId, isProduct]);
 
   useEffect(() => {
-    if (isProduct) {
-      recordProductView(articleId).catch(() => {});
-    } else {
-      recordView(articleId).catch(() => {});
-    }
+    let cancelled = false;
+    const bumpView = async () => {
+      const result = isProduct
+        ? await recordProductView(articleId)
+        : await recordView(articleId);
+      if (!cancelled && result) setViewCount(result.view_count);
+    };
+    bumpView().catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [articleId, isProduct]);
 
   const requireAuth = () => {

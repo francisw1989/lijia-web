@@ -190,17 +190,93 @@ export async function toggleLike(articleId: number) {
   return data;
 }
 
+export type EngagementSnapshot = {
+  liked: boolean;
+  like_count: number;
+  comment_count: number;
+  view_count: number;
+  comments: Array<{
+    id: number;
+    content: string;
+    created_at: string;
+    username?: string | null;
+    is_recommended?: number;
+  }>;
+};
+
+export type ArticleStatsItem = {
+  id: number;
+  liked: boolean;
+  like_count: number;
+  comment_count: number;
+  view_count: number;
+};
+
+/** 列表批量拉互动计数（一次请求） */
+export async function fetchArticleStats(
+  ids: number[],
+): Promise<Record<number, ArticleStatsItem>> {
+  const unique = [...new Set(ids.filter((n) => Number.isFinite(n) && n > 0))];
+  if (!unique.length) return {};
+  const { ok, data } = await communityFetch<{
+    list?: Array<{
+      id: number;
+      liked?: boolean;
+      like_count?: number;
+      comment_count?: number;
+      view_count?: number;
+    }>;
+  }>(`article-stats?ids=${unique.join(',')}`);
+  if (!ok || !Array.isArray(data.list)) return {};
+  const map: Record<number, ArticleStatsItem> = {};
+  for (const row of data.list) {
+    map[row.id] = {
+      id: row.id,
+      liked: Boolean(row.liked),
+      like_count: Number(row.like_count) || 0,
+      comment_count: Number(row.comment_count) || 0,
+      view_count: Number(row.view_count) || 0,
+    };
+  }
+  return map;
+}
+
+/** 实时拉取文章互动数据（不依赖 ISR） */
+export async function fetchArticleEngagement(
+  articleId: number,
+): Promise<EngagementSnapshot | null> {
+  if (!articleId) return null;
+  const { ok, data } = await communityFetch<{
+    liked?: boolean;
+    like_count?: number;
+    comment_count?: number;
+    view_count?: number;
+    comments?: EngagementSnapshot['comments'];
+  }>(`articles/${articleId}`);
+  if (!ok) return null;
+  return {
+    liked: Boolean(data.liked),
+    like_count: Number(data.like_count) || 0,
+    comment_count: Number(data.comment_count) || 0,
+    view_count: Number(data.view_count) || 0,
+    comments: Array.isArray(data.comments) ? data.comments : [],
+  };
+}
+
 /** 查询当前登录用户是否已点赞某篇文章（走详情接口的 liked 字段） */
 export async function fetchArticleLiked(articleId: number) {
   if (!getCommunityToken() || !articleId) return false;
-  const { ok, data } = await communityFetch<{ liked?: boolean }>(
-    `articles/${articleId}`,
-  );
-  return ok && Boolean(data.liked);
+  const snap = await fetchArticleEngagement(articleId);
+  return Boolean(snap?.liked);
 }
 
 export async function recordView(articleId: number) {
-  await communityFetch(`articles/${articleId}/view`, { method: 'POST' });
+  const { ok, data } = await communityFetch<{ view_count?: number }>(
+    `articles/${articleId}/view`,
+    { method: 'POST' },
+  );
+  if (!ok) return null;
+  return { view_count: Number(data.view_count) || 0 };
 }
 
 export async function postProductComment(productId: number, content: string) {
@@ -228,16 +304,41 @@ export async function toggleProductLike(productId: number) {
   return data;
 }
 
+/** 实时拉取产品（Events 等）互动数据 */
+export async function fetchProductEngagement(
+  productId: number,
+): Promise<EngagementSnapshot | null> {
+  if (!productId) return null;
+  const { ok, data } = await communityFetch<{
+    liked?: boolean;
+    like_count?: number;
+    comment_count?: number;
+    view_count?: number;
+    comments?: EngagementSnapshot['comments'];
+  }>(`products/${productId}`);
+  if (!ok) return null;
+  return {
+    liked: Boolean(data.liked),
+    like_count: Number(data.like_count) || 0,
+    comment_count: Number(data.comment_count) || 0,
+    view_count: Number(data.view_count) || 0,
+    comments: Array.isArray(data.comments) ? data.comments : [],
+  };
+}
+
 export async function fetchProductLiked(productId: number) {
   if (!getCommunityToken() || !productId) return false;
-  const { ok, data } = await communityFetch<{ liked?: boolean }>(
-    `products/${productId}`,
-  );
-  return ok && Boolean(data.liked);
+  const snap = await fetchProductEngagement(productId);
+  return Boolean(snap?.liked);
 }
 
 export async function recordProductView(productId: number) {
-  await communityFetch(`products/${productId}/view`, { method: 'POST' });
+  const { ok, data } = await communityFetch<{ view_count?: number }>(
+    `products/${productId}/view`,
+    { method: 'POST' },
+  );
+  if (!ok) return null;
+  return { view_count: Number(data.view_count) || 0 };
 }
 
 export async function createForumPost(input: {

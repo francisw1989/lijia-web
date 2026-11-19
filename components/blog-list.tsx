@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArticleStatsProvider } from '@/components/article-stats-provider';
 import { BlogRecommend } from '@/components/blog-recommend';
-import { CommunityStats } from '@/components/community-stats';
+import { CommunityStatsWithLike } from '@/components/community-stats-like';
 import { PagePager } from '@/components/page-pager';
 import {
   articleHref,
@@ -74,7 +75,8 @@ function BlogCard({ item }: { item: ArticleListItem }) {
         </h2>
         {excerpt ? <p className="blog-card-excerpt">{excerpt}</p> : null}
         <div className="blog-card-footer">
-          <CommunityStats
+          <CommunityStatsWithLike
+            articleId={item.id}
             views={item.view_count || 0}
             comments={item.comment_count || 0}
             likes={item.like_count || 0}
@@ -96,17 +98,21 @@ export function BlogList({
   page,
   pageCount,
 }: Pick<CommunityPageData, 'articles' | 'recommended' | 'page' | 'pageCount'>) {
+  const ids = articles.map((item) => item.id);
+
   return (
     <main className="community-page">
       <div className="container community-layout">
         <div className="community-main">
-          <div className="blog-card-list">
-            {articles.length === 0 ? (
-              <p className="community-empty">No posts yet.</p>
-            ) : (
-              articles.map((item) => <BlogCard key={item.id} item={item} />)
-            )}
-          </div>
+          <ArticleStatsProvider ids={ids}>
+            <div className="blog-card-list">
+              {articles.length === 0 ? (
+                <p className="community-empty">No posts yet.</p>
+              ) : (
+                articles.map((item) => <BlogCard key={item.id} item={item} />)
+              )}
+            </div>
+          </ArticleStatsProvider>
           <PagePager
             page={page}
             pageCount={pageCount}

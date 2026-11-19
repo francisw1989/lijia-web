@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useArticleStatsMap } from '@/components/article-stats-provider';
 import { articleHref, type ArticleListItem } from '@/lib/articles';
 
 function formatDate(value: string) {
@@ -12,6 +15,8 @@ function formatDate(value: string) {
 }
 
 export function ForumRecommend({ items }: { items: ArticleListItem[] }) {
+  const { stats } = useArticleStatsMap();
+
   return (
     <aside className="community-side blog-recommend forum-recommend">
       <div className="blog-recommend-head">
@@ -32,7 +37,7 @@ export function ForumRecommend({ items }: { items: ArticleListItem[] }) {
           <li className="community-empty">No recommendations.</li>
         ) : (
           items.map((item) => {
-            const answers = item.comment_count || 0;
+            const answers = stats[item.id]?.comment_count ?? item.comment_count ?? 0;
             return (
               <li key={item.id} className="blog-recommend-item">
                 <Link href={articleHref('Forum', item)} className="blog-recommend-link">
