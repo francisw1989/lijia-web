@@ -29,6 +29,40 @@ function revalidateArticlePaths(id?: number) {
   }
 }
 
+/** 评论：只刷详情 + 对应列表，避免 product 宽扇出烧 ISR Writes */
+function revalidateCommentEngagement(type: string, id?: number) {
+  if (type === 'product' || type === 'product-category') {
+    if (id && Number.isFinite(id)) {
+      revalidateTag(`product-${id}`, { expire: 0 });
+      // Events 详情用 getProduct(id)；slug 路由靠 tag，id 路径兼容旧链
+      revalidatePath(`/events/${id}`);
+    }
+    revalidatePath('/events');
+    return;
+  }
+
+  if (type === 'article' || type === 'blog' || type === 'forum') {
+    if (id && Number.isFinite(id)) {
+      revalidateTag(`article-${id}`, { expire: 0 });
+      revalidatePath(`/blog/${id}`);
+      revalidatePath(`/forum/${id}`);
+    }
+    // 列表用 ['articles', 'blog'|'forum']，按类型窄失效，避免 articles 全局 tag 拖垮所有详情
+    if (type === 'blog') {
+      revalidateTag('blog', { expire: 0 });
+      revalidatePath('/blog');
+    } else if (type === 'forum') {
+      revalidateTag('forum', { expire: 0 });
+      revalidatePath('/forum');
+    } else {
+      revalidateTag('blog', { expire: 0 });
+      revalidateTag('forum', { expire: 0 });
+      revalidatePath('/blog');
+      revalidatePath('/forum');
+    }
+  }
+}
+
 function revalidateAll() {
   for (const tag of ALL_TAGS) {
     revalidateTag(tag, { expire: 0 });
@@ -55,6 +89,32 @@ export async function POST(request: NextRequest) {
 
   const type = body.type || 'article';
   const id = body.id != null ? Number(body.id) : undefined;
+  const action = body.action ?? null;
+
+  // 点赞已由客户端即时更新，与 view 一样不触发 ISR（主降本点）
+  if (action === 'like') {
+    return NextResponse.json({
+      revalidated: true,
+      skipped: 'like',
+      type,
+      id: id ?? null,
+      action,
+      now: Date.now(),
+    });
+  }
+
+  // 评论：窄失效，禁止走下方 product 全站 path 列表
+  if (action === 'comment') {
+    revalidateCommentEngagement(type, id && Number.isFinite(id) ? id : undefined);
+    return NextResponse.json({
+      revalidated: true,
+      narrow: 'comment',
+      type,
+      id: id ?? null,
+      action,
+      now: Date.now(),
+    });
+  }
 
   if (type === 'all' || type === 'publish') {
     revalidateAll();
@@ -149,7 +209,7 @@ export async function POST(request: NextRequest) {
     revalidated: true,
     type,
     id: id ?? null,
-    action: body.action ?? null,
+    action,
     now: Date.now(),
   });
 }
