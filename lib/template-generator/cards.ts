@@ -5,9 +5,19 @@ import {
   headerMinPageWidth,
   loadLogoDataUrl,
 } from './logo';
-import { BLEED, HEADER, LEGEND_W, PAD, drawRoundedGuides, openPdfDoc, templatePdfFileName } from './style';
+import {
+  BLEED,
+  HEADER,
+  LEGEND_W,
+  PAD,
+  clampCornerRadius,
+  drawRoundedGuides,
+  openPdfDoc,
+  templatePdfFileName,
+} from './style';
 
-const CORNER = 3.5;
+/** Cards 默认圆角（与历史固定值一致） */
+export const DEFAULT_CARD_RADIUS = 3.5;
 
 export type CardSizeGroup = 'common' | 'other';
 
@@ -78,22 +88,19 @@ export function cardPreviewCaption(item: CardSize) {
   return tag ? `${item.w}mm x ${item.h}mm - ${tag}` : `${item.w}mm x ${item.h}mm`;
 }
 
-function cornerRadius(w: number, h: number) {
-  return Math.min(CORNER, w / 4, h / 4);
-}
-
 export function cardsPdfFileName(w: number, h: number) {
   return templatePdfFileName('Cards', `${w}x${h}`);
 }
 
 export function generateCardsPdf(
-  input: { w: number; h: number; perSheet?: number },
+  input: { w: number; h: number; radius: number; perSheet?: number },
   logoDataUrl: string,
 ) {
   const { w, h, perSheet } = input;
+  const radius = clampCornerRadius(w, h, input.radius);
   const extra = perSheet ? `${perSheet} / sheet` : undefined;
   const title = 'Cards Template';
-  const subtitle = `${w}mm x ${h}mm`;
+  const subtitle = `${w}mm x ${h}mm / corner radius: ${radius}mm`;
 
   const doc = new jsPDF({ unit: 'mm', format: [10, 10], orientation: 'p' });
   doc.deletePage(1);
@@ -118,7 +125,7 @@ export function generateCardsPdf(
   });
   drawLegend(doc, pageW - LEGEND_W, 9);
 
-  drawRoundedGuides(doc, bx, by, w, h, cornerRadius(w, h));
+  drawRoundedGuides(doc, bx, by, w, h, radius);
 
   return doc;
 }
@@ -126,6 +133,7 @@ export function generateCardsPdf(
 export async function downloadCardsPdf(input: {
   w: number;
   h: number;
+  radius: number;
   perSheet?: number;
 }) {
   const logoDataUrl = await loadLogoDataUrl();

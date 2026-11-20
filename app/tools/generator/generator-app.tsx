@@ -52,6 +52,7 @@ import {
 } from '@/lib/template-generator/paper-sheet';
 import {
   CARD_SIZES,
+  DEFAULT_CARD_RADIUS,
   DEFAULT_CARD_SIZE_ID,
   cardOptionLabel,
   cardPreviewCaption,
@@ -447,10 +448,12 @@ function PunchboardDiagram({ x, y }: { x: string; y: string }) {
 function CardDiagram({
   widthMm,
   heightMm,
+  radiusMm,
   showAxisLabels,
 }: {
   widthMm: number;
   heightMm: number;
+  radiusMm: number;
   showAxisLabels: boolean;
 }) {
   const ratio = widthMm > 0 && heightMm > 0 ? widthMm / heightMm : 1;
@@ -459,7 +462,42 @@ function CardDiagram({
   const BR = landscape ? ([268, 186] as const) : ([248, 186] as const);
   const TL = landscape ? ([128, 78] as const) : ([154, 70] as const);
   const TR = landscape ? ([304, 114] as const) : ([284, 94] as const);
-  const face = `${BL[0]},${BL[1]} ${BR[0]},${BR[1]} ${TR[0]},${TR[1]} ${TL[0]},${TL[1]}`;
+
+  const cutFrom = (
+    from: readonly [number, number],
+    toward: readonly [number, number],
+    dist: number,
+  ) => {
+    const dx = toward[0] - from[0];
+    const dy = toward[1] - from[1];
+    const len = Math.hypot(dx, dy) || 1;
+    const t = Math.min(dist / len, 0.42);
+    return [from[0] + dx * t, from[1] + dy * t] as [number, number];
+  };
+
+  const edge = Math.min(
+    Math.hypot(BR[0] - BL[0], BR[1] - BL[1]),
+    Math.hypot(TR[0] - BR[0], TR[1] - BR[1]),
+  );
+  const span =
+    Number.isFinite(widthMm) && widthMm > 0 && Number.isFinite(heightMm) && heightMm > 0
+      ? Math.min(widthMm, heightMm)
+      : 300;
+  const rad = Number.isFinite(radiusMm) ? radiusMm : 0;
+  const rFrac = rad <= 0 ? 0 : Math.min(0.42, rad / span);
+  const rPx = edge * rFrac;
+
+  const pts = [BL, BR, TR, TL] as const;
+  let d = '';
+  pts.forEach((cur, i) => {
+    const prev = pts[(i + 3) % 4];
+    const next = pts[(i + 1) % 4];
+    const a = cutFrom(cur, prev, rPx);
+    const b = cutFrom(cur, next, rPx);
+    d += i === 0 ? `M ${a[0]} ${a[1]} ` : `L ${a[0]} ${a[1]} `;
+    d += `Q ${cur[0]} ${cur[1]} ${b[0]} ${b[1]} `;
+  });
+  d += 'Z';
 
   const angX = (Math.atan2(BR[1] - BL[1], BR[0] - BL[0]) * 180) / Math.PI;
   const angY = (Math.atan2(TR[1] - BR[1], TR[0] - BR[0]) * 180) / Math.PI;
@@ -480,6 +518,13 @@ function CardDiagram({
   const yPos = labelAlong(BR, TR, 16);
   const lx = Number.isFinite(widthMm) && widthMm > 0 ? `${widthMm} mm` : 'X mm';
   const ly = Number.isFinite(heightMm) && heightMm > 0 ? `${heightMm} mm` : 'Y mm';
+  const lr = Number.isFinite(radiusMm) && radiusMm >= 0 ? `${radiusMm} mm` : 'R mm';
+  const rAlong = cutFrom(BR, BL, rPx * 0.55);
+  const rOut = cutFrom(BR, TR, rPx * 0.55);
+  const rLabel = [
+    BR[0] + (BR[0] - TL[0]) * 0.08,
+    BR[1] + (BR[1] - TL[1]) * 0.08 + 10,
+  ];
 
   return (
     <svg
@@ -488,8 +533,15 @@ function CardDiagram({
       role="img"
       aria-label="Card dimensions diagram"
     >
-      <polygon points={face} className="tg-card-face" />
-      <polygon points={face} className="tg-board-edge" fill="none" />
+      <path d={d} className="tg-card-face" />
+      <path d={d} className="tg-board-edge" fill="none" />
+      {rPx > 0 ? (
+        <path
+          d={`M ${rAlong[0]} ${rAlong[1]} Q ${BR[0]} ${BR[1]} ${rOut[0]} ${rOut[1]}`}
+          className="tg-mat-radius"
+          fill="none"
+        />
+      ) : null}
       {showAxisLabels ? (
         <>
           <text
@@ -514,6 +566,9 @@ function CardDiagram({
           </text>
         </>
       ) : null}
+      <text x={rLabel[0]} y={rLabel[1]} textAnchor="middle" className="tg-diagram-label">
+        {lr} (radius)
+      </text>
     </svg>
   );
 }
@@ -1449,7 +1504,10 @@ export function TemplateGeneratorApp({
     setDoubleSided(parsed.doubleSided);
     setCardMode(parsed.cardMode);
     setCardSizeId(parsed.cardSizeId);
-    setRadius(parsed.radius);
+    setRadius(
+      parsed.radius ||
+        (parsed.template === 'cards' ? String(DEFAULT_CARD_RADIUS) : ''),
+    );
     setNeoRadius(parsed.neoRadius);
     setStitched(parsed.stitched);
     setOutside(parsed.outside);
@@ -1549,7 +1607,13 @@ export function TemplateGeneratorApp({
       return dx > 0 && dy > 0 && dz > 0 && dr >= 0 && dr <= Math.min(dx, dy) / 2;
     }
     if (isCards) {
-      return cardW > 0 && cardH > 0;
+      const dr = parseDim(radius);
+      return (
+        cardW > 0 &&
+        cardH > 0 &&
+        dr >= 0 &&
+        dr <= Math.min(cardW, cardH) / 2
+      );
     }
     if (isPlayerMat) {
       const dr = parseDim(radius);
@@ -1691,6 +1755,7 @@ export function TemplateGeneratorApp({
         await downloadCardsPdf({
           w: cardW,
           h: cardH,
+          radius: parseDim(radius),
           perSheet: cardMode === 'standard' ? selectedCard.perSheet : undefined,
         });
       } else {
@@ -1738,7 +1803,7 @@ export function TemplateGeneratorApp({
             : isBooklet
               ? 'Enter page width / height. Margins must fit inside the page (use 0 if unsure).'
               : isCards
-            ? 'Enter X / Y or choose a standard size.'
+            ? 'Enter size and a corner radius (0 to half of the shorter side).'
             : 'Enter X / Y.',
       );
       return;
@@ -1770,6 +1835,9 @@ export function TemplateGeneratorApp({
                   setError('');
                   if (item.id === 'paper-sheet' && fold === 'sixth') {
                     setFold('half-h');
+                  }
+                  if (item.id === 'cards' && !radius.trim()) {
+                    setRadius(String(DEFAULT_CARD_RADIUS));
                   }
                 }}
               >
@@ -1900,6 +1968,7 @@ export function TemplateGeneratorApp({
                   <CardDiagram
                     widthMm={cardW}
                     heightMm={cardH}
+                    radiusMm={parseDim(radius)}
                     showAxisLabels={cardMode === 'custom'}
                   />
                   {cardMode === 'standard' ? (
@@ -1952,6 +2021,15 @@ export function TemplateGeneratorApp({
                       </label>
                     </>
                   )}
+                  <label className="tg-field">
+                    <span>Corner radius mm</span>
+                    <input
+                      inputMode="decimal"
+                      value={radius}
+                      onChange={(e) => setRadius(e.target.value)}
+                      placeholder={`e.g. ${DEFAULT_CARD_RADIUS}`}
+                    />
+                  </label>
                 </div>
               </div>
             </div>
