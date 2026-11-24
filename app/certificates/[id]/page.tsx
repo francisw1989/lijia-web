@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { pageMetadata } from '@/lib/site-title';
 import { RevealInit } from '@/components/reveal-init';
@@ -8,7 +7,6 @@ import { HeroBannerCopy } from '@/components/hero-banner-copy';
 import { HeroMedia } from '@/components/hero-media';
 import { ArticleDetail } from '@/components/article-detail';
 import { JsonLd } from '@/components/json-ld';
-import { isCmsAssetUrl } from '@/lib/cms-asset';
 import {
   getCertificateArticleParams,
   getCertificateByParam,
@@ -80,20 +78,6 @@ export default async function CertificateArticlePage({ params }: Props) {
           title={article.title}
           kicker={article.category_name || undefined}
           html={article.content}
-          media={
-            article.cover ? (
-              <div className="cap-tag-page-media certificates-detail-media">
-                <Image
-                  src={article.cover}
-                  alt={article.title}
-                  fill
-                  unoptimized={isCmsAssetUrl(article.cover)}
-                  className="object-contain"
-                  sizes="(max-width: 900px) 100vw, 720px"
-                />
-              </div>
-            ) : null
-          }
         >
           <Link href="/certificates" className="about-news-more">
             &lt; back to Certificates
