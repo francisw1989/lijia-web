@@ -5255,6 +5255,13 @@ a.gallery-tile-link:hover {
     border-bottom: 1px solid var(--line);
   }
   .header .btn { display: none; }
+  /* 手机端保留投诉入口（浮动栏投诉已去掉） */
+  .header .btn-complain {
+    display: inline-flex;
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
   .header-user { display: none; }
   .header-search-label,
   .header-search-kbd { display: none; }
